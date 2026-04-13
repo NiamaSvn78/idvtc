@@ -1,0 +1,12 @@
+{
+  "name": "idvtc-reservation",
+  "version": "1.0.0",
+  "description": "Site de réservation VTC avec calcul de prix",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
