@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Site de réservation VTC avec calcul de prix",
   "scripts": {
+    "build": "node --check server.js",
     "start": "node server.js",
     "dev": "node server.js"
   },

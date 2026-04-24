@@ -6,3 +6,6 @@ node_modules/
 Thumbs.db
 vtc-project.zip
 .claude/
+
+# Données locales (PII) — créées au premier lancement si absentes
+vtc-project/data/reservations.json

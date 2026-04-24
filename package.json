@@ -1,0 +1,9 @@
+{
+  "name": "idvtc",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix vtc-project",
+    "start": "npm run start --prefix vtc-project",
+    "dev": "npm run dev --prefix vtc-project"
+  }
+}

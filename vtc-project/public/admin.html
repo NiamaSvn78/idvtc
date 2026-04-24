@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Gestion des courses · ID VTC</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a96e;--gold2:#e8c98a;--gold-dim:rgba(201,169,110,.10);--gold-border:rgba(201,169,110,.25);
+  --black:#080808;--dark:#111111;--dark2:#181818;--dark3:#222222;--dark4:#2c2c2c;
+  --text:#f0ece4;--muted:#9a9185;--faint:#4a4640;
+  --border:rgba(201,169,110,.15);--subtle:rgba(255,255,255,.06);
+  --green:#27ae60;--red:#e05454;--blue:#6e9ac9;--teal:#6ec9a4;--purple:#9a6ec9;
+  --hour-h:64px;/* 1 min ≈ 1.067px → arrondi à 64px/h */
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;font-size:14px}
+
+/* ── LOGIN ── */
+#login{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:1000;padding:1.5rem}
+.login-card{background:var(--dark2);border:1px solid var(--border);padding:2.5rem;width:100%;max-width:360px}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;color:var(--gold);letter-spacing:.12em;margin-bottom:.3rem}
+.login-sub{font-size:.75rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2rem}
+.login-label{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+.login-input{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.8rem 1rem;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{width:100%;background:var(--gold);border:none;color:var(--black);padding:.9rem;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:.9rem}
+.login-btn:hover{background:var(--gold2)}
+.login-err{font-size:.78rem;color:var(--red);margin-top:.6rem;min-height:1.2em}
+
+/* ── APP ── */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* ── HEADER ── */
+.adm-header{height:56px;background:var(--dark2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.2rem;gap:1rem;flex-shrink:0}
+.adm-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);letter-spacing:.1em;margin-right:.5rem}
+.adm-sep{width:1px;height:22px;background:var(--border)}
+.week-nav{display:flex;align-items:center;gap:.5rem}
+.week-nav button{background:none;border:1px solid var(--subtle);color:var(--muted);width:28px;height:28px;cursor:pointer;font-size:.85rem;transition:all .18s;border-radius:2px;display:flex;align-items:center;justify-content:center}
+.week-nav button:hover{border-color:var(--gold-border);color:var(--gold)}
+.week-label{font-size:.78rem;color:var(--text);letter-spacing:.05em;min-width:110px;text-align:center}
+.adm-stats{display:flex;gap:1.4rem;margin-left:.5rem}
+.stat-pill{font-size:.72rem;color:var(--muted)}
+.stat-pill strong{color:var(--gold);font-weight:500}
+.adm-actions{margin-left:auto;display:flex;gap:.6rem}
+.btn-add{background:var(--gold);border:none;color:var(--black);padding:.4rem 1rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:.4rem}
+.btn-add:hover{background:var(--gold2)}
+.btn-logout{background:none;border:1px solid var(--subtle);color:var(--muted);padding:.4rem .8rem;font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;transition:all .18s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── CALENDAR ── */
+.cal-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cal-head{display:grid;grid-template-columns:52px repeat(7,1fr);background:var(--dark2);border-bottom:1px solid var(--border);flex-shrink:0}
+.cal-head-time{border-right:1px solid var(--border)}
+.cal-head-day{padding:.6rem .4rem;text-align:center;border-right:1px solid var(--border);cursor:pointer;transition:background .15s}
+.cal-head-day:hover{background:var(--gold-dim)}
+.cal-head-day.today{background:var(--gold-dim);border-bottom:2px solid var(--gold)}
+.cal-head-day.selected{background:var(--gold-dim)}
+.ch-dow{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ch-num{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);line-height:1.1}
+.ch-num.today-num{color:var(--gold)}
+
+.cal-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+.cal-scroll::-webkit-scrollbar{width:4px}
+.cal-scroll::-webkit-scrollbar-thumb{background:var(--dark4)}
+.cal-grid{display:grid;grid-template-columns:52px repeat(7,1fr);min-height:calc(var(--hour-h)*18)}
+
+.time-col{border-right:1px solid var(--border);position:relative}
+.time-label{position:absolute;right:6px;font-size:.62rem;color:var(--faint);letter-spacing:.04em;transform:translateY(-50%);white-space:nowrap}
+
+.day-col{position:relative;border-right:1px solid var(--border)}
+.day-col:last-child{border-right:none}
+.hour-line{position:absolute;left:0;right:0;border-bottom:1px solid rgba(255,255,255,.04);pointer-events:none}
+.hour-line.half{border-bottom-style:dashed;border-bottom-color:rgba(255,255,255,.02)}
+.now-line{position:absolute;left:0;right:0;height:1.5px;background:var(--red);z-index:5;pointer-events:none}
+.now-line::before{content:'';position:absolute;left:0;top:-3px;width:6px;height:6px;background:var(--red);border-radius:50%}
+
+/* ── TRIP BLOCKS ── */
+.tb{position:absolute;left:3px;right:3px;border-radius:2px;padding:3px 5px;cursor:pointer;transition:opacity .15s,transform .1s;overflow:hidden;z-index:2}
+.tb:hover{opacity:.85;transform:scaleX(.98)}
+.tb.van   {background:rgba(201,169,110,.18);border-left:2px solid var(--gold)}
+.tb.business{background:rgba(110,154,201,.18);border-left:2px solid var(--blue)}
+.tb.eco   {background:rgba(110,201,164,.18);border-left:2px solid var(--teal)}
+.tb.manual{background:rgba(201,110,154,.18);border-left:2px solid var(--purple)}
+.tb.mad   {background:rgba(154,110,201,.18);border-left:2px solid var(--purple)}
+.tb.cancelled{opacity:.35;filter:grayscale(.8)}
+.tb-time{font-size:.62rem;color:var(--muted);margin-bottom:1px}
+.tb-route{font-size:.73rem;font-weight:500;color:var(--text);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-client{font-size:.67rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-badge{display:inline-block;font-size:.58rem;padding:0 4px;border-radius:2px;margin-top:2px}
+.tb.van .tb-badge   {background:rgba(201,169,110,.25);color:var(--gold)}
+.tb.business .tb-badge{background:rgba(110,154,201,.25);color:var(--blue)}
+.tb.eco .tb-badge   {background:rgba(110,201,164,.25);color:var(--teal)}
+
+/* ── MODAL DÉTAIL COURSE ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.ov.open{display:flex}
+.modal-box{background:var(--dark2);border:1px solid var(--border);width:100%;max-width:420px;max-height:92vh;overflow-y:auto}
+.modal-head{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400}
+.btn-mx{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;transition:color .15s}
+.btn-mx:hover{color:var(--text)}
+.modal-body{padding:1.2rem 1.4rem}
+.detail-row{display:flex;justify-content:space-between;padding:.38rem 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.83rem}
+.detail-row:last-child{border:none}
+.dr-k{color:var(--muted)}
+.dr-v{color:var(--text);text-align:right;max-width:60%}
+.modal-status{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .7rem;border-radius:2px;margin-top:.8rem}
+.status-confirmed{background:rgba(39,174,96,.12);color:var(--green)}
+.status-cancelled{background:rgba(224,84,84,.12);color:var(--red)}
+.status-done{background:rgba(201,169,110,.12);color:var(--gold)}
+.modal-foot{padding:1rem 1.4rem;border-top:1px solid var(--border);display:flex;gap:.6rem;flex-wrap:wrap}
+.btn-done{flex:1;background:var(--gold);border:none;color:var(--black);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.1em;cursor:pointer;transition:background .18s}
+.btn-done:hover{background:var(--gold2)}
+.btn-cancel-res{flex:1;background:none;border:1px solid var(--red);color:var(--red);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s}
+.btn-cancel-res:hover{background:rgba(224,84,84,.1)}
+.btn-call{flex:1;background:none;border:1px solid var(--subtle);color:var(--muted);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.btn-call:hover{border-color:var(--gold-border);color:var(--gold)}
+
+/* ── MODAL AJOUT MANUEL ── */
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.add-full{grid-column:1/-1}
+.add-label{display:block;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.add-input,.add-select{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.65rem .8rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:300;outline:none;transition:border-color .18s}
+.add-input:focus,.add-select:focus{border-color:var(--gold)}
+.add-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:2rem;cursor:pointer;-webkit-appearance:none;appearance:none}
+.add-select option{background:var(--dark3)}
+.route-shortcut{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+.rs-btn{background:var(--dark3);border:1px solid var(--subtle);color:var(--muted);padding:.25rem .55rem;font-size:.65rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.rs-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .adm-stats{display:none}
+  .cal-head{grid-template-columns:36px repeat(7,1fr)}
+  .cal-grid{grid-template-columns:36px repeat(7,1fr)}
+  .ch-num{font-size:1rem}
+  .ch-dow{font-size:.58rem}
+  .adm-logo{font-size:1.1rem}
+  .week-label{min-width:80px;font-size:.72rem}
+  .adm-header{padding:0 .7rem;gap:.5rem}
+}
+@media(max-width:600px){
+  .adm-header{flex-wrap:wrap;height:auto;padding:.5rem .7rem;row-gap:0}
+  .adm-sep{display:none}
+  .adm-logo{font-size:1rem;margin-right:0}
+  .week-nav{flex:1;min-width:0}
+  .week-label{min-width:unset;font-size:.67rem;white-space:nowrap}
+  .week-nav button{width:24px;height:24px;font-size:.8rem}
+  .adm-actions{margin-left:0;width:100%;justify-content:flex-end;gap:.4rem;padding:.4rem 0 .2rem;border-top:1px solid var(--border);margin-top:.3rem}
+  .btn-logout{font-size:.68rem;padding:.32rem .6rem;letter-spacing:.06em}
+  .btn-add{font-size:.68rem;padding:.32rem .7rem;letter-spacing:.08em}
+  .cal-head{grid-template-columns:28px repeat(7,1fr)}
+  .cal-grid{grid-template-columns:28px repeat(7,1fr)}
+  .ch-num{font-size:.88rem}
+  .ch-dow{font-size:.52rem;letter-spacing:.06em}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login">
+  <div class="login-card">
+    <a href="/" style="display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);text-decoration:none;font-size:.75rem;letter-spacing:.08em;margin-bottom:1.4rem;transition:color .2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+      Retour au site
+    </a>
+    <div class="login-logo">ID VTC</div>
+    <div class="login-sub">Administration · Gestion des courses</div>
+    <label class="login-label" for="l-pwd">Mot de passe</label>
+    <input class="login-input" id="l-pwd" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Accéder</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <header class="adm-header">
+    <span class="adm-logo">ID VTC</span>
+    <div class="adm-sep"></div>
+    <div class="week-nav">
+      <button onclick="shiftWeek(-1)" title="Semaine précédente">‹</button>
+      <span class="week-label" id="week-label"></span>
+      <button onclick="shiftWeek(1)" title="Semaine suivante">›</button>
+      <button onclick="goToday()" style="width:auto;padding:0 .6rem;font-size:.65rem;letter-spacing:.06em" title="Aujourd'hui">Auj.</button>
+    </div>
+    <div class="adm-stats" id="adm-stats">
+      <span class="stat-pill">Aujourd'hui : <strong id="stat-count">0</strong> course(s)</span>
+      <span class="stat-pill">CA jour : <strong id="stat-ca">0 €</strong></span>
+      <span class="stat-pill">CA semaine : <strong id="stat-week">0 €</strong></span>
+    </div>
+    <div class="adm-actions">
+      <a href="/" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:.35rem">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+        Site
+      </a>
+      <button class="btn-add" onclick="openAdd()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+        Course
+      </button>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <div class="cal-wrap">
+    <!-- En-têtes des jours -->
+    <div class="cal-head" id="cal-head">
+      <div class="cal-head-time"></div>
+    </div>
+    <!-- Grille calendrier -->
+    <div class="cal-scroll" id="cal-scroll">
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DÉTAIL COURSE ── -->
+<div class="ov" id="trip-ov" onclick="if(event.target===this)closeTripModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title" id="tm-title">Détail course</span>
+      <button class="btn-mx" onclick="closeTripModal()">✕</button>
+    </div>
+    <div class="modal-body" id="tm-body"></div>
+    <div class="modal-foot" id="tm-foot"></div>
+  </div>
+</div>
+
+<!-- ── MODAL AJOUT MANUEL ── -->
+<div class="ov" id="add-ov" onclick="if(event.target===this)closeAdd()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Ajouter une course</span>
+      <button class="btn-mx" onclick="closeAdd()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:.8rem">
+        <div class="add-label">Raccourcis trajet</div>
+        <div class="route-shortcut">
+          <button class="rs-btn" onclick="setRoute('Roissy CDG → Paris')">CDG → Paris</button>
+          <button class="rs-btn" onclick="setRoute('Orly → Paris')">Orly → Paris</button>
+          <button class="rs-btn" onclick="setRoute('Paris → Roissy CDG')">Paris → CDG</button>
+          <button class="rs-btn" onclick="setRoute('Paris → Orly')">Paris → Orly</button>
+          <button class="rs-btn" onclick="setRoute('Mise à disposition')">MAD</button>
+        </div>
+      </div>
+      <div class="add-grid">
+        <div class="add-full">
+          <label class="add-label">Trajet *</label>
+          <input class="add-input" id="a-trajet" type="text" placeholder="Ex : Roissy CDG → Paris 8e">
+        </div>
+        <div>
+          <label class="add-label">Date *</label>
+          <input class="add-input" id="a-date" type="date">
+        </div>
+        <div>
+          <label class="add-label">Heure *</label>
+          <input class="add-input" id="a-time" type="time">
+        </div>
+        <div>
+          <label class="add-label">Durée estimée</label>
+          <select class="add-select" id="a-dur">
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60" selected>1 h</option>
+            <option value="75">1 h 15</option>
+            <option value="90">1 h 30</option>
+            <option value="120">2 h</option>
+            <option value="180">3 h</option>
+            <option value="240">4 h</option>
+            <option value="480">8 h (journée)</option>
+          </select>
+        </div>
+        <div>
+          <label class="add-label">Véhicule</label>
+          <select class="add-select" id="a-veh">
+            <option value="van">Van Premium</option>
+            <option value="business">Business</option>
+            <option value="eco">Éco</option>
+          </select>
+        </div>
+        <div>
+          <label class="add-label">Client</label>
+          <input class="add-input" id="a-client" type="text" placeholder="Prénom Nom">
+        </div>
+        <div>
+          <label class="add-label">Téléphone</label>
+          <input class="add-input" id="a-tel" type="tel" placeholder="+33 6 …">
+        </div>
+        <div>
+          <label class="add-label">Prix (€)</label>
+          <input class="add-input" id="a-price" type="number" placeholder="100">
+        </div>
+        <div class="add-full">
+          <label class="add-label">Équipement famille</label>
+          <div style="display:flex;gap:1.2rem;margin-top:.3rem">
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted);cursor:pointer">
+              <input type="checkbox" id="a-reh" style="accent-color:var(--gold)"> Réhausseur
+            </label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted);cursor:pointer">
+              <input type="checkbox" id="a-siege" style="accent-color:var(--gold)"> Siège bébé
+            </label>
+          </div>
+        </div>
+        <div class="add-full">
+          <label class="add-label">Notes</label>
+          <input class="add-input" id="a-notes" type="text" placeholder="Vol N° AF123, accueil pancarte…">
+        </div>
+      </div>
+      <div id="add-conflict" style="display:none;margin-top:.8rem;padding:.65rem .9rem;background:rgba(224,84,84,.1);border:1px solid rgba(224,84,84,.3);font-size:.78rem;color:var(--red)"></div>
+    </div>
+    <div class="modal-foot" style="flex-direction:column;gap:.5rem">
+      <button class="btn-done" onclick="saveManual()" style="flex:none;width:100%">Enregistrer la course</button>
+      <button class="btn-call" onclick="closeAdd()" style="flex:none;width:100%;border-color:var(--subtle)">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── ÉTAT ── */
+let PWD = sessionStorage.getItem('adm_pwd') || '';
+let reservations = [];
+let weekStart = getMonday(new Date());
+const HOUR_H = 64;   /* px par heure */
+const DAY_START = 5; /* 05:00 */
+const DAY_END   = 23;/* 23:00 */
+const VEH_LABEL = { van:'Van Premium', business:'Business', eco:'Éco', manual:'Manuel' };
+const DOW = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+/* ── AUTH ── */
+async function doLogin(){
+  const pwd = document.getElementById('l-pwd').value.trim();
+  const err = document.getElementById('l-err');
+  if(!pwd){ err.textContent='Mot de passe requis'; return; }
+  try{
+    const r = await fetch('/api/reservations?pwd='+encodeURIComponent(pwd));
+    if(r.status === 401){ err.textContent='Mot de passe incorrect'; return; }
+    PWD = pwd;
+    sessionStorage.setItem('adm_pwd', pwd);
+    reservations = await r.json();
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    initCalendar();
+  }catch(e){ err.textContent='Erreur serveur'; }
+}
+function logout(){
+  sessionStorage.removeItem('adm_pwd');
+  location.reload();
+}
+async function reloadRes(){
+  const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
+  if(r.ok) reservations = await r.json();
+  renderCalendar();
+  updateStats();
+}
+
+/* ── INIT ── */
+function getMonday(d){
+  const dt = new Date(d);
+  const day = dt.getDay(), diff = (day === 0 ? -6 : 1 - day);
+  dt.setDate(dt.getDate() + diff);
+  dt.setHours(0,0,0,0);
+  return dt;
+}
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function addDays(d,n){ const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt; }
+function timeToMin(t){ const [h,m]=(t||'00:00').split(':').map(Number); return h*60+m; }
+function minToTime(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+function fmtDate(d){
+  const dt=new Date(d+'T00:00');
+  return dt.getDate()+' '+MONTHS[dt.getMonth()]+' '+dt.getFullYear();
+}
+
+function initCalendar(){
+  if(PWD) renderCalendar();
+  updateStats();
+  /* Auto-scroll vers l'heure actuelle */
+  const nowMin = new Date().getHours()*60+new Date().getMinutes();
+  const scrollTop = (nowMin/60 - DAY_START - 1) * HOUR_H;
+  setTimeout(()=>{ const s=document.getElementById('cal-scroll'); if(s)s.scrollTop=Math.max(0,scrollTop); }, 100);
+  setInterval(reloadRes, 60000); /* refresh auto toutes les minutes */
+}
+
+/* ── RENDU CALENDRIER ── */
+function renderCalendar(){
+  renderHeaders();
+  renderGrid();
+}
+function renderHeaders(){
+  const head = document.getElementById('cal-head');
+  head.innerHTML = '<div class="cal-head-time"></div>';
+  const today = dateKey(new Date());
+  for(let i=0;i<7;i++){
+    const d = addDays(weekStart, i);
+    const dk = dateKey(d);
+    const isToday = dk === today;
+    const div = document.createElement('div');
+    div.className = 'cal-head-day' + (isToday?' today':'');
+    div.innerHTML = `<div class="ch-dow">${DOW[i]}</div><div class="ch-num${isToday?' today-num':''}">${d.getDate()}</div>`;
+    head.appendChild(div);
+  }
+  /* Week label */
+  const e = addDays(weekStart, 6);
+  document.getElementById('week-label').textContent =
+    weekStart.getDate()+' '+ MONTHS[weekStart.getMonth()] +' – '+
+    e.getDate()+' '+MONTHS[e.getMonth()]+' '+e.getFullYear();
+}
+function renderGrid(){
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const totalH = (DAY_END - DAY_START);
+  const totalPx = totalH * HOUR_H;
+
+  /* Colonne des heures */
+  const timeCol = document.createElement('div');
+  timeCol.className = 'time-col';
+  timeCol.style.height = totalPx + 'px';
+  for(let h = DAY_START; h <= DAY_END; h++){
+    const label = document.createElement('div');
+    label.className = 'time-label';
+    label.style.top = ((h - DAY_START) * HOUR_H) + 'px';
+    label.textContent = String(h).padStart(2,'0') + ':00';
+    timeCol.appendChild(label);
+  }
+  grid.appendChild(timeCol);
+
+  /* Colonnes jours */
+  const today = dateKey(new Date());
+  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+
+  for(let i = 0; i < 7; i++){
+    const d = addDays(weekStart, i);
+    const dk = dateKey(d);
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    col.style.height = totalPx + 'px';
+
+    /* Lignes d'heures */
+    for(let h = DAY_START; h < DAY_END; h++){
+      const line = document.createElement('div');
+      line.className = 'hour-line';
+      line.style.top = ((h - DAY_START) * HOUR_H) + 'px';
+      line.style.height = HOUR_H + 'px';
+      col.appendChild(line);
+      /* demi-heure */
+      const half = document.createElement('div');
+      half.className = 'hour-line half';
+      half.style.top = ((h - DAY_START) * HOUR_H + HOUR_H/2) + 'px';
+      half.style.height = HOUR_H/2 + 'px';
+      col.appendChild(half);
+    }
+
+    /* Ligne "maintenant" */
+    if(dk === today && nowMin >= DAY_START*60 && nowMin <= DAY_END*60){
+      const nl = document.createElement('div');
+      nl.className = 'now-line';
+      nl.style.top = ((nowMin/60 - DAY_START) * HOUR_H) + 'px';
+      col.appendChild(nl);
+    }
+
+    /* Blocs de courses */
+    const dayRes = reservations.filter(r => r.date === dk);
+    dayRes.forEach(r => col.appendChild(buildBlock(r)));
+
+    grid.appendChild(col);
+  }
+}
+
+function buildBlock(r){
+  const startMin = timeToMin(r.time);
+  const dur = Number(r.durationMin || 60);
+  const top = (startMin/60 - DAY_START) * HOUR_H;
+  const height = Math.max((dur / 60) * HOUR_H, 22);
+  const veh = r.vehicle || 'manual';
+  const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':veh);
+
+  const div = document.createElement('div');
+  div.className = `tb ${cls}`;
+  div.style.cssText = `top:${top}px;height:${height}px`;
+  const endMin = startMin + dur;
+  div.innerHTML = `
+    <div class="tb-time">${r.time} – ${minToTime(endMin)}</div>
+    <div class="tb-route">${(r.trajet||'').substring(0,26)}</div>
+    ${r.client ? `<div class="tb-client">${r.client.substring(0,18)}</div>` : ''}
+    <span class="tb-badge">${VEH_LABEL[veh]||veh}</span>
+  `;
+  div.onclick = () => openTrip(r.id);
+  return div;
+}
+
+/* ── STATS ── */
+function updateStats(){
+  const today = dateKey(new Date());
+  const todayRes = reservations.filter(r => r.date === today && r.status !== 'cancelled');
+  const weekKeys = Array.from({length:7}, (_,i) => dateKey(addDays(weekStart,i)));
+  const weekRes = reservations.filter(r => weekKeys.includes(r.date) && r.status !== 'cancelled');
+  document.getElementById('stat-count').textContent = todayRes.length;
+  document.getElementById('stat-ca').textContent = todayRes.reduce((s,r)=>s+(Number(r.price)||0),0)+' €';
+  document.getElementById('stat-week').textContent = weekRes.reduce((s,r)=>s+(Number(r.price)||0),0)+' €';
+}
+
+/* ── NAVIGATION SEMAINE ── */
+function shiftWeek(n){ weekStart = addDays(weekStart, n*7); renderCalendar(); updateStats(); }
+function goToday(){ weekStart = getMonday(new Date()); renderCalendar(); updateStats(); }
+
+/* ── MODAL DÉTAIL ── */
+let currentTripId = null;
+function openTrip(id){
+  const r = reservations.find(x => x.id === id);
+  if(!r) return;
+  currentTripId = id;
+  const equip = [r.equipment].filter(Boolean).join(', ') || 'Aucun';
+  const statusClass = r.status === 'cancelled' ? 'status-cancelled' : r.status === 'done' ? 'status-done' : 'status-confirmed';
+  const statusLabel = r.status === 'cancelled' ? 'Annulé' : r.status === 'done' ? 'Terminé' : 'Confirmé';
+  document.getElementById('tm-title').textContent = r.trajet || 'Course';
+  document.getElementById('tm-body').innerHTML = `
+    <span class="modal-status ${statusClass}">${statusLabel}</span>
+    <div style="height:.8rem"></div>
+    ${row('Référence', r.ref||r.id)}
+    ${row('Date', fmtDate(r.date)+' · '+r.time)}
+    ${row('Durée estimée', (r.durationMin||60)+' min')}
+    ${row('Véhicule', VEH_LABEL[r.vehicle]||r.vehicle||'—')}
+    ${row('Équipement', equip)}
+    ${row('Client', r.client||'—')}
+    ${row('Téléphone', r.tel||'—')}
+    ${row('Email', r.email||'—')}
+    ${row('Prix', (r.price||0)+' €')}
+    ${r.notes ? row('Notes', r.notes) : ''}
+    ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
+  `;
+  const foot = document.getElementById('tm-foot');
+  foot.innerHTML = '';
+  if(r.status !== 'cancelled'){
+    if(r.status !== 'done'){
+      const btnDone = document.createElement('button');
+      btnDone.className = 'btn-done'; btnDone.textContent = 'Marquer terminée';
+      btnDone.onclick = () => updateStatus(id, 'done');
+      foot.appendChild(btnDone);
+    }
+    const btnCancel = document.createElement('button');
+    btnCancel.className = 'btn-cancel-res'; btnCancel.textContent = 'Annuler';
+    btnCancel.onclick = () => { if(confirm('Annuler cette réservation ?')) updateStatus(id, 'cancelled'); };
+    foot.appendChild(btnCancel);
+  }
+  if(r.tel){
+    const btnCall = document.createElement('a');
+    btnCall.className = 'btn-call'; btnCall.href = 'tel:'+r.tel;
+    btnCall.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 3a1 1 0 0 0-1 1v1a14 14 0 0 0 14 14h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-.553-.894l-3-1.5a1 1 0 0 0-1.136.18l-.92.92a10 10 0 0 1-5.1-5.1l.92-.92a1 1 0 0 0 .18-1.136l-1.5-3A1 1 0 0 0 5 3z"/></svg> Appeler`;
+    foot.appendChild(btnCall);
+  }
+  document.getElementById('trip-ov').classList.add('open');
+}
+function row(k,v){ return `<div class="detail-row"><span class="dr-k">${k}</span><span class="dr-v">${v}</span></div>`; }
+function closeTripModal(){ document.getElementById('trip-ov').classList.remove('open'); }
+
+async function updateStatus(id, status){
+  await fetch('/api/reservations/'+id, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({pwd:PWD, status}) });
+  closeTripModal();
+  await reloadRes();
+}
+
+/* ── MODAL AJOUT ── */
+function openAdd(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('a-date').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('a-time').value = `${pad(now.getHours())}:00`;
+  document.getElementById('add-conflict').style.display = 'none';
+  document.getElementById('add-ov').classList.add('open');
+}
+function closeAdd(){ document.getElementById('add-ov').classList.remove('open'); }
+function setRoute(v){ document.getElementById('a-trajet').value = v; }
+
+async function saveManual(){
+  const trajet = document.getElementById('a-trajet').value.trim();
+  const date   = document.getElementById('a-date').value;
+  const time   = document.getElementById('a-time').value;
+  const dur    = Number(document.getElementById('a-dur').value);
+  const veh    = document.getElementById('a-veh').value;
+  const client = document.getElementById('a-client').value.trim();
+  const tel    = document.getElementById('a-tel').value.trim();
+  const price  = Number(document.getElementById('a-price').value) || 0;
+  const reh    = document.getElementById('a-reh').checked;
+  const siege  = document.getElementById('a-siege').checked;
+  const notes  = document.getElementById('a-notes').value.trim();
+  const conflictEl = document.getElementById('add-conflict');
+
+  if(!trajet||!date||!time){ conflictEl.style.display='block'; conflictEl.textContent='Trajet, date et heure sont obligatoires.'; return; }
+
+  const equip = [reh&&'Réhausseur enfant', siege&&'Siège bébé'].filter(Boolean).join(' + ') || '';
+  const ref = 'IDVTC-'+Date.now().toString(36).toUpperCase().slice(-6);
+
+  const payload = { pwd:PWD, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VEH_LABEL[veh], client, tel, price, equipment:equip, notes, ref, status:'confirmed', source:'manual' };
+
+  try{
+    const r = await fetch('/api/reservations/manual', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const data = await r.json();
+    if(!r.ok){
+      conflictEl.style.display='block';
+      conflictEl.textContent = data.conflict ? `Conflit : course "${data.conflict.trajet}" à ${data.conflict.time}` : (data.error||'Erreur');
+      return;
+    }
+    closeAdd();
+    await reloadRes();
+  }catch(e){ conflictEl.style.display='block'; conflictEl.textContent='Erreur serveur'; }
+}
+
+/* ── AUTO-LOGIN si session ── */
+window.addEventListener('DOMContentLoaded', async () => {
+  if(PWD){
+    try{
+      const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
+      if(r.ok){
+        reservations = await r.json();
+        document.getElementById('login').style.display='none';
+        document.getElementById('app').classList.add('visible');
+        initCalendar();
+        return;
+      }
+    }catch{}
+    sessionStorage.removeItem('adm_pwd');
+    PWD = '';
+  }
+});
+</script>
+</body>
+</html>
