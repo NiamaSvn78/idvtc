@@ -133,6 +133,58 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .rs-btn{background:var(--dark3);border:1px solid var(--subtle);color:var(--muted);padding:.25rem .55rem;font-size:.65rem;cursor:pointer;transition:all .15s;white-space:nowrap}
 .rs-btn:hover{border-color:var(--gold-border);color:var(--gold)}
 
+/* ── MODAL CONDUCTEUR ── */
+.btn-assign{flex:1;background:none;border:1px solid var(--gold-border);color:var(--gold);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.btn-assign:hover{background:var(--gold-dim);border-color:var(--gold)}
+.driver-list{display:flex;flex-direction:column;gap:.35rem;max-height:200px;overflow-y:auto;margin-bottom:.6rem}
+.driver-item{display:flex;align-items:center;gap:.6rem;background:var(--dark3);border:1px solid var(--subtle);padding:.55rem .8rem;cursor:pointer;transition:border-color .15s;border-radius:1px}
+.driver-item:hover{border-color:var(--gold-border)}
+.driver-item.selected{border-color:var(--gold);background:var(--gold-dim)}
+.driver-name{font-size:.82rem;color:var(--text);font-weight:600}
+.driver-meta{display:flex;align-items:center;gap:.6rem;margin-top:.15rem;flex-wrap:wrap}
+.driver-phone{font-size:.7rem;color:var(--muted)}
+.driver-email{font-size:.68rem;color:var(--faint)}
+.driver-cat{display:inline-flex;align-items:center;font-size:.6rem;padding:.1rem .4rem;border-radius:2px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.cat-van{background:rgba(201,169,110,.12);color:var(--gold);border:1px solid rgba(201,169,110,.25)}
+.cat-business{background:rgba(74,158,255,.1);color:#4a9eff;border:1px solid rgba(74,158,255,.2)}
+.cat-eco{background:rgba(39,174,96,.1);color:var(--green);border:1px solid rgba(39,174,96,.2)}
+.cat-other{background:var(--dark4);color:var(--muted);border:1px solid var(--subtle)}
+.driver-del{background:none;border:none;color:var(--faint);cursor:pointer;font-size:.85rem;padding:0 .25rem;line-height:1;transition:color .15s;flex-shrink:0}
+.driver-del:hover{color:var(--red)}
+.driver-add-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.6rem}
+.driver-add-grid .add-input{padding:.55rem .7rem;font-size:.8rem}
+.driver-add-grid .add-select{padding:.55rem .7rem;font-size:.8rem}
+.btn-driver-add{grid-column:1/-1;background:var(--dark4);border:1px solid var(--subtle);color:var(--muted);padding:.55rem;cursor:pointer;font-size:.8rem;transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn-driver-add:hover{border-color:var(--gold-border);color:var(--gold)}
+.send-status{margin-top:.7rem;padding:.55rem .9rem;font-size:.78rem;display:none;line-height:1.5}
+.send-status.ok{display:block;background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.22);color:var(--green)}
+.send-status.err{display:block;background:rgba(224,84,84,.08);border:1px solid rgba(224,84,84,.22);color:var(--red)}
+.driver-trip-preview{background:var(--dark3);border-left:2px solid var(--gold);padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--muted);line-height:1.55}
+.driver-trip-preview strong{color:var(--text)}
+
+/* ── RÉPERTOIRE CONDUCTEURS ── */
+.dir-modal{max-width:640px}
+.dir-table{display:flex;flex-direction:column;gap:.3rem;margin-bottom:1rem}
+.dir-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:.6rem;background:var(--dark3);border:1px solid var(--subtle);padding:.55rem .8rem;border-radius:1px;transition:border-color .15s}
+.dir-row:hover{border-color:var(--gold-border)}
+.dir-info{min-width:0}
+.dir-row-name{font-size:.84rem;color:var(--text);font-weight:600}
+.dir-row-sub{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.15rem}
+.dir-icon-btn{background:none;border:none;cursor:pointer;padding:.25rem .3rem;transition:color .15s;flex-shrink:0;line-height:1}
+.dir-icon-btn.edit{color:var(--muted)}.dir-icon-btn.edit:hover{color:var(--gold)}
+.dir-icon-btn.del{color:var(--faint)}.dir-icon-btn.del:hover{color:var(--red)}
+.dir-empty{font-size:.78rem;color:var(--faint);padding:1.2rem;text-align:center;border:1px dashed var(--subtle)}
+.dir-edit-row{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;padding:.6rem .8rem;background:var(--dark4);border:1px solid var(--gold-border)}
+.dir-edit-row .add-input{padding:.5rem .7rem;font-size:.78rem}
+.dir-edit-row .add-select{padding:.5rem .7rem;font-size:.78rem}
+.dir-edit-actions{grid-column:1/-1;display:flex;gap:.4rem;justify-content:flex-end;margin-top:.1rem}
+.btn-dir-save{background:var(--gold);border:none;color:var(--black);padding:.4rem .9rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;cursor:pointer;transition:background .15s}
+.btn-dir-save:hover{background:var(--gold2)}
+.btn-dir-cancel{background:none;border:1px solid var(--subtle);color:var(--muted);padding:.4rem .8rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s}
+.btn-dir-cancel:hover{border-color:var(--red);color:var(--red)}
+.dir-add-section{border-top:1px solid var(--subtle);padding-top:.9rem;margin-top:.4rem}
+.dir-add-title{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   .adm-stats{display:none}
@@ -200,6 +252,10 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
         Site
       </a>
+      <button class="btn-logout" onclick="openDirectory()" style="display:flex;align-items:center;gap:.35rem">
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="7" r="4"/><path d="M1 19c0-3.3 2.7-6 6-6"/><circle cx="15" cy="13" r="3"/><path d="M12 19c0-1.7 1.3-3 3-3s3 1.3 3 3"/></svg>
+        Conducteurs
+      </button>
       <button class="btn-add" onclick="openAdd()">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
         Course
@@ -318,6 +374,93 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
     <div class="modal-foot" style="flex-direction:column;gap:.5rem">
       <button class="btn-done" onclick="saveManual()" style="flex:none;width:100%">Enregistrer la course</button>
       <button class="btn-call" onclick="closeAdd()" style="flex:none;width:100%;border-color:var(--subtle)">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CONDUCTEUR ── -->
+<div class="ov" id="driver-ov" onclick="if(event.target===this)closeDriverModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Passer à un conducteur</span>
+      <button class="btn-mx" onclick="closeDriverModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="driver-trip-preview" id="driver-trip-preview"></div>
+
+      <div style="margin-bottom:1rem">
+        <div class="add-label" style="margin-bottom:.5rem">Conducteurs enregistrés</div>
+        <div class="driver-list" id="driver-list">
+          <div style="font-size:.75rem;color:var(--faint);padding:.2rem 0">Aucun conducteur enregistré</div>
+        </div>
+        <div class="driver-add-grid">
+          <input class="add-input" id="new-driver-name"     type="text"  placeholder="Prénom Nom *">
+          <input class="add-input" id="new-driver-phone"    type="tel"   placeholder="06 XX XX XX XX">
+          <input class="add-input" id="new-driver-email"    type="email" placeholder="email@exemple.com *">
+          <select class="add-input add-select" id="new-driver-cat">
+            <option value="">— Véhicule —</option>
+            <option value="Van Premium">Van Premium</option>
+            <option value="Business">Business</option>
+            <option value="Éco">Éco</option>
+          </select>
+          <button class="btn-driver-add" onclick="addDriver()">+ Ajouter ce conducteur</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <div style="grid-column:1/-1">
+          <label class="add-label">Envoyer à</label>
+          <input class="add-input" id="send-driver-email" type="email" placeholder="conducteur@exemple.com" style="margin-bottom:.4rem">
+          <input class="add-input" id="send-driver-name"  type="text"  placeholder="Prénom conducteur (optionnel)">
+        </div>
+        <div style="grid-column:1/-1">
+          <label class="add-label" style="margin-top:.6rem;display:block">Prix à verser au conducteur (€) <span style="color:var(--red)">*</span></label>
+          <input class="add-input" id="send-driver-price" type="number" min="0" placeholder="Ex : 60" style="border-color:var(--gold-border)">
+          <div style="font-size:.68rem;color:var(--faint);margin-top:.3rem">Ce montant apparaîtra dans l'email — le prix client ne sera pas transmis.</div>
+        </div>
+      </div>
+
+      <div class="send-status" id="send-status"></div>
+    </div>
+    <div class="modal-foot" style="flex-direction:column;gap:.5rem">
+      <button class="btn-done" id="btn-send-email" onclick="sendDriverEmail()" style="flex:none;width:100%">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="margin-right:.3rem"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg>
+        Envoyer le trajet par email
+      </button>
+      <button class="btn-call" onclick="closeDriverModal()" style="flex:none;width:100%;border-color:var(--subtle)">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL RÉPERTOIRE CONDUCTEURS ── -->
+<div class="ov" id="dir-ov" onclick="if(event.target===this)closeDirectory()">
+  <div class="modal-box dir-modal">
+    <div class="modal-head">
+      <span class="modal-title">Répertoire conducteurs</span>
+      <button class="btn-mx" onclick="closeDirectory()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="dir-table" id="dir-table">
+        <div class="dir-empty">Chargement…</div>
+      </div>
+      <div class="dir-add-section">
+        <div class="dir-add-title">Ajouter un conducteur</div>
+        <div class="driver-add-grid">
+          <input class="add-input" id="dir-new-name"  type="text"  placeholder="Prénom Nom *">
+          <input class="add-input" id="dir-new-phone" type="tel"   placeholder="06 XX XX XX XX">
+          <input class="add-input" id="dir-new-email" type="email" placeholder="email@exemple.com *">
+          <select class="add-input add-select" id="dir-new-cat">
+            <option value="">— Véhicule —</option>
+            <option value="Van Premium">Van Premium</option>
+            <option value="Business">Business</option>
+            <option value="Éco">Éco</option>
+          </select>
+          <button class="btn-driver-add" onclick="dirAddDriver()">+ Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-done" onclick="closeDirectory()" style="flex:none;width:100%">Fermer</button>
     </div>
   </div>
 </div>
@@ -555,6 +698,13 @@ function openTrip(id){
     btnCall.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 3a1 1 0 0 0-1 1v1a14 14 0 0 0 14 14h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-.553-.894l-3-1.5a1 1 0 0 0-1.136.18l-.92.92a10 10 0 0 1-5.1-5.1l.92-.92a1 1 0 0 0 .18-1.136l-1.5-3A1 1 0 0 0 5 3z"/></svg> Appeler`;
     foot.appendChild(btnCall);
   }
+  /* Bouton "Passer à un conducteur" — toujours visible */
+  const btnAssign = document.createElement('button');
+  btnAssign.className = 'btn-assign';
+  btnAssign.style.cssText = 'width:100%;flex:none;margin-top:.2rem';
+  btnAssign.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg> Passer à un conducteur`;
+  btnAssign.onclick = () => { closeTripModal(); openDriverModal(id); };
+  foot.appendChild(btnAssign);
   document.getElementById('trip-ov').classList.add('open');
 }
 function row(k,v){ return `<div class="detail-row"><span class="dr-k">${k}</span><span class="dr-v">${v}</span></div>`; }
@@ -629,6 +779,222 @@ window.addEventListener('DOMContentLoaded', async () => {
     PWD = '';
   }
 });
+
+/* ── MODAL CONDUCTEUR ── */
+let currentDriverTripId = null;
+let savedDrivers = [];
+
+async function openDriverModal(id){
+  currentDriverTripId = id;
+  const r = reservations.find(x => x.id === id);
+  if(!r) return;
+  document.getElementById('driver-trip-preview').innerHTML =
+    `<strong>${r.trajet||'Course'}</strong><br>${fmtDate(r.date)} à ${r.time} · ${VEH_LABEL[r.vehicle]||'—'}`;
+  document.getElementById('send-driver-email').value = '';
+  document.getElementById('send-driver-name').value  = '';
+  document.getElementById('send-driver-price').value = '';
+  document.getElementById('send-status').className   = 'send-status';
+  document.getElementById('btn-send-email').disabled = false;
+  document.getElementById('btn-send-email').textContent = '✉ Envoyer le trajet par email';
+  await loadDrivers();
+  document.getElementById('driver-ov').classList.add('open');
+}
+function closeDriverModal(){ document.getElementById('driver-ov').classList.remove('open'); }
+
+async function loadDrivers(){
+  try{
+    const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+    if(r.ok){ savedDrivers = await r.json(); renderDriverList(); }
+  }catch{}
+}
+function catClass(cat){
+  if(!cat) return 'cat-other';
+  if(cat==='Van Premium') return 'cat-van';
+  if(cat==='Business')    return 'cat-business';
+  if(cat==='Éco')         return 'cat-eco';
+  return 'cat-other';
+}
+function renderDriverList(){
+  const list = document.getElementById('driver-list');
+  if(!savedDrivers.length){
+    list.innerHTML = '<div style="font-size:.75rem;color:var(--faint);padding:.4rem 0">Aucun conducteur enregistré — ajoutez-en un ci-dessous.</div>';
+    return;
+  }
+  const sel = document.getElementById('send-driver-email').value;
+  list.innerHTML = savedDrivers.map(d => `
+    <div class="driver-item${sel===d.email?' selected':''}" onclick="selectDriver('${escHtml(d.email)}','${escHtml(d.name)}')">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <div class="driver-name">${escHtml(d.name)}</div>
+          ${d.carCategory ? `<span class="driver-cat ${catClass(d.carCategory)}">${escHtml(d.carCategory)}</span>` : ''}
+        </div>
+        <div class="driver-meta">
+          ${d.phone ? `<span class="driver-phone">📞 ${escHtml(d.phone)}</span>` : ''}
+          <span class="driver-email">${escHtml(d.email)}</span>
+        </div>
+      </div>
+      <button class="driver-del" onclick="event.stopPropagation();deleteDriver('${d.id}')" title="Supprimer">✕</button>
+    </div>
+  `).join('');
+}
+function selectDriver(email, name){
+  document.getElementById('send-driver-email').value = email;
+  document.getElementById('send-driver-name').value  = name;
+  renderDriverList();
+}
+async function addDriver(){
+  const name        = document.getElementById('new-driver-name').value.trim();
+  const phone       = document.getElementById('new-driver-phone').value.trim();
+  const email       = document.getElementById('new-driver-email').value.trim();
+  const carCategory = document.getElementById('new-driver-cat').value;
+  if(!name || !email){ alert('Nom et email obligatoires'); return; }
+  await fetch('/api/drivers',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
+  document.getElementById('new-driver-name').value  = '';
+  document.getElementById('new-driver-phone').value = '';
+  document.getElementById('new-driver-email').value = '';
+  document.getElementById('new-driver-cat').value   = '';
+  await loadDrivers();
+}
+async function deleteDriver(id){
+  await fetch('/api/drivers/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pwd:PWD})});
+  await loadDrivers();
+}
+async function sendDriverEmail(){
+  const email  = document.getElementById('send-driver-email').value.trim();
+  const name   = document.getElementById('send-driver-name').value.trim();
+  const price  = document.getElementById('send-driver-price').value.trim();
+  const status = document.getElementById('send-status');
+  if(!email){ status.textContent='Email du conducteur requis'; status.className='send-status err'; return; }
+  if(!price || isNaN(Number(price))){ status.textContent='Indiquez le prix à verser au conducteur'; status.className='send-status err'; return; }
+  const btn = document.getElementById('btn-send-email');
+  btn.disabled = true; btn.textContent = 'Envoi en cours…';
+  try{
+    const r = await fetch('/api/send-driver-email',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price)})});
+    const d = await r.json();
+    if(d.ok){
+      status.textContent = `✅ Email envoyé avec succès à ${email}`;
+      status.className   = 'send-status ok';
+      await loadDrivers(); /* sauvegarde auto */
+    } else {
+      status.textContent = d.error || 'Erreur inconnue';
+      status.className   = 'send-status err';
+    }
+  }catch(e){
+    status.textContent = 'Erreur réseau : '+e.message;
+    status.className   = 'send-status err';
+  }
+  btn.disabled = false; btn.textContent = '✉ Envoyer le trajet par email';
+}
+/* ── RÉPERTOIRE CONDUCTEURS ── */
+let dirDrivers = [];
+let editingDriverId = null;
+
+async function openDirectory(){
+  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  if(r.ok) dirDrivers = await r.json();
+  editingDriverId = null;
+  renderDirectory();
+  document.getElementById('dir-ov').classList.add('open');
+}
+function closeDirectory(){
+  document.getElementById('dir-ov').classList.remove('open');
+  editingDriverId = null;
+}
+
+function renderDirectory(){
+  const table = document.getElementById('dir-table');
+  if(!dirDrivers.length){
+    table.innerHTML = '<div class="dir-empty">Aucun conducteur — utilisez le formulaire ci-dessous pour en ajouter un.</div>';
+    return;
+  }
+  table.innerHTML = dirDrivers.map(d => editingDriverId === d.id ? renderEditRow(d) : renderDirRow(d)).join('');
+}
+
+function renderDirRow(d){
+  return `<div class="dir-row" id="dir-row-${d.id}">
+    <div class="dir-info">
+      <div style="display:flex;align-items:center;gap:.4rem">
+        <span class="dir-row-name">${escHtml(d.name)}</span>
+        ${d.carCategory?`<span class="driver-cat ${catClass(d.carCategory)}">${escHtml(d.carCategory)}</span>`:''}
+      </div>
+      <div class="dir-row-sub">
+        ${d.phone?`<span class="driver-phone">📞 ${escHtml(d.phone)}</span>`:''}
+        <span class="driver-email">${escHtml(d.email)}</span>
+      </div>
+    </div>
+    <button class="dir-icon-btn edit" onclick="startEdit('${d.id}')" title="Modifier">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 3.3a1 1 0 011.4 1.4L6 14.8l-3.5.7.7-3.5z"/></svg>
+    </button>
+    <button class="dir-icon-btn del" onclick="dirDeleteDriver('${d.id}')" title="Supprimer">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h14M8 6V4h4v2M5 6l1 11h8l1-11"/></svg>
+    </button>
+  </div>`;
+}
+
+function renderEditRow(d){
+  return `<div class="dir-edit-row" id="dir-row-${d.id}">
+    <input class="add-input" id="edit-name-${d.id}"  type="text"  value="${escHtml(d.name)}"        placeholder="Prénom Nom *">
+    <input class="add-input" id="edit-phone-${d.id}" type="tel"   value="${escHtml(d.phone||'')}"   placeholder="Téléphone">
+    <input class="add-input" id="edit-email-${d.id}" type="email" value="${escHtml(d.email)}"       placeholder="Email *">
+    <select class="add-input add-select" id="edit-cat-${d.id}">
+      <option value="">— Véhicule —</option>
+      <option value="Van Premium"${d.carCategory==='Van Premium'?' selected':''}>Van Premium</option>
+      <option value="Business"${d.carCategory==='Business'?' selected':''}>Business</option>
+      <option value="Éco"${d.carCategory==='Éco'?' selected':''}>Éco</option>
+    </select>
+    <div class="dir-edit-actions">
+      <button class="btn-dir-cancel" onclick="cancelEdit()">Annuler</button>
+      <button class="btn-dir-save"   onclick="saveEdit('${d.id}')">Enregistrer</button>
+    </div>
+  </div>`;
+}
+
+function startEdit(id){ editingDriverId = id; renderDirectory(); }
+function cancelEdit(){ editingDriverId = null; renderDirectory(); }
+
+async function saveEdit(id){
+  const name        = document.getElementById('edit-name-'+id).value.trim();
+  const phone       = document.getElementById('edit-phone-'+id).value.trim();
+  const email       = document.getElementById('edit-email-'+id).value.trim();
+  const carCategory = document.getElementById('edit-cat-'+id).value;
+  if(!name||!email){ alert('Nom et email obligatoires'); return; }
+  await fetch('/api/drivers/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
+  editingDriverId = null;
+  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  renderDirectory();
+}
+
+async function dirDeleteDriver(id){
+  if(!confirm('Supprimer ce conducteur du répertoire ?')) return;
+  await fetch('/api/drivers/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pwd:PWD})});
+  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  renderDirectory();
+}
+
+async function dirAddDriver(){
+  const name        = document.getElementById('dir-new-name').value.trim();
+  const phone       = document.getElementById('dir-new-phone').value.trim();
+  const email       = document.getElementById('dir-new-email').value.trim();
+  const carCategory = document.getElementById('dir-new-cat').value;
+  if(!name||!email){ alert('Nom et email obligatoires'); return; }
+  await fetch('/api/drivers',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
+  ['dir-new-name','dir-new-phone','dir-new-email'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('dir-new-cat').value = '';
+  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  renderDirectory();
+}
+
+function escHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 </body>
 </html>
