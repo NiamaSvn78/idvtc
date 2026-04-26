@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 const crypto  = require('crypto');
@@ -444,8 +444,13 @@ pages.forEach(slug => {
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
-app.listen(PORT, () => {
-  console.log(`\n✅ Serveur démarré : http://localhost:${PORT}`);
-  console.log(`   Admin            : http://localhost:${PORT}/admin`);
-  console.log(`   SMTP configuré   : ${SMTP_HOST ? '✅ ' + SMTP_HOST : '❌ non configuré (SMTP_HOST manquant)'}\n`);
-});
+// Pour Vercel, on exporte l'app au lieu de l'écouter
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`\n✅ Serveur démarré : http://localhost:${PORT}`);
+    console.log(`   Admin            : http://localhost:${PORT}/admin`);
+    console.log(`   SMTP configuré   : ${SMTP_HOST ? '✅ ' + SMTP_HOST : '❌ non configuré (SMTP_HOST manquant)'}\n`);
+  });
+}
+
+module.exports = app;
