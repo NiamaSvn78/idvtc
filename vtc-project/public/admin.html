@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Gestion des courses · ID VTC</title>
+<title>Admin — Gestion des courses · IsmaDrive</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -222,7 +222,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
       Retour au site
     </a>
-    <div class="login-logo">ID VTC</div>
+    <div class="login-logo">IsmaDrive</div>
     <div class="login-sub">Administration · Gestion des courses</div>
     <label class="login-label" for="l-pwd">Mot de passe</label>
     <input class="login-input" id="l-pwd" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
@@ -234,7 +234,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 <!-- ── APP ── -->
 <div id="app">
   <header class="adm-header">
-    <span class="adm-logo">ID VTC</span>
+    <span class="adm-logo">IsmaDrive</span>
     <div class="adm-sep"></div>
     <div class="week-nav">
       <button onclick="shiftWeek(-1)" title="Semaine précédente">‹</button>
@@ -745,7 +745,7 @@ async function saveManual(){
   if(!trajet||!date||!time){ conflictEl.style.display='block'; conflictEl.textContent='Trajet, date et heure sont obligatoires.'; return; }
 
   const equip = [reh&&'Réhausseur enfant', siege&&'Siège bébé'].filter(Boolean).join(' + ') || '';
-  const ref = 'IDVTC-'+Date.now().toString(36).toUpperCase().slice(-6);
+  const ref = 'ISMA-'+Date.now().toString(36).toUpperCase().slice(-6);
 
   const payload = { pwd:PWD, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VEH_LABEL[veh], client, tel, price, equipment:equip, notes, ref, status:'confirmed', source:'manual' };
 

@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
 const crypto  = require('crypto');
@@ -103,7 +103,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
   const calDate  = (r.date || '').replace(/-/g, '');
   const calStart = `${calDate}T${(r.time||'0000').replace(':','')}00`;
   const calEnd   = `${calDate}T${endTime.replace(':','')}00`;
-  const calTitle = encodeURIComponent(`Course ID VTC — ${r.trajet||''}`);
+  const calTitle = encodeURIComponent(`Course IsmaDrive — ${r.trajet||''}`);
   const calDesc  = encodeURIComponent(`Client: ${r.client||''}\nTél: ${r.tel||''}`);
   const calLoc   = encodeURIComponent(dep);
   const googleCal  = `https://www.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&dates=${calStart}%2F${calEnd}&details=${calDesc}&location=${calLoc}`;
@@ -118,7 +118,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:4px;overflow:hidden">
   <tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
-    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">ID VTC</div>
+    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">IsmaDrive</div>
     <div style="font-size:.7rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-top:3px">Espace conducteur</div>
   </td></tr>
   <tr><td style="padding:32px">
@@ -175,7 +175,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
     <p style="font-size:.85rem;color:#666;margin:0">Nous vous remercions pour votre collaboration.</p>
   </td></tr>
   <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:14px 32px">
-    <div style="font-size:.72rem;color:#aaa">ID VTC — Chauffeur Privé Paris &amp; Île-de-France &nbsp;·&nbsp; <a href="https://idvtc.fr" style="color:#c9a96e;text-decoration:none">idvtc.fr</a></div>
+    <div style="font-size:.72rem;color:#aaa">IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France &nbsp;·&nbsp; <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
   </td></tr>
 </table>
 </td></tr></table>
@@ -188,14 +188,14 @@ function buildMissionOrderHtml(r) {
   const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
   const depEnc = encodeURIComponent(dep);
   const arrEnc = encodeURIComponent(arr);
-  const qrData = encodeURIComponent(`ID VTC|Ref:${r.ref||r.id}|${r.trajet||''}|${dateStr}|${r.time||''}`);
+  const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref||r.id}|${r.trajet||''}|${dateStr}|${r.time||''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ordre de mission ${r.ref||r.id} — ID VTC</title>
+<title>Ordre de mission ${r.ref||r.id} — IsmaDrive</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min-height:100vh}
@@ -219,7 +219,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 <body>
 <div class="card">
   <div class="card-head">
-    <div class="logo">ID VTC</div>
+    <div class="logo">IsmaDrive</div>
     <div class="ref-block">
       <div class="ref">Réf. ${r.ref||r.id}</div>
       <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
@@ -403,9 +403,9 @@ app.post('/api/send-driver-email', async (req, res) => {
       auth: { user: SMTP_USER, pass: SMTP_PASS }
     });
     await transporter.sendMail({
-      from:    `ID VTC <${SMTP_FROM || SMTP_USER}>`,
+      from:    `IsmaDrive <${SMTP_FROM || SMTP_USER}>`,
       to:      driverEmail,
-      subject: `Course ID VTC — ${fmtDateFr(r.date)} à ${r.time}`,
+      subject: `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`,
       html
     });
     /* Sauvegarde automatique du conducteur si nouveau */
