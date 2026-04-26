@@ -1,0 +1,29 @@
+﻿# IsmaDrive — Chauffeur Privé Paris & Île-de-France
+
+## Service
+IsmaDrive est un service de chauffeur privé (VTC) basé en Île-de-France, disponible 24h/24 et 7j/7.
+Spécialisé dans les transferts aéroport, les courses pour touristes, et les déplacements professionnels.
+
+## Prestations principales
+- Transferts aéroport : Roissy CDG, Orly — prix fixe garanti, accueil pancarte, suivi vol en temps réel
+- Courses pour touristes : visites monuments Paris, excursion Château de Versailles, Bois de Vincennes, La Défense
+- Mise à disposition : chauffeur dédié à l'heure, kilométrage illimité
+- Familles : réhausseur enfant (3–12 ans) et siège bébé (0–3 ans) sans supplément
+
+## Véhicules
+- Van Premium Mercedes Classe V (7 places, familles et groupes)
+- Berline Business Mercedes Classe E/S (clientèle VIP)
+- Berline Éco (tarif accessible)
+
+## Zones desservies
+Paris (tous arrondissements), Versailles, Neuilly-sur-Seine, Boulogne-Billancourt, La Défense, Vincennes, toute l'Île-de-France.
+
+## Tarification
+Forfaits fixes pour les trajets aéroport. Tarif au kilomètre pour les courses hors Paris (Van 2,50€/km, Business 2€/km, Éco 1,50€/km). Aucun supplément pour les embouteillages.
+
+## Réservation
+Réservation en ligne avec paiement sécurisé Stripe. QR code remis après paiement, indispensable pour la prise en charge.
+
+## Contact
+Site : https://ismadrive.fr
+WhatsApp : +33 6 23 88 97 17

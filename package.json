@@ -1,9 +1,15 @@
 {
   "name": "idvtc",
+  "version": "1.0.0",
   "private": true,
+  "main": "index.js",
   "scripts": {
-    "build": "npm run build --prefix vtc-project",
-    "start": "npm run start --prefix vtc-project",
-    "dev": "npm run dev --prefix vtc-project"
+    "build": "echo 'Build completed'",
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "nodemailer": "^8.0.6"
   }
 }
