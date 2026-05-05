@@ -9,3 +9,4 @@ vtc-project.zip
 
 # Données locales (PII) — créées au premier lancement si absentes
 vtc-project/data/reservations.json
+.vercel
