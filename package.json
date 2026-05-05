@@ -1,15 +1,12 @@
 {
   "name": "idvtc",
   "version": "1.0.0",
-  "private": true,
-  "main": "index.js",
   "scripts": {
-    "build": "echo 'Build completed'",
-    "start": "node index.js",
-    "dev": "node index.js"
+    "build": "echo 'No build step required'",
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "nodemailer": "^8.0.6"
+    "express": "^4.18.2"
   }
 }
