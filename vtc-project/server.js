@@ -48,10 +48,51 @@ const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
 const APP_URL   = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 /* ── RÉSERVATIONS ── */
-function readRes()      { try { return JSON.parse(fs.readFileSync(RES_FILE,     'utf8')); } catch { return []; } }
-function writeRes(data) { fs.writeFileSync(RES_FILE,     JSON.stringify(data,    null, 2)); }
-function readDrivers()  { try { return JSON.parse(fs.readFileSync(DRIVERS_FILE, 'utf8')); } catch { return []; } }
-function writeDrivers(d){ fs.writeFileSync(DRIVERS_FILE, JSON.stringify(d,       null, 2)); }
+function readRes() {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    return memoryReservations;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(RES_FILE, 'utf8'));
+  } catch {
+    return memoryReservations;
+  }
+}
+
+function writeRes(data) {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    memoryReservations = [...data];
+    return;
+  }
+  try {
+    fs.writeFileSync(RES_FILE, JSON.stringify(data, null, 2));
+  } catch {
+    memoryReservations = [...data];
+  }
+}
+
+function readDrivers() {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    return memoryDrivers;
+  }
+  try {
+    return JSON.parse(fs.readFileSync(DRIVERS_FILE, 'utf8'));
+  } catch {
+    return memoryDrivers;
+  }
+}
+
+function writeDrivers(data) {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    memoryDrivers = [...data];
+    return;
+  }
+  try {
+    fs.writeFileSync(DRIVERS_FILE, JSON.stringify(data, null, 2));
+  } catch {
+    memoryDrivers = [...data];
+  }
+}
 
 function timeToMin(t) {
   const [h, m] = (t || '00:00').split(':').map(Number);
