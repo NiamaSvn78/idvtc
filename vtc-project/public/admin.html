@@ -338,7 +338,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
           <select class="add-select" id="a-veh">
             <option value="van">Van Premium</option>
             <option value="business">Business</option>
-            <option value="eco">Éco</option>
           </select>
         </div>
         <div>
@@ -401,7 +400,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
             <option value="">— Véhicule —</option>
             <option value="Van Premium">Van Premium</option>
             <option value="Business">Business</option>
-            <option value="Éco">Éco</option>
           </select>
           <button class="btn-driver-add" onclick="addDriver()">+ Ajouter ce conducteur</button>
         </div>
@@ -453,7 +451,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
             <option value="">— Véhicule —</option>
             <option value="Van Premium">Van Premium</option>
             <option value="Business">Business</option>
-            <option value="Éco">Éco</option>
           </select>
           <button class="btn-driver-add" onclick="dirAddDriver()">+ Ajouter</button>
         </div>
@@ -944,7 +941,6 @@ function renderEditRow(d){
       <option value="">— Véhicule —</option>
       <option value="Van Premium"${d.carCategory==='Van Premium'?' selected':''}>Van Premium</option>
       <option value="Business"${d.carCategory==='Business'?' selected':''}>Business</option>
-      <option value="Éco"${d.carCategory==='Éco'?' selected':''}>Éco</option>
     </select>
     <div class="dir-edit-actions">
       <button class="btn-dir-cancel" onclick="cancelEdit()">Annuler</button>
