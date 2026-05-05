@@ -28,7 +28,7 @@ Specialising in airport transfers, tourist rides, and business travel across Par
 ## Pricing Model
 - Airport transfers: fixed fare packages (forfait prix fixe — no traffic surcharge, no toll add-ons)
 - Tourist / other routes: per-km rate (tarif kilométrique)
-- Van: €2.50/km · Business: €2.00/km · Eco: €1.50/km
+- Van: €2.50/km · Business: €2.50/km
 - Child seats (0–3 yrs, 3–12 yrs): included at no extra charge on request
 
 ## What's Always Included
@@ -104,7 +104,7 @@ Spécialisé dans les transferts aéroport, les courses pour touristes, et les d
 Paris (tous arrondissements), Versailles, Neuilly-sur-Seine, Boulogne-Billancourt, La Défense, Vincennes, toute l'Île-de-France.
 
 ## Tarification
-Forfaits fixes pour les trajets aéroport. Tarif au kilomètre pour les courses hors Paris (Van 2,50€/km, Business 2€/km, Éco 1,50€/km). Aucun supplément pour les embouteillages.
+Forfaits fixes pour les trajets aéroport. Tarif au kilomètre pour les courses hors Paris (Van 2,50€/km, Business 2,50€/km). Aucun supplément pour les embouteillages.
 
 ## Réservation
 Réservation en ligne avec paiement sécurisé Stripe. QR code remis après paiement, indispensable pour la prise en charge.
