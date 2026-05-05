@@ -13,13 +13,15 @@
 <meta property="og:url" content="https://ismadrive.fr/">
 <meta property="og:site_name" content="IsmaDrive">
 <link rel="canonical" href="https://ismadrive.fr/">
+<link rel="alternate" hreflang="fr" href="https://ismadrive.fr/">
+<link rel="alternate" hreflang="en" href="https://ismadrive.fr/cdg-airport-transfer-paris">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TaxiService",
   "name": "IsmaDrive",
   "url": "https://ismadrive.fr",
-  "telephone": "+33600000000",
+  "telephone": "+33623889717",
   "email": "contact@ismadrive.fr",
   "description": "Service de chauffeur privé VTC luxe à Paris et Île-de-France. Transferts aéroports CDG et Orly, mise à disposition, déplacements professionnels 24h/24.",
   "address": {
@@ -620,35 +622,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <!-- ── Sélecteur de route ── -->
       <label class="fl" style="margin-bottom:.55rem">Votre trajet</label>
       <div class="pack-grid">
-        <div class="pack-card on" id="pk-cdg-paris" onclick="selPack('cdg-paris',this)">
+        <div class="pack-card on" id="pk-cdg" onclick="selPack('cdg',this)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name">CDG → Paris</div>
-          <div class="pack-badge">Toutes arrivées</div>
-          <div class="pack-prices"><span class="pack-price-tag">dès 60€</span></div>
+          <div class="pack-name">Aéroport CDG</div>
+          <div class="pack-badge">Aller ou retour</div>
+          <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
         </div>
-        <div class="pack-card" id="pk-orly-paris" onclick="selPack('orly-paris',this)">
+        <div class="pack-card" id="pk-orly" onclick="selPack('orly',this)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name">Orly → Paris</div>
-          <div class="pack-badge">Toutes arrivées</div>
-          <div class="pack-prices"><span class="pack-price-tag">dès 50€</span></div>
-        </div>
-        <div class="pack-card" id="pk-paris-cdg-rd" onclick="selPack('paris-cdg-rd',this)">
-          <div class="pack-ico">→</div>
-          <div class="pack-name">Paris → CDG</div>
-          <div class="pack-badge">Rive droite</div>
-          <div class="pack-prices"><span class="pack-price-tag">dès 60€</span></div>
-        </div>
-        <div class="pack-card" id="pk-paris-cdg-rg" onclick="selPack('paris-cdg-rg',this)">
-          <div class="pack-ico">→</div>
-          <div class="pack-name">Paris → CDG</div>
-          <div class="pack-badge">Rive gauche</div>
-          <div class="pack-prices"><span class="pack-price-tag">dès 50€</span></div>
-        </div>
-        <div class="pack-card" id="pk-paris-orly" onclick="selPack('paris-orly',this)">
-          <div class="pack-ico">→</div>
-          <div class="pack-name">Paris → Orly</div>
-          <div class="pack-badge">Toutes zones</div>
-          <div class="pack-prices"><span class="pack-price-tag">dès 40€</span></div>
+          <div class="pack-name">Aéroport Orly</div>
+          <div class="pack-badge">Aller ou retour</div>
+          <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
         </div>
       </div>
 
@@ -665,12 +649,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-ico">🚗</div><div class="v-name">Business</div>
           <div class="v-model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
-        </div>
-        <div class="v-card" id="pvc-e" onclick="selPV('eco')">
-          <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🌿</div><div class="v-name">Éco</div>
-          <div class="v-model">Berline Économique</div>
-          <div class="v-specs"><span>👤 4 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
       </div>
 
@@ -740,39 +718,18 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
                 <th scope="col">Trajet</th>
                 <th scope="col">Van Premium</th>
                 <th scope="col">Business</th>
-                <th scope="col">Éco</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><div class="airport-sub">Arrivée</div><span class="airport-dest">Roissy CDG → Paris</span></td>
+                <td><div class="airport-sub">Aller ou retour</div><span class="airport-dest">Aéroport CDG ↔ Paris</span></td>
                 <td><span class="airport-wait">100 €</span></td>
-                <td><span class="airport-wait">80 €</span></td>
-                <td><span class="airport-wait">60 €</span></td>
-              </tr>
-              <tr>
-                <td><div class="airport-sub">Arrivée</div><span class="airport-dest">Orly → Paris</span></td>
-                <td><span class="airport-wait">90 €</span></td>
-                <td><span class="airport-wait">70 €</span></td>
-                <td><span class="airport-wait">50 €</span></td>
-              </tr>
-              <tr>
-                <td><div class="airport-sub">Départ · Rive droite</div><span class="airport-dest">Paris → Roissy CDG</span></td>
                 <td><span class="airport-wait">100 €</span></td>
-                <td><span class="airport-wait">80 €</span></td>
-                <td><span class="airport-wait">60 €</span></td>
               </tr>
               <tr>
-                <td><div class="airport-sub">Départ · Rive gauche</div><span class="airport-dest">Paris → Roissy CDG</span></td>
+                <td><div class="airport-sub">Aller ou retour</div><span class="airport-dest">Aéroport Orly ↔ Paris</span></td>
                 <td><span class="airport-wait">90 €</span></td>
-                <td><span class="airport-wait">70 €</span></td>
-                <td><span class="airport-wait">50 €</span></td>
-              </tr>
-              <tr>
-                <td><div class="airport-sub">Départ</div><span class="airport-dest">Paris → Orly</span></td>
-                <td><span class="airport-wait">80 €</span></td>
-                <td><span class="airport-wait">60 €</span></td>
-                <td><span class="airport-wait">40 €</span></td>
+                <td><span class="airport-wait">90 €</span></td>
               </tr>
             </tbody>
           </table>
@@ -834,13 +791,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>📶 Wi-Fi</span></div>
           <div class="v-rate">2,00 €/km (hors Paris)</div>
-        </div>
-        <div class="v-card" id="vc-e" onclick="selV('eco')">
-          <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🌿</div><div class="v-name">Éco</div>
-          <div class="v-model">Berline Économique</div>
-          <div class="v-specs"><span>👤 4 pax</span><span>🧳 3 bags</span></div>
-          <div class="v-rate">1,50 €/km (hors Paris)</div>
         </div>
       </div>
       <div class="status" id="status-t"></div>
@@ -957,13 +907,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-specs"><span>👤 3 pax</span></div>
           <div class="v-rate">75 € / heure · min. 2h</div>
         </div>
-        <div class="v-card" id="vc-me" onclick="selVM('eco')">
-          <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🌿</div><div class="v-name">Éco</div>
-          <div class="v-model">Berline Économique</div>
-          <div class="v-specs"><span>👤 4 pax</span></div>
-          <div class="v-rate">50 € / heure · min. 2h</div>
-        </div>
       </div>
       <div class="mad-box">
         <div class="price-top">
@@ -1045,18 +988,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
             <div class="tarif-row"><span class="tarif-key">Transfert</span><span class="tarif-val">Sur devis</span></div>
             <div class="tarif-row"><span class="tarif-key">Mise à disposition</span><span class="tarif-val">Sur devis</span></div>
             <div class="tarif-row"><span class="tarif-key">Contact</span><span class="tarif-val">WhatsApp · 06 23 88 97 17</span></div>
-          </div>
-        </div>
-        <div class="fleet-item">
-          <div class="fleet-gamme">Option Économique</div>
-          <h3 class="fleet-name">Berline Éco</h3>
-          <p class="fleet-desc">L'option la plus accessible pour vos trajets du quotidien. Confortable, ponctuelle, idéale pour 1 à 4 passagers souhaitant un service VTC fiable à prix contenu.</p>
-          <div class="fleet-pills"><span class="fleet-pill">4 passagers</span><span class="fleet-pill">3 bagages</span><span class="fleet-pill">Climatisation</span><span class="fleet-pill">Chargeur USB</span></div>
-          <div class="fleet-tarifs">
-            <div class="tarif-row"><span class="tarif-key">Forfait CDG → Paris</span><span class="tarif-val">60 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Forfait Orly → Paris</span><span class="tarif-val">50 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Hors Paris (au km)</span><span class="tarif-val">1,50 €/km</span></div>
-            <div class="tarif-row"><span class="tarif-key">Mise à disposition</span><span class="tarif-val">50 € / heure (min. 2h)</span></div>
           </div>
         </div>
       </div>
@@ -1172,7 +1103,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
             <span itemprop="addressLocality">Paris</span>, <span itemprop="postalCode">75000</span> — <span itemprop="addressCountry">France</span>
           </span><br>
-          <a href="tel:+33600000000" style="color:var(--muted);text-decoration:none" itemprop="telephone">+33 6 00 00 00 00</a><br>
+          <a href="tel:+33623889717" style="color:var(--muted);text-decoration:none" itemprop="telephone">+33 6 23 88 97 17</a><br>
           <a href="mailto:contact@ismadrive.fr" style="color:var(--muted);text-decoration:none" itemprop="email">contact@ismadrive.fr</a><br>
           <span style="color:var(--faint);font-size:.72rem">Disponible 7j/7 · 24h/24</span>
         </div>
@@ -1269,19 +1200,15 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 const CFG = {
   STRIPE_PK: 'pk_test_VOTRE_CLE_STRIPE_ICI',
   tarifs: {
-    eco:      { km: 1.50, base: 0, min: 25, h: 50 },
     business: { km: 2.00, base: 0, min: 30, h: 75 },
     van:      { km: 2.50, base: 0, min: 40, h: 95 }
   },
   forfaits: {
-    'cdg-paris':    { van: 100, business: 80, eco: 60, label: 'Roissy CDG → Paris' },
-    'orly-paris':   { van: 90,  business: 70, eco: 50, label: 'Orly → Paris' },
-    'paris-cdg-rd': { van: 100, business: 80, eco: 60, label: 'Paris (rive droite) → CDG' },
-    'paris-cdg-rg': { van: 90,  business: 70, eco: 50, label: 'Paris (rive gauche) → CDG' },
-    'paris-orly':   { van: 80,  business: 60, eco: 40, label: 'Paris → Orly' }
+    'cdg':  { van: 100, business: 100, label: 'Aéroport CDG ↔ Paris' },
+    'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg-paris', mdur:2, dep:null, arr:null, price:null, km:null };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', mdur:2, dep:null, arr:null, price:null, km:null };
 let stripe, cardEl;
 const acT={}, acBT={};
 
@@ -1324,11 +1251,11 @@ function toggleNav(){
   burger.setAttribute('aria-expanded',isOpen);
   document.body.style.overflow=isOpen?'hidden':'';
 }
-const VID={van:'vc-v',business:'vc-b',eco:'vc-e'};
-const MVID={van:'vc-mv',business:'vc-mb',eco:'vc-me'};
-const VNAME={van:'Mercedes Classe V · Van Premium',business:'Mercedes Classe E · Business',eco:'Berline Économique · Éco'};
-const MVNAME={van:'Van Premium',business:'Business',eco:'Éco'};
-const VMNAME={van:'Mercedes Classe V',business:'Mercedes Classe E',eco:'Berline Économique'};
+const VID={van:'vc-v',business:'vc-b'};
+const MVID={van:'vc-mv',business:'vc-mb'};
+const VNAME={van:'Mercedes Classe V · Van Premium',business:'Mercedes Classe E · Business'};
+const MVNAME={van:'Van Premium',business:'Business'};
+const VMNAME={van:'Mercedes Classe V',business:'Mercedes Classe E'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}
@@ -1341,7 +1268,7 @@ function updateMAD(){
 }
 
 /* ── DURÉES FORFAITS (estimation pour check dispo) ── */
-const PACK_DURATION={'cdg-paris':55,'orly-paris':45,'paris-cdg-rd':55,'paris-cdg-rg':60,'paris-orly':45};
+const PACK_DURATION={'cdg':55,'orly':45};
 
 /* ── DISPONIBILITÉ ── */
 const availTimers = {};
@@ -1413,7 +1340,7 @@ async function renderTimeline(tab, date){
 }
 
 /* ── FORFAITS ── */
-const PVID={van:'pvc-v',business:'pvc-b',eco:'pvc-e'};
+const PVID={van:'pvc-v',business:'pvc-b'};
 function selPack(key,el){
   S.fpack=key;
   document.querySelectorAll('.pack-card').forEach(c=>c.classList.remove('on'));

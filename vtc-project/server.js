@@ -499,6 +499,7 @@ const pages = [
   'a-propos','faq','chauffeur-prive-versailles','chauffeur-prive-neuilly-sur-seine',
   'chauffeur-prive-boulogne-billancourt','vtc-la-defense','vtc-vincennes',
   'transfert-roissy-cdg','transfert-orly-paris',
+  'cdg-airport-transfer-paris','orly-airport-transfer-paris',
 ];
 pages.forEach(slug => {
   app.get(`/${slug}`, (_req, res) => res.sendFile(path.join(__dirname, 'public', `${slug}.html`)));
