@@ -172,6 +172,11 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .btn-pay:hover{background:var(--gold2)}.btn-pay:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1rem}
 .btn-row .btn-calc,.btn-row .btn-pay{margin-top:0}
+.btn-wa{width:100%;background:#25D366;border:none;color:#fff;padding:1rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-wa:hover{background:#1ebe5d}
+.or-sep{display:flex;align-items:center;gap:.7rem;margin-top:.8rem;margin-bottom:.2rem}
+.or-sep::before,.or-sep::after{content:'';flex:1;height:1px;background:var(--subtle)}
+.or-sep span{font-size:.65rem;color:var(--faint);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
 .secure-line{text-align:center;font-size:.68rem;color:var(--faint);margin-top:.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:15px;height:15px;border:1.5px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
@@ -705,9 +710,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
       <button class="btn-pay" id="btn-pay-p" style="margin-top:1rem" onclick="openModal('p')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        Payer et réserver
+        Payer par carte
       </button>
       <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
+      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <a class="btn-wa" href="#" onclick="openWA('p');return false">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
+        Réserver via WhatsApp
+      </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
@@ -813,10 +823,15 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </button>
         <button class="btn-pay" id="btn-pay-t" disabled onclick="openModal('t')">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-          Payer et réserver
+          Payer par carte
         </button>
       </div>
       <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
+      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <a class="btn-wa" href="#" onclick="openWA('t');return false">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
+        Réserver via WhatsApp
+      </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
@@ -922,9 +937,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <button class="btn-pay" style="margin-top:1rem" onclick="openModal('m')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        Payer et réserver
+        Payer par carte
       </button>
       <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
+      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <a class="btn-wa" href="#" onclick="openWA('m');return false">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
+        Réserver via WhatsApp
+      </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
@@ -1522,6 +1542,56 @@ function buildReservationData(){
     time=document.getElementById('i-mtime').value;
   }
   return { ref, status:'confirmed', type:S.tab, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:S.price||0, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web' };
+}
+
+/* ── RÉSERVATION WHATSAPP ── */
+function openWA(tab) {
+  const WA_NUM = '33623889717';
+  let msg = 'Bonjour IsmaDrive 👋\n\nJe souhaite réserver :\n\n';
+
+  if (tab === 'p') {
+    const pack = CFG.forfaits[S.fpack];
+    const veh  = S.fveh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const date = document.getElementById('i-pdate')?.value || '—';
+    const time = document.getElementById('i-ptime')?.value || '—';
+    const rehausseur = document.getElementById('f-rehausseur')?.checked;
+    const siege      = document.getElementById('f-siege')?.checked;
+    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
+    msg += `✈️ Trajet : ${pack.label}\n`;
+    msg += `📅 Date : ${date} à ${time}\n`;
+    msg += `🚐 Véhicule : ${veh}\n`;
+    msg += `💶 Prix : ${pack[S.fveh]} €\n`;
+    if (equip) msg += `👶 Équipement : ${equip}\n`;
+  }
+
+  else if (tab === 't') {
+    const dep  = S.dep?.label || document.getElementById('i-dep')?.value || '—';
+    const arr  = S.arr?.label || document.getElementById('i-arr')?.value || '—';
+    const veh  = S.veh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const date = document.getElementById('i-date')?.value || '—';
+    const time = document.getElementById('i-time')?.value || '—';
+    const prix = S.price ? `${S.price} €` : 'à calculer';
+    msg += `🗺️ Départ : ${dep}\n`;
+    msg += `📍 Arrivée : ${arr}\n`;
+    msg += `📅 Date : ${date} à ${time}\n`;
+    msg += `🚐 Véhicule : ${veh}\n`;
+    msg += `💶 Prix estimé : ${prix}\n`;
+  }
+
+  else if (tab === 'm') {
+    const veh  = S.mveh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const date = document.getElementById('i-mdate')?.value || '—';
+    const time = document.getElementById('i-mtime')?.value || '—';
+    const dur  = S.mdur + (S.mdur > 1 ? ' heures' : ' heure');
+    const prix = S.price ? `${S.price} €` : '—';
+    msg += `🕐 Mise à disposition : ${dur}\n`;
+    msg += `📅 Date : ${date} à ${time}\n`;
+    msg += `🚐 Véhicule : ${veh}\n`;
+    msg += `💶 Total : ${prix}\n`;
+  }
+
+  msg += '\nMerci de confirmer la disponibilité.';
+  window.open('https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 /* ── QR CODE RÉSERVATION ── */
