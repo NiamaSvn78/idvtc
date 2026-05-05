@@ -11,9 +11,30 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR     = path.join(__dirname, 'data');
 const RES_FILE     = path.join(DATA_DIR, 'reservations.json');
 const DRIVERS_FILE = path.join(DATA_DIR, 'drivers.json');
-if (!fs.existsSync(DATA_DIR))     fs.mkdirSync(DATA_DIR);
-if (!fs.existsSync(RES_FILE))     fs.writeFileSync(RES_FILE,     '[]');
-if (!fs.existsSync(DRIVERS_FILE)) fs.writeFileSync(DRIVERS_FILE, '[]');
+
+// Stockage en mémoire pour Vercel (reset à chaque redémarrage)
+let memoryReservations = [];
+let memoryDrivers = [];
+
+// Initialisation sécurisée pour Vercel
+function initStorage() {
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+    // Mode Vercel - stockage en mémoire uniquement
+    console.log('🔄 Mode Vercel détecté - stockage en mémoire temporaire');
+    return;
+  }
+  
+  // Mode local - stockage fichiers
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+    if (!fs.existsSync(RES_FILE)) fs.writeFileSync(RES_FILE, '[]');
+    if (!fs.existsSync(DRIVERS_FILE)) fs.writeFileSync(DRIVERS_FILE, '[]');
+  } catch (error) {
+    console.warn('⚠️ Impossibilité d\'écrire les fichiers, passage en mode mémoire:', error.message);
+  }
+}
+
+initStorage();
 
 const ADMIN_PWD = process.env.ADMIN_PWD || 'idvtc2024';
 const BUFFER_MIN = 0;
