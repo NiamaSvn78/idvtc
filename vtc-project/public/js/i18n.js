@@ -654,7 +654,7 @@
   /* ─────────────────────────────────── */
 
   function getLang() {
-    return localStorage.getItem(LANG_KEY) || 'fr';
+    return sessionStorage.getItem(LANG_KEY) || 'fr';
   }
 
   function t(key, lang) {
@@ -705,7 +705,7 @@
 
   window.toggleLang = function () {
     var next = getLang() === 'fr' ? 'en' : 'fr';
-    localStorage.setItem(LANG_KEY, next);
+    sessionStorage.setItem(LANG_KEY, next);
     applyTranslations(next);
     updateToggle(next);
   };

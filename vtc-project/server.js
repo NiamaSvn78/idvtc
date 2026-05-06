@@ -496,7 +496,8 @@ app.get('/mission-order/:id', (req, res) => {
 app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 const pages = [
-  'a-propos','faq','chauffeur-prive-versailles','chauffeur-prive-neuilly-sur-seine',
+  'a-propos','faq','cgv','mentions-legales','confidentialite',
+  'chauffeur-prive-versailles','chauffeur-prive-neuilly-sur-seine',
   'chauffeur-prive-boulogne-billancourt','vtc-la-defense','vtc-vincennes',
   'transfert-roissy-cdg','transfert-orly-paris',
   'cdg-airport-transfer-paris','orly-airport-transfer-paris',
