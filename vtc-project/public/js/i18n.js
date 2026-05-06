@@ -683,9 +683,21 @@
       var val = t(el.getAttribute('data-i18n-aria'), lang);
       el.setAttribute('aria-label', val);
     });
-    /* Select options — comma-separated key */
+    /* Select options — comma-separated key(s) */
     document.querySelectorAll('[data-i18n-opts]').forEach(function (sel) {
-      var vals = t(sel.getAttribute('data-i18n-opts'), lang).split(',');
+      var keysAttr = sel.getAttribute('data-i18n-opts');
+      var keys = keysAttr.split(',');
+      var vals;
+      
+      // Check if it's multiple translation keys (like tabsel.airport,tabsel.transfer,...)
+      if (keys.length > 1 && keys.every(function(k) { return T[lang] && T[lang][k.trim()]; })) {
+        // Multiple keys: get translation for each key
+        vals = keys.map(function(k) { return t(k.trim(), lang); });
+      } else {
+        // Single key containing comma-separated values (like transfer.pax_opts)
+        vals = t(keysAttr, lang).split(',');
+      }
+      
       Array.from(sel.options).forEach(function (opt, i) {
         if (vals[i] !== undefined) opt.textContent = vals[i].trim();
       });
