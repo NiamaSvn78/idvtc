@@ -37,9 +37,11 @@ app.post('/api/check-availability', (req, res) => {
 
 // Serve HTML pages
 const pages = [
-  'a-propos', 'faq', 'chauffeur-prive-versailles', 
-  'chauffeur-prive-neuilly-sur-seine', 'chauffeur-prive-boulogne-billancourt',
-  'vtc-la-defense', 'vtc-vincennes', 'transfert-roissy-cdg', 'transfert-orly-paris'
+  'a-propos', 'faq', 'cgv', 'mentions-legales', 'confidentialite',
+  'chauffeur-prive-versailles', 'chauffeur-prive-neuilly-sur-seine', 
+  'chauffeur-prive-boulogne-billancourt', 'vtc-la-defense', 'vtc-vincennes', 
+  'transfert-roissy-cdg', 'transfert-orly-paris', 'cdg-airport-transfer-paris', 
+  'orly-airport-transfer-paris'
 ];
 
 pages.forEach(slug => {
