@@ -62,14 +62,19 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 <body>
 <nav>
   <a class="nav-logo" href="/">IsmaDrive</a>
-  <a class="nav-back" href="/">← Retour à l'accueil</a>
+  <div style="display:flex;align-items:center;gap:1.2rem">
+    <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+      <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
+    </button>
+    <a class="nav-back" href="/" data-i18n="nav.back">← Retour à l'accueil</a>
+  </div>
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag">Yvelines · 78000 · Château de Versailles</p>
-  <h1>Chauffeur Privé à Versailles<br><em>VTC Luxe 24/7</em></h1>
-  <p class="page-sub">Résidents de Versailles, visiteurs du Château ou professionnels du Pôle de Compétitivité — IsmaDrive assure vos déplacements depuis Versailles vers Paris, CDG, Orly et toute l'Île-de-France. Discrétion, ponctualité, Mercedes.</p>
-  <a class="cta-btn" href="/#reservation">Réserver depuis Versailles</a>
+  <p class="page-tag" data-i18n="seo_versailles.page_tag">Yvelines · 78000 · Château de Versailles</p>
+  <h1 data-i18n-html="seo_versailles.title_html">Chauffeur Privé à Versailles<br><em>VTC Luxe 24/7</em></h1>
+  <p class="page-sub" data-i18n="seo_versailles.sub">Résidents de Versailles, visiteurs du Château ou professionnels du Pôle de Compétitivité — IsmaDrive assure vos déplacements depuis Versailles vers Paris, CDG, Orly et toute l'Île-de-France. Discrétion, ponctualité, Mercedes.</p>
+  <a class="cta-btn" href="/#reservation" data-i18n="seo_versailles.cta">Réserver depuis Versailles</a>
 </section>
 
 <div class="page-body">
@@ -102,12 +107,12 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 <footer>
   <div class="foot-logo">IsmaDrive</div>
   <div class="foot-links">
-    <a href="/">Accueil</a>
-    <a href="/transfert-roissy-cdg">Transfert CDG</a>
-    <a href="/transfert-orly-paris">Transfert Orly</a>
+    <a href="/" data-i18n="footer.home">Accueil</a>
+    <a href="/transfert-roissy-cdg" data-i18n="footer.cdg">Transfert CDG</a>
+    <a href="/transfert-orly-paris" data-i18n="footer.orly">Transfert Orly</a>
     <a href="/chauffeur-prive-neuilly-sur-seine">VTC Neuilly</a>
   </div>
-  <div style="font-size:.72rem;color:var(--faint)">© 2025 IsmaDrive</div>
+  <div style="font-size:.72rem;color:var(--faint)" data-i18n="footer.copy_simple">© 2025 IsmaDrive</div>
 </footer>
 
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
@@ -115,5 +120,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   <span>WhatsApp</span>
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
+<script src="/js/i18n.js"></script>
 </body>
 </html>

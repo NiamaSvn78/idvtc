@@ -574,12 +574,15 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 <nav>
   <a class="nav-logo" href="#">IsmaDrive</a>
   <ul class="nav-links">
-    <li><a href="/#reservation">Accueil</a></li>
-    <li><a href="/a-propos">À propos</a></li>
-    <li><a href="/faq">FAQ</a></li>
+    <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/a-propos" data-i18n="nav.about">À propos</a></li>
+    <li><a href="/faq" data-i18n="nav.faq">FAQ</a></li>
   </ul>
-  <button class="nav-btn" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400)">Réserver</button>
-  <button class="nav-burger" id="nav-burger" onclick="toggleNav()" aria-label="Ouvrir le menu" aria-expanded="false">
+  <button class="nav-btn" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400)" data-i18n="nav.book">Réserver</button>
+  <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+    <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
+  </button>
+  <button class="nav-burger" id="nav-burger" onclick="toggleNav()" data-i18n-aria="nav.menu_open" aria-label="Ouvrir le menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -587,26 +590,26 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 <div class="nav-overlay" id="nav-overlay" onclick="toggleNav()"></div>
 <div class="nav-drawer" id="nav-drawer" role="navigation" aria-label="Menu mobile">
   <ul>
-    <li><a href="/#reservation" onclick="toggleNav()"><span class="nd-num">01</span>Accueil</a></li>
-    <li><a href="/a-propos"><span class="nd-num">02</span>À propos</a></li>
-    <li><a href="/faq"><span class="nd-num">03</span>FAQ</a></li>
+    <li><a href="/#reservation" onclick="toggleNav()"><span class="nd-num">01</span><span data-i18n="nav.home">Accueil</span></a></li>
+    <li><a href="/a-propos"><span class="nd-num">02</span><span data-i18n="nav.about">À propos</span></a></li>
+    <li><a href="/faq"><span class="nd-num">03</span><span data-i18n="nav.faq">FAQ</span></a></li>
   </ul>
-  <a class="nav-drawer-cta" href="#" onclick="navTab('p');toggleNav();document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false">Réserver maintenant</a>
+  <a class="nav-drawer-cta" href="#" onclick="navTab('p');toggleNav();document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false" data-i18n="nav.book_now">Réserver maintenant</a>
   <a class="nav-drawer-wa" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-    0623 88 97 17
+    Nous contacter via WhatsApp
   </a>
 </div>
 
 <section class="hero" id="reservation">
-  <p class="hero-tag">Chauffeur Privé · Paris &amp; Île-de-France · 24h/24</p>
-  <h1 class="hero-title">Chauffeur Privé Paris &amp; Île-de-France<br><em>Votre VTC de Luxe 24/7</em></h1>
-  <p class="hero-sub">Touristes, familles et professionnels — transferts aéroport CDG &amp; Orly, visites monuments, excursions Versailles. Réhausseur &amp; siège bébé inclus, Van 7 places, prix fixe 24h/24.</p>
-  <a class="hero-cta" href="#" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false">ESTIMER MON PRIX EN 30 SECONDES</a>
+  <p class="hero-tag" data-i18n="hero.tag">Chauffeur Privé · Paris &amp; Île-de-France · 24h/24</p>
+  <h1 class="hero-title" data-i18n-html="hero.title_html">Chauffeur Privé Paris &amp; Île-de-France<br><em>Votre VTC de Luxe 24/7</em></h1>
+  <p class="hero-sub" data-i18n="hero.sub">Touristes, familles et professionnels — transferts aéroport CDG &amp; Orly, visites monuments, excursions Versailles. Réhausseur &amp; siège bébé inclus, Van 7 places, prix fixe 24h/24.</p>
+  <a class="hero-cta" href="#" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false" data-i18n="hero.cta">ESTIMER MON PRIX EN 30 SECONDES</a>
 
   <div class="booking-card">
     <div class="tab-select-wrap">
-      <select class="tab-select" id="tab-select" onchange="goTabSel(this.value)" aria-label="Sélectionner un service">
+      <select class="tab-select" id="tab-select" onchange="goTabSel(this.value)" aria-label="Sélectionner un service" data-i18n-opts="tabsel.airport,tabsel.transfer,tabsel.mad,tabsel.fleet,tabsel.services,tabsel.guarantees">
         <option value="p">✈ Forfaits Aéroports</option>
         <option value="t">🚗 Transfert (hors Paris)</option>
         <option value="m">⏱ Mise à disposition</option>
@@ -616,31 +619,31 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </select>
     </div>
     <div class="b-tabs">
-      <button class="b-tab on" onclick="goTab('p',this)">✈ &nbsp;Forfaits Aéroports</button>
-      <button class="b-tab" onclick="goTab('t',this)">🚗 &nbsp;Transfert (hors Paris)</button>
-      <button class="b-tab" onclick="goTab('m',this)">⏱ &nbsp;Mise à disposition</button>
-      <button class="b-tab" onclick="goTab('f',this)">🚘 &nbsp;Notre flotte</button>
-      <button class="b-tab" onclick="goTab('s',this)">✦ &nbsp;Services</button>
-      <button class="b-tab" onclick="goTab('g',this)">✓ &nbsp;Garanties</button>
+      <button class="b-tab on" onclick="goTab('p',this)" data-i18n="tab.airport">✈ &nbsp;Forfaits Aéroports</button>
+      <button class="b-tab" onclick="goTab('t',this)" data-i18n="tab.transfer">🚗 &nbsp;Transfert (hors Paris)</button>
+      <button class="b-tab" onclick="goTab('m',this)" data-i18n="tab.mad">⏱ &nbsp;Mise à disposition</button>
+      <button class="b-tab" onclick="goTab('f',this)" data-i18n="tab.fleet">🚘 &nbsp;Notre flotte</button>
+      <button class="b-tab" onclick="goTab('s',this)" data-i18n="tab.services">✦ &nbsp;Services</button>
+      <button class="b-tab" onclick="goTab('g',this)" data-i18n="tab.guarantees">✓ &nbsp;Garanties</button>
     </div>
 
     <div class="b-pane on" id="pane-p">
-      <p class="section-tag">Forfaits fixes · Prix garantis · Famille bienvenue</p>
-      <p style="font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.2rem">Sélectionnez votre trajet aéroport. Tarif fixe garanti, toutes charges incluses. <strong style="color:var(--text)">Réhausseur enfant et siège bébé disponibles sans supplément.</strong></p>
+      <p class="section-tag" data-i18n="airport.tag">Forfaits fixes · Prix garantis · Famille bienvenue</p>
+      <p style="font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.2rem" data-i18n-html="airport.intro_html">Sélectionnez votre trajet aéroport. Tarif fixe garanti, toutes charges incluses. <strong style="color:var(--text)">Réhausseur enfant et siège bébé disponibles sans supplément.</strong></p>
 
       <!-- ── Sélecteur de route ── -->
-      <label class="fl" style="margin-bottom:.55rem">Votre trajet</label>
+      <label class="fl" style="margin-bottom:.55rem" data-i18n="airport.route_label">Votre trajet</label>
       <div class="pack-grid">
         <div class="pack-card on" id="pk-cdg" onclick="selPack('cdg',this)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name">Aéroport CDG</div>
-          <div class="pack-badge">Aller ou retour</div>
+          <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
+          <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
           <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
         </div>
         <div class="pack-card" id="pk-orly" onclick="selPack('orly',this)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name">Aéroport Orly</div>
-          <div class="pack-badge">Aller ou retour</div>
+          <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
+          <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
           <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
         </div>
       </div>
@@ -665,17 +668,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="family-bar">
         <div class="family-bar-label">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Équipement famille
+          <span data-i18n="airport.family_label">Équipement famille</span>
         </div>
         <div class="fam-opt">
           <input type="checkbox" id="f-rehausseur">
-          <label for="f-rehausseur">Réhausseur enfant (3–12 ans)</label>
+          <label for="f-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label>
         </div>
         <div class="fam-opt">
           <input type="checkbox" id="f-siege">
-          <label for="f-siege">Siège bébé (0–3 ans)</label>
+          <label for="f-siege" data-i18n="airport.seat">Siège bébé (0–3 ans)</label>
         </div>
-        <span style="font-size:.7rem;color:var(--faint);margin-left:auto">Inclus · sans supplément</span>
+        <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
       </div>
 
       <!-- ── Date / Heure ── -->
@@ -698,29 +701,29 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="price-box show" id="pack-price-box" style="margin-top:1.2rem">
         <div class="price-top">
           <div>
-            <div class="price-lbl">Forfait fixe garanti</div>
+            <div class="price-lbl" data-i18n="airport.price_label">Forfait fixe garanti</div>
             <div class="price-num"><sup>€</sup><span id="pp-price">100</span></div>
             <div class="price-veh" id="pp-veh">Mercedes Classe V · Van Premium</div>
           </div>
           <div class="price-km" id="pp-tag">Forfait fixe</div>
         </div>
         <div class="price-body" id="pp-breakdown"></div>
-        <div class="price-note">Tarif fixe · Aucun supplément · Réhausseur &amp; siège bébé inclus sur demande</div>
+        <div class="price-note" data-i18n="airport.price_note">Tarif fixe · Aucun supplément · Réhausseur &amp; siège bébé inclus sur demande</div>
       </div>
 
       <button class="btn-pay" id="btn-pay-p" style="margin-top:1rem" onclick="openModal('p')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        Payer par carte
+        <span data-i18n="airport.pay">Payer par carte</span>
       </button>
-      <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
-      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <div class="secure-line" data-i18n="airport.secure">🔒 Paiement sécurisé · Stripe</div>
+      <div class="or-sep"><span data-i18n="airport.or_sep">ou réserver sans paiement immédiat</span></div>
       <a class="btn-wa" href="#" onclick="openWA('p');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        Réserver via WhatsApp
+        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
       </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
+        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
       </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
@@ -753,9 +756,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
     <div class="b-pane" id="pane-t">
       <div class="fg1">
-        <label class="fl">📍 Adresse de départ</label>
+        <label class="fl" data-i18n="transfer.dep_label">📍 Adresse de départ</label>
         <div class="ac-wrap">
-          <input class="fi" id="i-dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" autocomplete="off"
+          <input class="fi" id="i-dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" data-i18n-ph="transfer.dep_ph" autocomplete="off"
             oninput="acSearch(this,'ac-dep')" onfocus="acSearch(this,'ac-dep')" onblur="acBlur('ac-dep')">
           <div class="ac-list" id="ac-dep"></div>
         </div>
@@ -766,9 +769,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="rv-dot full"></div>
       </div>
       <div class="fg1">
-        <label class="fl">🏁 Adresse d'arrivée</label>
+        <label class="fl" data-i18n="transfer.arr_label">🏁 Adresse d'arrivée</label>
         <div class="ac-wrap">
-          <input class="fi" id="i-arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" autocomplete="off"
+          <input class="fi" id="i-arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" data-i18n-ph="transfer.arr_ph" autocomplete="off"
             oninput="acSearch(this,'ac-arr')" onfocus="acSearch(this,'ac-arr')" onblur="acBlur('ac-arr')">
           <div class="ac-list" id="ac-arr"></div>
         </div>
@@ -788,8 +791,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <span>05:00</span><span>12:00</span><span>23:00</span>
       </div>
       <div class="fg2">
-        <div><label class="fl">Passagers</label><select class="fs" id="i-pax"><option>1 passager</option><option>2 passagers</option><option>3 passagers</option><option>4 passagers</option><option selected>5 passagers</option><option>6 passagers</option><option>7 passagers</option></select></div>
-        <div><label class="fl">Bagages</label><select class="fs" id="i-bag"><option>0 bagage</option><option>1 bagage</option><option>2 bagages</option><option>3 bagages</option><option>4 bagages</option><option>5 bagages</option><option>6 bagages</option><option selected>7 bagages</option><option>8 bagages</option></select></div>
+        <div><label class="fl" data-i18n="transfer.pax">Passagers</label><select class="fs" id="i-pax" data-i18n-opts="transfer.pax_opts"><option>1 passager</option><option>2 passagers</option><option>3 passagers</option><option>4 passagers</option><option selected>5 passagers</option><option>6 passagers</option><option>7 passagers</option></select></div>
+        <div><label class="fl" data-i18n="transfer.bags">Bagages</label><select class="fs" id="i-bag" data-i18n-opts="transfer.bag_opts"><option>0 bagage</option><option>1 bagage</option><option>2 bagages</option><option>3 bagages</option><option>4 bagages</option><option>5 bagages</option><option>6 bagages</option><option selected>7 bagages</option><option>8 bagages</option></select></div>
       </div>
       <div class="v-grid">
         <div class="v-card on" id="vc-v" onclick="selV('van')">
@@ -807,19 +810,35 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
       </div>
+      <!-- ── Options famille ── -->
+      <div class="family-bar">
+        <div class="family-bar-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span data-i18n="airport.family_label">Équipement famille</span>
+        </div>
+        <div class="fam-opt">
+          <input type="checkbox" id="t-rehausseur">
+          <label for="t-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label>
+        </div>
+        <div class="fam-opt">
+          <input type="checkbox" id="t-siege">
+          <label for="t-siege" data-i18n="airport.seat">Siège bébé (0–3 ans)</label>
+        </div>
+        <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
+      </div>
       <div class="status" id="status-t"></div>
       <div class="price-box" id="price-box">
         <div class="price-top">
-          <div><div class="price-lbl">Prix estimé — tarif fixe garanti</div><div class="price-num"><sup>€</sup><span id="d-price">—</span></div><div class="price-veh" id="d-veh">—</div></div>
+          <div><div class="price-lbl" data-i18n="transfer.price_label">Prix estimé — tarif fixe garanti</div><div class="price-num"><sup>€</sup><span id="d-price">—</span></div><div class="price-veh" id="d-veh">—</div></div>
           <div class="price-km" id="d-km">—</div>
         </div>
         <div class="price-body" id="d-breakdown"></div>
-        <div class="price-note">Tarif fixe · Aucun supplément · Toutes charges incluses</div>
+        <div class="price-note" data-i18n="transfer.price_note">Tarif fixe · Aucun supplément · Toutes charges incluses</div>
       </div>
       <div class="btn-row">
         <button class="btn-calc" id="btn-calc" onclick="doCalc()">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg>
-          Calculer le prix
+          <span data-i18n="transfer.calc">Calculer le prix</span>
         </button>
         <button class="btn-pay" id="btn-pay-t" disabled onclick="openModal('t')">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
@@ -830,30 +849,30 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
       <a class="btn-wa" href="#" onclick="openWA('t');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        Réserver via WhatsApp
+        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
       </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
+        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
       </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
-        <p class="section-tag" style="margin-bottom:1rem">Inclus dans chaque transfert</p>
+        <p class="section-tag" style="margin-bottom:1rem" data-i18n="transfer.incl_tag">Inclus dans chaque transfert</p>
         <div class="guar-grid guar-3" style="margin-bottom:1.4rem">
           <div class="guar">
             <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="4" y="6" width="24" height="22" rx="2"/><path d="M16 6V3M10 10h12M10 15h8"/></svg>
-            <div class="guar-title">Pancarte nominative</div>
-            <div class="guar-desc">Votre chauffeur vous attend dans le hall d'arrivée avec votre nom affiché.</div>
+            <div class="guar-title" data-i18n="transfer.g1_title">Pancarte nominative</div>
+            <div class="guar-desc" data-i18n="transfer.g1_desc">Votre chauffeur vous attend dans le hall d'arrivée avec votre nom affiché.</div>
           </div>
           <div class="guar">
             <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 8v8.5l5 3"/></svg>
-            <div class="guar-title">Suivi de vol en direct</div>
-            <div class="guar-desc">Retard ou avance : votre chauffeur ajuste automatiquement son heure d'arrivée.</div>
+            <div class="guar-title" data-i18n="transfer.g2_title">Suivi de vol en direct</div>
+            <div class="guar-desc" data-i18n="transfer.g2_desc">Retard ou avance : votre chauffeur ajuste automatiquement son heure d'arrivée.</div>
           </div>
           <div class="guar">
             <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12C6 26 2 22 2 16V8z"/></svg>
-            <div class="guar-title">Attente offerte</div>
-            <div class="guar-desc">60 minutes pour les aéroports · 20 minutes pour les gares — sans supplément.</div>
+            <div class="guar-title" data-i18n="transfer.g3_title">Attente offerte</div>
+            <div class="guar-desc" data-i18n="transfer.g3_desc">60 minutes pour les aéroports · 20 minutes pour les gares — sans supplément.</div>
           </div>
         </div>
         <div class="airport-wrap" style="margin-top:0">
@@ -889,138 +908,143 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
     <div class="b-pane" id="pane-m">
       <div class="fg1">
-        <label class="fl">📍 Adresse de prise en charge</label>
+        <label class="fl" data-i18n="mad.dep_label">📍 Adresse de prise en charge</label>
         <div class="ac-wrap">
-          <input class="fi" id="i-mdep" type="text" placeholder="Adresse de départ" autocomplete="off"
+          <input class="fi" id="i-mdep" type="text" placeholder="Adresse de départ" data-i18n-ph="mad.dep_ph" autocomplete="off"
             oninput="acSearch(this,'ac-mdep')" onfocus="acSearch(this,'ac-mdep')" onblur="acBlur('ac-mdep')">
           <div class="ac-list" id="ac-mdep"></div>
         </div>
       </div>
       <div class="fg2">
-        <div><label class="fl">📅 Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
-        <div><label class="fl">🕐 Heure</label><input class="fi" id="i-mtime" type="time" style="padding-left:.75rem"></div>
+        <div><label class="fl" data-i18n="mad.date">📅 Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
+        <div><label class="fl" data-i18n="mad.time">🕐 Heure</label><input class="fi" id="i-mtime" type="time" style="padding-left:.75rem"></div>
       </div>
-      <label class="fl" style="margin-bottom:.6rem">Durée souhaitée</label>
+      <label class="fl" style="margin-bottom:.6rem" data-i18n="mad.duration_label">Durée souhaitée</label>
       <div class="d-grid">
-        <div class="d-btn on" onclick="selD(2,this)"><div class="d-h">2h</div><div class="d-l">Min.</div></div>
+        <div class="d-btn on" onclick="selD(2,this)"><div class="d-h">2h</div><div class="d-l" data-i18n="d.min">Min.</div></div>
         <div class="d-btn" onclick="selD(3,this)"><div class="d-h">3h</div><div class="d-l"></div></div>
         <div class="d-btn" onclick="selD(4,this)"><div class="d-h">4h</div><div class="d-l"></div></div>
         <div class="d-btn" onclick="selD(5,this)"><div class="d-h">5h</div><div class="d-l"></div></div>
         <div class="d-btn" onclick="selD(6,this)"><div class="d-h">6h</div><div class="d-l"></div></div>
         <div class="d-btn" onclick="selD(8,this)"><div class="d-h">8h</div><div class="d-l"></div></div>
         <div class="d-btn" onclick="selD(10,this)"><div class="d-h">10h</div><div class="d-l"></div></div>
-        <div class="d-btn" onclick="selD(12,this)"><div class="d-h">12h</div><div class="d-l">Jour</div></div>
+        <div class="d-btn" onclick="selD(12,this)"><div class="d-h">12h</div><div class="d-l" data-i18n="d.day">Jour</div></div>
       </div>
       <div class="v-grid" style="margin-top:1rem">
         <div class="v-card on" id="vc-mv" onclick="selVM('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
+          <div class="v-ico">🚐</div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
           <div class="v-model">Mercedes Classe V</div>
           <div class="v-specs"><span>👤 7 pax</span></div>
-          <div class="v-rate">95 € / heure · min. 2h</div>
+          <div class="v-rate" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
         </div>
         <div class="v-card" id="vc-mb" onclick="selVM('business')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚗</div><div class="v-name">Business</div>
+          <div class="v-ico">🚗</div><div class="v-name" data-i18n="airport.business_name">Business</div>
           <div class="v-model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span></div>
-          <div class="v-rate">75 € / heure · min. 2h</div>
+          <div class="v-rate" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
         </div>
+      </div>
+      <!-- ── Options famille ── -->
+      <div class="family-bar">
+        <div class="family-bar-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span data-i18n="airport.family_label">Équipement famille</span>
+        </div>
+        <div class="fam-opt">
+          <input type="checkbox" id="m-rehausseur">
+          <label for="m-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label>
+        </div>
+        <div class="fam-opt">
+          <input type="checkbox" id="m-siege">
+          <label for="m-siege" data-i18n="airport.seat">Siège bébé (0–3 ans)</label>
+        </div>
+        <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
       </div>
       <div class="mad-box">
         <div class="price-top">
-          <div><div class="price-lbl">Forfait mise à disposition</div><div class="price-num"><sup>€</sup><span id="d-mp">150</span></div><div class="price-veh" id="d-mv">Business · 2 heures</div></div>
+          <div><div class="price-lbl" data-i18n="mad.price_label">Forfait mise à disposition</div><div class="price-num"><sup>€</sup><span id="d-mp">150</span></div><div class="price-veh" id="d-mv">Business · 2 heures</div></div>
           <div class="price-km" id="d-mr">75€/h</div>
         </div>
         <div class="price-body" id="d-mb"></div>
-        <div class="price-note">Kilométrage illimité · Carburant inclus · Chauffeur dédié</div>
+        <div class="price-note" data-i18n="mad.price_note">Kilométrage illimité · Carburant inclus · Chauffeur dédié</div>
       </div>
       <button class="btn-pay" style="margin-top:1rem" onclick="openModal('m')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        Payer par carte
+        <span data-i18n="mad.pay">Payer par carte</span>
       </button>
-      <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
-      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <div class="secure-line" data-i18n="mad.secure">🔒 Paiement sécurisé · Stripe</div>
+      <div class="or-sep"><span data-i18n="mad.or_sep">ou réserver sans paiement immédiat</span></div>
       <a class="btn-wa" href="#" onclick="openWA('m');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        Réserver via WhatsApp
+        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
       </a>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.
+        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
       </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
-        <p class="section-tag" style="margin-bottom:1rem">Pour quels besoins ?</p>
+        <p class="section-tag" style="margin-bottom:1rem" data-i18n="mad.usage_tag">Pour quels besoins ?</p>
         <div class="mad-items">
           <div class="mad-item">
             <div class="mad-item-ico">🛍️</div>
-            <div class="mad-item-title">Shopping &amp; Tourisme de luxe</div>
-            <div class="mad-item-desc">Avenue Montaigne, La Vallée Village, Boulevard Haussmann — votre chauffeur patiente le temps de vos emplettes.</div>
+            <div class="mad-item-title" data-i18n="mad.s1_title">Shopping &amp; Tourisme de luxe</div>
+            <div class="mad-item-desc" data-i18n="mad.s1_desc">Avenue Montaigne, La Vallée Village, Boulevard Haussmann — votre chauffeur patiente le temps de vos emplettes.</div>
           </div>
           <div class="mad-item">
             <div class="mad-item-ico">🏛️</div>
-            <div class="mad-item-title">Séminaires &amp; Congrès</div>
-            <div class="mad-item-desc">Porte de Versailles, Paris Le Bourget, Palais des Congrès, Villepinte — navettes et accueil pour vos délégations.</div>
+            <div class="mad-item-title" data-i18n="mad.s2_title">Séminaires &amp; Congrès</div>
+            <div class="mad-item-desc" data-i18n="mad.s2_desc">Porte de Versailles, Paris Le Bourget, Palais des Congrès, Villepinte — navettes et accueil pour vos délégations.</div>
           </div>
           <div class="mad-item">
             <div class="mad-item-ico">💍</div>
-            <div class="mad-item-title">Mariages &amp; Cérémonies</div>
-            <div class="mad-item-desc">Cortège multi-véhicules, accueil des invités, transferts jusqu'au lieu de réception — service coordinateur sur demande.</div>
+            <div class="mad-item-title" data-i18n="mad.s3_title">Mariages &amp; Cérémonies</div>
+            <div class="mad-item-desc" data-i18n="mad.s3_desc">Cortège multi-véhicules, accueil des invités, transferts jusqu'au lieu de réception — service coordinateur sur demande.</div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="b-pane" id="pane-f">
-      <p class="section-tag">Notre flotte</p>
-      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:1.8rem">Trois véhicules, un niveau d'exigence</h2>
+      <p class="section-tag" data-i18n="fleet.tag">Notre flotte</p>
+      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:1.8rem" data-i18n="fleet.title">Deux véhicules, un niveau d'exigence</h2>
       <div class="fleet-grid" style="grid-template-columns:1fr">
         <div class="fleet-item">
-          <div class="fleet-gamme">Véhicule principal · Van Premium</div>
+          <div class="fleet-gamme" data-i18n="fleet.van_gamme">Véhicule principal · Van Premium</div>
           <h3 class="fleet-name">Mercedes V-Class</h3>
-          <div class="family-badge">👶 Famille — Réhausseur &amp; siège bébé disponibles</div>
-          <p class="fleet-desc">Notre référence pour les familles et les groupes. Espace généreux, 7 places, 8 bagages — idéal pour les transferts aéroport avec enfants. Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément, sur demande à la réservation.</p>
+          <div class="family-badge" data-i18n-html="fleet.van_family_html">👶 Famille — Réhausseur &amp; siège bébé disponibles</div>
+          <p class="fleet-desc" data-i18n="fleet.van_desc">Notre référence pour les familles et les groupes. Espace généreux, 7 places, 8 bagages — idéal pour les transferts aéroport avec enfants. Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément, sur demande à la réservation.</p>
           <div class="fleet-pills"><span class="fleet-pill">7 passagers</span><span class="fleet-pill">8 bagages</span><span class="fleet-pill">Wi-Fi à bord</span><span class="fleet-pill">Eau minérale</span><span class="fleet-pill">Chargeurs USB</span><span class="fleet-pill">Sièges cuir</span><span class="fleet-pill">Climatisation 4 zones</span><span class="fleet-pill">Réhausseur enfant ✓</span><span class="fleet-pill">Siège bébé ✓</span></div>
           <div class="fleet-tarifs">
-            <div class="tarif-row"><span class="tarif-key">Forfait CDG → Paris</span><span class="tarif-val">100 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Forfait Orly → Paris</span><span class="tarif-val">90 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Hors Paris (au km)</span><span class="tarif-val">2,50 €/km</span></div>
-            <div class="tarif-row"><span class="tarif-key">Mise à disposition</span><span class="tarif-val">95 € / heure (min. 2h)</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_cdg">Forfait CDG → Paris</span><span class="tarif-val">100 €</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_orly">Forfait Orly → Paris</span><span class="tarif-val">90 €</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_km">Hors Paris (au km)</span><span class="tarif-val">2,50 €/km</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_mad">Mise à disposition</span><span class="tarif-val">95 € / heure (min. 2h)</span></div>
           </div>
         </div>
       </div>
-      <div class="fleet-grid fleet-3" style="margin-top:2px">
+      <div class="fleet-grid" style="margin-top:2px">
         <div class="fleet-item">
-          <div class="fleet-gamme">Option Business</div>
+          <div class="fleet-gamme" data-i18n="fleet.bus_gamme">Option Business</div>
           <h3 class="fleet-name">Mercedes Classe E</h3>
-          <p class="fleet-desc">La berline executive pour les déplacements seul ou en duo. Discrétion absolue, performance et confort à chaque trajet professionnel.</p>
+          <p class="fleet-desc" data-i18n="fleet.bus_desc">La berline executive pour les déplacements seul ou en duo. Discrétion absolue, performance et confort à chaque trajet professionnel.</p>
           <div class="fleet-pills"><span class="fleet-pill">3 passagers</span><span class="fleet-pill">3 bagages</span><span class="fleet-pill">Wi-Fi à bord</span><span class="fleet-pill">Eau minérale</span><span class="fleet-pill">Chargeurs USB</span><span class="fleet-pill">Clima 4 zones</span></div>
           <div class="fleet-tarifs">
-            <div class="tarif-row"><span class="tarif-key">Forfait CDG → Paris</span><span class="tarif-val">100 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Forfait Orly → Paris</span><span class="tarif-val">90 €</span></div>
-            <div class="tarif-row"><span class="tarif-key">Hors Paris (au km)</span><span class="tarif-val">2,50 €/km</span></div>
-            <div class="tarif-row"><span class="tarif-key">Mise à disposition</span><span class="tarif-val">75 € / heure (min. 2h)</span></div>
-          </div>
-        </div>
-        <div class="fleet-item">
-          <div class="fleet-gamme">Option Prestige</div>
-          <h3 class="fleet-name">Mercedes Classe S</h3>
-          <p class="fleet-desc">Le summum de la berline de luxe. Réservée aux clients exigeants, délégations VIP et occasions qui méritent le meilleur. Silence de roulement exceptionnel.</p>
-          <div class="fleet-pills"><span class="fleet-pill">3 passagers</span><span class="fleet-pill">3 bagages</span><span class="fleet-pill">Wi-Fi à bord</span><span class="fleet-pill">Massage siège</span><span class="fleet-pill">Chargeurs sans fil</span><span class="fleet-pill">Ambiance lumineuse</span></div>
-          <div class="fleet-tarifs">
-            <div class="tarif-row"><span class="tarif-key">Transfert</span><span class="tarif-val">Sur devis</span></div>
-            <div class="tarif-row"><span class="tarif-key">Mise à disposition</span><span class="tarif-val">Sur devis</span></div>
-            <div class="tarif-row"><span class="tarif-key">Contact</span><span class="tarif-val">WhatsApp · 06 23 88 97 17</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_cdg">Forfait CDG → Paris</span><span class="tarif-val">100 €</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_orly">Forfait Orly → Paris</span><span class="tarif-val">90 €</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_km">Hors Paris (au km)</span><span class="tarif-val">2,50 €/km</span></div>
+            <div class="tarif-row"><span class="tarif-key" data-i18n="fleet.tarif_mad">Mise à disposition</span><span class="tarif-val">75 € / heure (min. 2h)</span></div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="b-pane" id="pane-s">
-      <p class="section-tag">Zones desservies</p>
-      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:.8rem">Partout en Île-de-France</h2>
-      <p class="fleet-desc" style="max-width:none;margin-bottom:1.4rem">Nos chauffeurs connaissent chaque raccourci pour vous garantir une ponctualité absolue, même aux heures de pointe.</p>
+      <p class="section-tag" data-i18n="services.tag">Zones desservies</p>
+      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:.8rem" data-i18n="services.title">Partout en Île-de-France</h2>
+      <p class="fleet-desc" style="max-width:none;margin-bottom:1.4rem" data-i18n="services.intro">Nos chauffeurs connaissent chaque raccourci pour vous garantir une ponctualité absolue, même aux heures de pointe.</p>
       <div class="zones-grid">
         <div class="zone-card">
           <div class="zone-dept">Paris · 75</div>
@@ -1051,65 +1075,65 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     </div>
 
     <div class="b-pane" id="pane-g">
-      <p class="section-tag">Nos engagements</p>
-      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:1.8rem">Pourquoi choisir IsmaDrive ?</h2>
+      <p class="section-tag" data-i18n="guar.tag">Nos engagements</p>
+      <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:1.8rem" data-i18n="guar.title">Pourquoi choisir IsmaDrive ?</h2>
       <div class="guar-grid">
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M10 16l4 4 8-8"/></svg>
-          <div class="guar-title">Tarif fixe garanti</div>
-          <div class="guar-desc">Le prix annoncé à la réservation est celui que vous payez. Aucune mauvaise surprise, aucun supplément — même en cas de trafic dense.</div>
+          <div class="guar-title" data-i18n="guar.g1_title">Tarif fixe garanti</div>
+          <div class="guar-desc" data-i18n="guar.g1_desc">Le prix annoncé à la réservation est celui que vous payez. Aucune mauvaise surprise, aucun supplément — même en cas de trafic dense.</div>
         </div>
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 8v8.5l5 3"/></svg>
-          <div class="guar-title">Ponctualité absolue</div>
-          <div class="guar-desc">Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, zéro retard toléré.</div>
+          <div class="guar-title" data-i18n="guar.g2_title">Ponctualité absolue</div>
+          <div class="guar-desc" data-i18n="guar.g2_desc">Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, zéro retard toléré.</div>
         </div>
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12C6 26 2 22 2 16V8z"/></svg>
-          <div class="guar-title">Discrétion &amp; Sécurité</div>
-          <div class="guar-desc">Chauffeurs formés pour une clientèle exigeante : VIP, délégations, mariages. Confidentialité absolue garantie.</div>
+          <div class="guar-title" data-i18n="guar.g3_title">Discrétion &amp; Sécurité</div>
+          <div class="guar-desc" data-i18n="guar.g3_desc">Chauffeurs formés pour une clientèle exigeante : VIP, délégations, mariages. Confidentialité absolue garantie.</div>
         </div>
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="10" r="5"/><path d="M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10"/></svg>
-          <div class="guar-title">Chauffeurs professionnels</div>
-          <div class="guar-desc">Carte VTC, tenue soignée, connaissance terrain de l'Île-de-France. Disponibles 7j/7, 24h/24.</div>
+          <div class="guar-title" data-i18n="guar.g4_title">Chauffeurs professionnels</div>
+          <div class="guar-desc" data-i18n="guar.g4_desc">Carte VTC, tenue soignée, connaissance terrain de l'Île-de-France. Disponibles 7j/7, 24h/24.</div>
         </div>
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="6"/><path d="M10 10l3 3M22 10l-3 3M16 22v-4"/><path d="M6 26c1-4 5-6 10-6s9 2 10 6"/></svg>
-          <div class="guar-title">Familles &amp; enfants</div>
-          <div class="guar-desc">Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément. Indiquez-le à la réservation.</div>
+          <div class="guar-title" data-i18n="guar.g5_title">Familles &amp; enfants</div>
+          <div class="guar-desc" data-i18n="guar.g5_desc">Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément. Indiquez-le à la réservation.</div>
         </div>
         <div class="guar">
           <svg class="guar-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect x="4" y="4" width="10" height="10" rx="1.5"/><rect x="18" y="4" width="10" height="10" rx="1.5"/><rect x="4" y="18" width="10" height="10" rx="1.5"/><rect x="18" y="18" width="10" height="10" rx="1.5"/></svg>
-          <div class="guar-title">QR code obligatoire</div>
-          <div class="guar-desc">Après paiement, un QR code unique vous est remis. Votre conducteur doit impérativement le scanner avant le départ — sans lui, aucune course ne peut démarrer.</div>
+          <div class="guar-title" data-i18n="guar.g6_title">QR code obligatoire</div>
+          <div class="guar-desc" data-i18n="guar.g6_desc">Après paiement, un QR code unique vous est remis. Votre conducteur doit impérativement le scanner avant le départ — sans lui, aucune course ne peut démarrer.</div>
         </div>
       </div>
 
       <div style="margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
-        <p class="section-tag" style="margin-bottom:1.2rem">Avis clients</p>
+        <p class="section-tag" style="margin-bottom:1.2rem" data-i18n="guar.reviews_tag">Avis clients</p>
         <div class="reviews-grid" itemscope itemtype="https://schema.org/ItemList">
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
-            <p class="review-text" itemprop="reviewBody">"Ponctuel à la minute près pour mon vol CDG. Véhicule impeccable, chauffeur très professionnel et discret. Je recommande sans hésitation."</p>
-            <div class="review-author" itemprop="author">Thomas D.</div>
-            <div class="review-date">Client régulier · Paris 8e</div>
+            <p class="review-text" itemprop="reviewBody" data-i18n="guar.r1_text">"Ponctuel à la minute près pour mon vol CDG. Véhicule impeccable, chauffeur très professionnel et discret. Je recommande sans hésitation."</p>
+            <div class="review-author" itemprop="author" data-i18n="guar.r1_author">Thomas D.</div>
+            <div class="review-date" data-i18n="guar.r1_date">Client régulier · Paris 8e</div>
           </div>
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
-            <p class="review-text" itemprop="reviewBody">"Mise à disposition pour une journée de réunions à La Défense. Chauffeur patient, disponible, parfaitement présenté. Un vrai luxe."</p>
-            <div class="review-author" itemprop="author">Sophie M.</div>
-            <div class="review-date">Directrice commerciale · Neuilly-sur-Seine</div>
+            <p class="review-text" itemprop="reviewBody" data-i18n="guar.r2_text">"Mise à disposition pour une journée de réunions à La Défense. Chauffeur patient, disponible, parfaitement présenté. Un vrai luxe."</p>
+            <div class="review-author" itemprop="author" data-i18n="guar.r2_author">Sophie M.</div>
+            <div class="review-date" data-i18n="guar.r2_date">Directrice commerciale · Neuilly-sur-Seine</div>
           </div>
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
-            <p class="review-text" itemprop="reviewBody">"Van Premium pour 6 personnes depuis Versailles jusqu'à Orly. Confort, espace, Wi-Fi : exactement ce qu'il faut. Prix fixe, aucune surprise."</p>
-            <div class="review-author" itemprop="author">Laurent &amp; famille</div>
-            <div class="review-date">Transfert Versailles → Orly</div>
+            <p class="review-text" itemprop="reviewBody" data-i18n="guar.r3_text">"Van Premium pour 6 personnes depuis Versailles jusqu'à Orly. Confort, espace, Wi-Fi : exactement ce qu'il faut. Prix fixe, aucune surprise."</p>
+            <div class="review-author" itemprop="author" data-i18n="guar.r3_author">Laurent &amp; famille</div>
+            <div class="review-date" data-i18n="guar.r3_date">Transfert Versailles → Orly</div>
           </div>
         </div>
         <div class="reviews-cta">
-          <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer">Voir tous nos avis Google →</a>
+          <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" data-i18n="guar.reviews_link">Voir tous nos avis Google →</a>
         </div>
       </div>
     </div>
@@ -1127,13 +1151,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
             <span itemprop="addressLocality">Paris</span>, <span itemprop="postalCode">75000</span> — <span itemprop="addressCountry">France</span>
           </span><br>
-          <a href="tel:+33623889717" style="color:var(--muted);text-decoration:none" itemprop="telephone">+33 6 23 88 97 17</a><br>
+          <a href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" itemprop="telephone" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--muted);text-decoration:none;font-size:.82rem">
+            <svg width="13" height="13" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.34 19.38c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
+            Nous contacter via WhatsApp
+          </a><br>
           <a href="mailto:contact@ismadrive.fr" style="color:var(--muted);text-decoration:none" itemprop="email">contact@ismadrive.fr</a><br>
-          <span style="color:var(--faint);font-size:.72rem">Disponible 7j/7 · 24h/24</span>
+          <span style="color:var(--faint);font-size:.72rem" data-i18n="footer.available">Disponible 7j/7 · 24h/24</span>
         </div>
       </div>
       <div>
-        <div class="footer-col-title">Pages locales</div>
+        <div class="footer-col-title" data-i18n="footer.pages_title">Pages locales</div>
         <ul class="footer-local-links">
           <li><a href="/chauffeur-prive-neuilly-sur-seine">VTC Neuilly-sur-Seine</a></li>
           <li><a href="/vtc-vincennes">VTC Vincennes</a></li>
@@ -1145,28 +1172,28 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Nos services</div>
+        <div class="footer-col-title" data-i18n="footer.services_title">Nos services</div>
         <ul class="footer-local-links">
-          <li><a href="#" onclick="navTab('p');return false">Forfaits Aéroports</a></li>
-          <li><a href="#" onclick="navTab('t');return false">Transfert hors Paris</a></li>
-          <li><a href="#" onclick="navTab('m');return false">Mise à disposition</a></li>
-          <li><a href="#" onclick="navTab('f');return false">Notre flotte</a></li>
+          <li><a href="#" onclick="navTab('p');return false" data-i18n="footer.airport_packages">Forfaits Aéroports</a></li>
+          <li><a href="#" onclick="navTab('t');return false" data-i18n="footer.transfer">Transfert hors Paris</a></li>
+          <li><a href="#" onclick="navTab('m');return false" data-i18n="footer.mad_label">Mise à disposition</a></li>
+          <li><a href="#" onclick="navTab('f');return false" data-i18n="footer.fleet_label">Notre flotte</a></li>
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Zones desservies</div>
+        <div class="footer-col-title" data-i18n="footer.zones_title">Zones desservies</div>
         <div class="footer-zones-text">Paris (75) · Hauts-de-Seine (92) · Val-de-Marne (94) · Yvelines (78) · Seine-Saint-Denis (93) · Neuilly-sur-Seine · Boulogne-Billancourt · Vincennes · Versailles · La Défense · Courbevoie · Levallois-Perret · Saint-Denis · Le Bourget · Créteil</div>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
     <div class="footer-bottom-inner">
-      <div class="foot-copy" style="font-size:.72rem;color:var(--faint)">© 2025 IsmaDrive — Tous droits réservés · Carte professionnelle VTC · <a href="/admin" style="color:var(--faint);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--faint)'">Espace conducteur</a></div>
+      <div class="foot-copy" style="font-size:.72rem;color:var(--faint)"><span data-i18n="footer.rights">© 2025 IsmaDrive — Tous droits réservés · Carte professionnelle VTC · </span><a href="/admin" style="color:var(--faint);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--faint)'" data-i18n="footer.driver">Espace conducteur</a></div>
       <div class="foot-links-row">
-        <a href="#">CGV</a>
-        <a href="#">Mentions légales</a>
-        <a href="#">Contact</a>
-        <a href="#">Politique de confidentialité</a>
+        <a href="#" data-i18n="footer.cgv">CGV</a>
+        <a href="#" data-i18n="footer.legal">Mentions légales</a>
+        <a href="#" data-i18n="footer.contact">Contact</a>
+        <a href="#" data-i18n="footer.privacy">Politique de confidentialité</a>
       </div>
     </div>
   </div>
@@ -1176,45 +1203,45 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   <div class="modal">
     <button class="mx" onclick="closeModal()">✕</button>
     <div id="modal-form">
-      <h2 class="mh">Finaliser la réservation</h2>
-      <p class="msub">Renseignez vos coordonnées et réglez en toute sécurité.</p>
+      <h2 class="mh" data-i18n="modal.title">Finaliser la réservation</h2>
+      <p class="msub" data-i18n="modal.sub">Renseignez vos coordonnées et réglez en toute sécurité.</p>
       <div class="m-recap" id="m-recap"></div>
-      <div class="m-total"><div><div class="mt-lbl">Total à régler</div></div><div class="mt-price" id="mt-p">—</div></div>
+      <div class="m-total"><div><div class="mt-lbl" data-i18n="modal.total">Total à régler</div></div><div class="mt-price" id="mt-p">—</div></div>
       <div class="mgrid">
-        <div class="mf"><label>Prénom & Nom *</label><input id="mn" type="text" placeholder="Jean Dupont"></div>
-        <div class="mf"><label>Téléphone *</label><input id="mt-tel" type="tel" placeholder="+33 6 …"></div>
-        <div class="mf full"><label>Email *</label><input id="me" type="email" placeholder="jean@exemple.fr"></div>
-        <div class="mf full"><label>Commentaires</label><input id="mc" type="text" placeholder="N° de vol, instructions…"></div>
+        <div class="mf"><label data-i18n="modal.name">Prénom & Nom *</label><input id="mn" type="text" placeholder="Jean Dupont" data-i18n-ph="modal.name_ph"></div>
+        <div class="mf"><label data-i18n="modal.phone">Téléphone *</label><input id="mt-tel" type="tel" placeholder="+33 6 …" data-i18n-ph="modal.phone_ph"></div>
+        <div class="mf full"><label data-i18n="modal.email">Email *</label><input id="me" type="email" placeholder="jean@exemple.fr" data-i18n-ph="modal.email_ph"></div>
+        <div class="mf full"><label data-i18n="modal.comments">Commentaires</label><input id="mc" type="text" placeholder="N° de vol, instructions…" data-i18n-ph="modal.comments_ph"></div>
       </div>
-      <label id="card-el-lbl">Coordonnées bancaires</label>
+      <label id="card-el-lbl" data-i18n="modal.card">Coordonnées bancaires</label>
       <div id="card-el"></div><div id="card-err"></div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
       <button class="btn-ok" id="btn-ok" onclick="doPay()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 7l3.5 3.5L12 2"/></svg>
-        Confirmer et payer
+        <span data-i18n="modal.confirm">Confirmer et payer</span>
       </button>
     </div>
     <div class="suc" id="modal-suc">
       <div class="suc-ring"><svg viewBox="0 0 26 26"><path d="M5 13l5 5 11-11"/></svg></div>
-      <h3>Réservation confirmée !</h3>
+      <h3 data-i18n="modal.suc_title">Réservation confirmée !</h3>
 
       <div class="qr-alert">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>Ce QR code est <strong>indispensable</strong> : votre chauffeur ne peut démarrer la course sans l'avoir scanné. Sans présentation du QR code, la prise en charge ne pourra pas avoir lieu.</span>
+        <span data-i18n-html="modal.qr_warning_html">Ce QR code est <strong>indispensable</strong> : votre chauffeur ne peut démarrer la course sans l'avoir scanné. Sans présentation du QR code, la prise en charge ne pourra pas avoir lieu.</span>
       </div>
 
       <div class="qr-section" id="qr-section">
-        <div class="qr-label">QR Code conducteur — à présenter obligatoirement</div>
+        <div class="qr-label" data-i18n="modal.qr_label">QR Code conducteur — à présenter obligatoirement</div>
         <div id="qr-canvas"></div>
         <div class="qr-ref" id="qr-ref"></div>
       </div>
       <a class="btn-dl-qr" id="btn-dl-qr" onclick="downloadQR();return false" href="#">
         <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 17h14"/></svg>
-        Télécharger et sauvegarder le QR code
+        <span data-i18n="modal.qr_download">Télécharger et sauvegarder le QR code</span>
       </a>
-      <p class="qr-save-note">Conservez ce QR code sur votre téléphone ou imprimez-le.<br>Il sera demandé par votre conducteur au moment du départ.</p>
+      <p class="qr-save-note" data-i18n-html="modal.qr_save_html">Conservez ce QR code sur votre téléphone ou imprimez-le.<br>Il sera demandé par votre conducteur au moment du départ.</p>
 
-      <button class="btn-cls" style="margin-top:.9rem" onclick="closeModal()">Fermer</button>
+      <button class="btn-cls" style="margin-top:.9rem" onclick="closeModal()" data-i18n="modal.close">Fermer</button>
     </div>
   </div>
 </div>
@@ -1571,11 +1598,15 @@ function openWA(tab) {
     const date = document.getElementById('i-date')?.value || '—';
     const time = document.getElementById('i-time')?.value || '—';
     const prix = S.price ? `${S.price} €` : 'à calculer';
+    const rehausseur = document.getElementById('t-rehausseur')?.checked;
+    const siege      = document.getElementById('t-siege')?.checked;
+    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
     msg += `🗺️ Départ : ${dep}\n`;
     msg += `📍 Arrivée : ${arr}\n`;
     msg += `📅 Date : ${date} à ${time}\n`;
     msg += `🚐 Véhicule : ${veh}\n`;
     msg += `💶 Prix estimé : ${prix}\n`;
+    if (equip) msg += `👶 Équipement : ${equip}\n`;
   }
 
   else if (tab === 'm') {
@@ -1584,10 +1615,14 @@ function openWA(tab) {
     const time = document.getElementById('i-mtime')?.value || '—';
     const dur  = S.mdur + (S.mdur > 1 ? ' heures' : ' heure');
     const prix = S.price ? `${S.price} €` : '—';
+    const rehausseur = document.getElementById('m-rehausseur')?.checked;
+    const siege      = document.getElementById('m-siege')?.checked;
+    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
     msg += `🕐 Mise à disposition : ${dur}\n`;
     msg += `📅 Date : ${date} à ${time}\n`;
     msg += `🚐 Véhicule : ${veh}\n`;
     msg += `💶 Total : ${prix}\n`;
+    if (equip) msg += `👶 Équipement : ${equip}\n`;
   }
 
   msg += '\nMerci de confirmer la disponibilité.';
@@ -1681,5 +1716,6 @@ function toggleFaq(btn){
 .wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}
 .wa-btn svg{width:22px;height:22px;flex-shrink:0}
 </style>
+<script src="/js/i18n.js"></script>
 </body>
 </html>
