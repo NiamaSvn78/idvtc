@@ -46,7 +46,7 @@
   ],
   "openingHours": "Mo-Su 00:00-23:59",
   "priceRange": "€€€",
-  "paymentAccepted": "Cash, Credit Card",
+  "paymentAccepted": "Cash, WhatsApp",
   "currenciesAccepted": "EUR",
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
@@ -60,7 +60,6 @@
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://js.stripe.com/v3/"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -235,10 +234,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .mf label{display:block;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
 .mf input{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.72rem .9rem;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;font-weight:300}
 .mf input:focus{border-color:var(--gold)}.mf.full{grid-column:1/-1}
-#card-el{background:var(--dark3);border:1px solid var(--subtle);padding:.82rem .9rem;margin-top:.9rem;transition:border-color .2s}
-#card-el.StripeElement--focus{border-color:var(--gold)}
-#card-el-lbl{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-top:.9rem;margin-bottom:.3rem}
-#card-err{color:#e07070;font-size:.75rem;min-height:1.1em;margin-top:.3rem}
 .lbar{height:2px;background:var(--gold-dim);overflow:hidden;margin-top:.6rem;display:none}
 .lbar.go{display:block}
 .lbar-fill{height:100%;background:var(--gold);animation:lb 1.4s ease-in-out infinite}
@@ -569,7 +564,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .pack-grid{grid-template-columns:1fr}
 }
 
-/* ── CGV CHECKBOX (modal paiement) ── */
+/* ── CGV CHECKBOX (modal réservation) ── */
 .cgv-wrap{margin:.9rem 0 .4rem;padding:.75rem 1rem;background:rgba(201,169,110,.06);border:1px solid var(--gold-border)}
 .cgv-lbl{display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;font-size:.78rem;color:var(--muted);line-height:1.5}
 .cgv-lbl input[type=checkbox]{width:14px;height:14px;flex-shrink:0;margin-top:.15rem;accent-color:var(--gold);cursor:pointer}
@@ -579,6 +574,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 /* ── CGV MINI-MODAL (WhatsApp) ── */
 .cgv-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:1.5rem}
 .cgv-ov.open{display:flex}
+#wa-res-info-ov{z-index:620}
 .cgv-box{background:var(--dark2);border:1px solid var(--gold-border);padding:2rem;max-width:420px;width:100%}
 .cgv-box h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);margin-bottom:.8rem}
 .cgv-box p{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:1.1rem}
@@ -738,11 +734,11 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
 
       <button class="btn-pay" id="btn-pay-p" style="margin-top:1rem" onclick="openModal('p')">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        <span data-i18n="airport.pay">Payer par carte</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span data-i18n="airport.pay">Réserver</span>
       </button>
-      <div class="secure-line" data-i18n="airport.secure">🔒 Paiement sécurisé · Stripe</div>
-      <div class="or-sep"><span data-i18n="airport.or_sep">ou réserver sans paiement immédiat</span></div>
+      <div class="secure-line" data-i18n="airport.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
+      <div class="or-sep"><span data-i18n="airport.or_sep">ou écrivez-nous directement</span></div>
       <a class="btn-wa" href="#" onclick="openWA('p');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
         <span data-i18n="airport.wa">Réserver via WhatsApp</span>
@@ -867,12 +863,12 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span data-i18n="transfer.calc">Calculer le prix</span>
         </button>
         <button class="btn-pay" id="btn-pay-t" disabled onclick="openModal('t')">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-          Payer par carte
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span data-i18n="transfer.pay">Réserver</span>
         </button>
       </div>
-      <div class="secure-line">🔒 Paiement sécurisé · Stripe</div>
-      <div class="or-sep"><span>ou réserver sans paiement immédiat</span></div>
+      <div class="secure-line" data-i18n="transfer.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
+      <div class="or-sep"><span data-i18n="transfer.or_sep">ou écrivez-nous directement</span></div>
       <a class="btn-wa" href="#" onclick="openWA('t');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
         <span data-i18n="airport.wa">Réserver via WhatsApp</span>
@@ -997,11 +993,11 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="price-note" data-i18n="mad.price_note">Kilométrage illimité · Carburant inclus · Chauffeur dédié</div>
       </div>
       <button class="btn-pay" style="margin-top:1rem" onclick="openModal('m')">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="11" rx="1.5"/><path d="M2 9h16"/></svg>
-        <span data-i18n="mad.pay">Payer par carte</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span data-i18n="mad.pay">Réserver</span>
       </button>
-      <div class="secure-line" data-i18n="mad.secure">🔒 Paiement sécurisé · Stripe</div>
-      <div class="or-sep"><span data-i18n="mad.or_sep">ou réserver sans paiement immédiat</span></div>
+      <div class="secure-line" data-i18n="mad.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
+      <div class="or-sep"><span data-i18n="mad.or_sep">ou écrivez-nous directement</span></div>
       <a class="btn-wa" href="#" onclick="openWA('m');return false">
         <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
         <span data-i18n="airport.wa">Réserver via WhatsApp</span>
@@ -1232,7 +1228,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <button class="mx" onclick="closeModal()">✕</button>
     <div id="modal-form">
       <h2 class="mh" data-i18n="modal.title">Finaliser la réservation</h2>
-      <p class="msub" data-i18n="modal.sub">Renseignez vos coordonnées et réglez en toute sécurité.</p>
+      <p class="msub" data-i18n="modal.sub">Renseignez vos coordonnées. La confirmation et le règlement se font pour l’instant sur WhatsApp.</p>
       <div class="m-recap" id="m-recap"></div>
       <div class="m-total"><div><div class="mt-lbl" data-i18n="modal.total">Total à régler</div></div><div class="mt-price" id="mt-p">—</div></div>
       <div class="mgrid">
@@ -1241,8 +1237,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="mf full"><label data-i18n="modal.email">Email *</label><input id="me" type="email" placeholder="jean@exemple.fr" data-i18n-ph="modal.email_ph"></div>
         <div class="mf full"><label data-i18n="modal.comments">Commentaires</label><input id="mc" type="text" placeholder="N° de vol, instructions…" data-i18n-ph="modal.comments_ph"></div>
       </div>
-      <label id="card-el-lbl" data-i18n="modal.card">Coordonnées bancaires</label>
-      <div id="card-el"></div><div id="card-err"></div>
       <div class="cgv-wrap">
         <label class="cgv-lbl">
           <input type="checkbox" id="cgv-ok">
@@ -1282,6 +1276,18 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- Modale : réservation via WhatsApp pour l'instant -->
+<div class="cgv-ov" id="wa-res-info-ov" onclick="if(event.target===this)closeWaResInfoModal()">
+  <div class="cgv-box" onclick="event.stopPropagation()">
+    <h3 data-i18n="wa_res_modal.title">Réservation sur WhatsApp</h3>
+    <p data-i18n-html="wa_res_modal.body_html">Pour le moment, <strong>aucun paiement par carte bancaire n’est accepté sur ce site</strong>. Après avoir envoyé votre demande, nous vous confirmons et finalisons ensemble la réservation et le mode de paiement <strong>sur WhatsApp</strong>.</p>
+    <div class="cgv-wa-btns">
+      <button type="button" class="cgv-wa-cancel" onclick="closeWaResInfoModal()" data-i18n="wa_res_modal.cancel">Annuler</button>
+      <button type="button" class="cgv-wa-confirm" onclick="continueReservationModal()" data-i18n="wa_res_modal.continue">Continuer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Mini-modal CGV pour réservation WhatsApp -->
 <div class="cgv-ov" id="cgv-ov" onclick="if(event.target===this)closeCgvModal()">
   <div class="cgv-box">
@@ -1302,7 +1308,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
 <script>
 const CFG = {
-  STRIPE_PK: 'pk_test_VOTRE_CLE_STRIPE_ICI',
   tarifs: {
     business: { km: 2.50, base: 0, min: 30, h: 75 },
     van:      { km: 2.50, base: 0, min: 40, h: 95 }
@@ -1313,7 +1318,7 @@ const CFG = {
   }
 };
 const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', mdur:2, dep:null, arr:null, price:null, km:null };
-let stripe, cardEl;
+let _pendingModalType = null;
 const acT={}, acBT={};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -1321,12 +1326,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const ds=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`, ts=`${pad(now.getHours())}:00`;
   ['i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   ['i-time','i-mtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ts;});
-  try{
-    stripe=Stripe(CFG.STRIPE_PK);
-    const els=stripe.elements({appearance:{theme:'night',variables:{colorPrimary:'#c9a96e',colorBackground:'#1a1a1a',colorText:'#f0ece4',borderRadius:'0px'}}});
-    cardEl=els.create('card',{style:{base:{color:'#f0ece4',fontFamily:'DM Sans,sans-serif',fontSize:'15px','::placeholder':{color:'#9a9185'}}}});
-    cardEl.on('change',e=>{document.getElementById('card-err').textContent=e.error?e.error.message:'';});
-  }catch(e){console.warn('Stripe:',e.message);}
   updateMAD();
   updatePackPrice();
   ['f-rehausseur','f-siege'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updatePackPrice);});
@@ -1548,6 +1547,20 @@ function mkBR(rows,total){return rows.map(([k,v])=>`<div class="brow"><span clas
 
 /* ── MODAL ── */
 function openModal(type){
+  _pendingModalType = type;
+  document.getElementById('wa-res-info-ov').classList.add('open');
+}
+function closeWaResInfoModal(){
+  document.getElementById('wa-res-info-ov').classList.remove('open');
+  _pendingModalType = null;
+}
+function continueReservationModal(){
+  const type = _pendingModalType;
+  document.getElementById('wa-res-info-ov').classList.remove('open');
+  _pendingModalType = null;
+  if(type) fillAndShowBookingModal(type);
+}
+function fillAndShowBookingModal(type){
   document.getElementById('modal-form').style.display='block';
   document.getElementById('modal-suc').classList.remove('show');
   let rows='';
@@ -1562,10 +1575,8 @@ function openModal(type){
   document.getElementById('m-recap').innerHTML=rows;
   document.getElementById('mt-p').textContent=(S.price||0)+' €';
   document.getElementById('ov').classList.add('open');
-  if(cardEl){try{cardEl.mount('#card-el');}catch(e){}}
-  else{document.getElementById('card-el').innerHTML='<p style="color:var(--muted);font-size:.78rem;padding:.3rem 0">⚠️ Ajoutez votre clé Stripe dans CFG.STRIPE_PK</p>';}
 }
-function closeModal(){document.getElementById('ov').classList.remove('open');if(cardEl){try{cardEl.unmount();}catch(e){}}}
+function closeModal(){document.getElementById('ov').classList.remove('open');}
 
 /* ── PAIEMENT ── */
 function askPaymentMethod(){
