@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Chauffeur Privé Paris | VTC Touristes &amp; Transferts CDG Orly — IsmaDrive</title>
 <meta name="description" content="Chauffeur privé à Paris pour touristes et professionnels. Transferts CDG &amp; Orly, visites monuments, Versailles. Mercedes Van &amp; Berline, prix fixe, 24h/24 — IsmaDrive.">
 <meta name="keywords" content="chauffeur privé Paris, VTC touriste Paris, transfert aéroport CDG Orly, chauffeur privé touriste, visite Paris chauffeur, excursion Versailles VTC">
@@ -63,6 +63,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
+  color-scheme: dark;
   --gold:#c9a96e;--gold2:#e8c98a;--gold-dim:rgba(201,169,110,0.10);--gold-border:rgba(201,169,110,0.25);
   --black:#080808;--dark:#111111;--dark2:#181818;--dark3:#222222;--dark4:#2c2c2c;
   --text:#f0ece4;--muted:#9a9185;--faint:#4a4640;
@@ -111,7 +112,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .fg1{margin-bottom:1rem}
 label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
-.fi,.fs{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.fi,.fs{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;transition:border-color .2s}
+/* Ne pas forcer appearance:none sur date/heure : sinon sélecteurs natifs et bouton « Définir » mal positionnés sur mobile */
+.fi:not([type=date]):not([type=time]),
+.fs{-webkit-appearance:none;appearance:none}
 .fi:focus,.fs:focus{border-color:var(--gold)}
 .fi.ok{border-color:rgba(201,169,110,.45)}
 .fs{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:2.2rem;cursor:pointer}
@@ -439,6 +443,12 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   /* Inputs — 16px minimum pour éviter le zoom iOS */
   .fi,.fs{font-size:1rem;padding:.82rem .9rem}
   .mf input{font-size:1rem}
+  /* Espace pour les overlays date/heure (bouton « Définir » / actions du picker) */
+  input[type=time],input[type=date]{
+    scroll-margin-bottom:max(14rem,42vh);
+    min-height:48px;
+  }
+  .fg2 input[type=time],.fg2 input[type=date]{scroll-margin-bottom:max(16rem,48vh)}
 
   /* Grids formulaire */
   .fg2{grid-template-columns:1fr 1fr} /* date+heure reste côte à côte */
@@ -1326,6 +1336,20 @@ window.addEventListener('DOMContentLoaded', () => {
   const ds=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`, ts=`${pad(now.getHours())}:00`;
   ['i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   ['i-time','i-mtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ts;});
+  /* Mobile : centrer date/heure dans la fenêtre pour que le picker natif et « Définir » restent visibles */
+  function scrollPickerIntoView(el){
+    if(!el||window.matchMedia('(min-width:769px)').matches)return;
+    requestAnimationFrame(()=>{
+      el.scrollIntoView({block:'center',inline:'nearest',behavior:'smooth'});
+    });
+  }
+  ['i-pdate','i-ptime','i-date','i-time','i-mdate','i-mtime'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const run=()=>scrollPickerIntoView(el);
+    el.addEventListener('focus',run,{passive:true});
+    el.addEventListener('click',run,{passive:true});
+  });
   updateMAD();
   updatePackPrice();
   ['f-rehausseur','f-siege'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updatePackPrice);});
