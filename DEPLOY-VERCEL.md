@@ -52,6 +52,14 @@ APP_URL=https://ton-projet.vercel.app
 
 Le projet cible **Node 20+** (requis par le SDK Resend). Dans Vercel → **Settings** → **General** → **Node.js Version**, choisis **20.x** ou supérieur.
 
+### Site inaccessible après déploiement
+
+1. **Répertoire racine du projet Vercel** : dans **Settings → General → Root Directory**, la valeur doit être **vide** (ou `.`) pour utiliser la racine du dépôt où se trouvent `index.js` et `vtc-project/`. Si tu mets par exemple `vtc-project` seul, `index.js` ne sera pas trouvé.
+
+2. **Fichiers statiques** : le fichier `vercel.json` inclut `includeFiles` pour empaqueter `vtc-project/public` dans la fonction Node. Sans cela, les pages HTML ne sont pas sur le disque de la fonction → erreurs **500** ou page blanche.
+
+3. Regarde les **logs** de la fonction dans Vercel (**Deployments → ton déploiement → Functions → index.js → Logs**) si le problème persiste.
+
 ## 🔄 Déploiements futurs
 
 Une fois configuré, chaque `git push` redéploie automatiquement !
