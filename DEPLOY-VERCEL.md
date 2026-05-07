@@ -37,10 +37,12 @@ Après une réservation, l’API envoie la confirmation avec le **QR code** (mê
 ```env
 RESEND_API_KEY=re_xxxxxxxx
 RESEND_FROM_EMAIL=booking@ton-domaine-verifie.fr
+RESEND_BCC_EMAIL=contact@ismadrive.fr
 ```
 
 - **RESEND_API_KEY** : clé API depuis le tableau de bord [Resend](https://resend.com/api-keys).
 - **RESEND_FROM_EMAIL** : adresse d’expéditeur **vérifiée** dans Resend (domaine ou email de test selon ton plan).
+- **RESEND_BCC_EMAIL** *(recommandé)* : ton adresse pro (ex. `contact@ismadrive.fr`). Tu reçois une **copie invisible** de chaque confirmation client — même contenu + QR, **sans base de données**, historique dans ta messagerie. Laisse vide si tu ne veux pas de copie. Si le client met la même adresse que le BCC, la copie est ignorée pour éviter un doublon.
 
 Sans ces variables, la réservation reste enregistrée mais `emailSent` sera `false` et le client verra un message d’échec d’envoi sur la modale.
 

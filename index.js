@@ -8,6 +8,8 @@ const port = process.env.PORT || 3000;
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || '';
+/** Copie invisible vers votre boîte — conserve nom, tel, email, trajet, QR (sans base de données). */
+const RESEND_BCC_EMAIL = String(process.env.RESEND_BCC_EMAIL || '').trim();
 const PUBLIC_SITE_URL = process.env.APP_URL || 'https://ismadrive.fr';
 const WHATSAPP_BOOKING_URL = 'https://wa.me/33623889717';
 
@@ -134,12 +136,17 @@ app.post('/api/reservations', async (req, res) => {
         const qrDataUrl = await qrPayloadToDataUrl(qrPayload);
         const html = buildConfirmationEmailHtml(reservation, qrDataUrl);
 
-        const sendResult = await resend.emails.send({
+        const sendPayload = {
           from: RESEND_FROM,
           to: email,
           subject: `IsmaDrive — Réservation enregistrée · Réf. ${reservation.ref}`,
           html
-        });
+        };
+        if (RESEND_BCC_EMAIL && RESEND_BCC_EMAIL.toLowerCase() !== email.toLowerCase()) {
+          sendPayload.bcc = [RESEND_BCC_EMAIL];
+        }
+
+        const sendResult = await resend.emails.send(sendPayload);
 
         if (sendResult.error) {
           console.error('Resend API error:', sendResult.error);
