@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const QRCode = require('qrcode');
 const { Resend } = require('resend');
 
 const app = express();
@@ -44,11 +45,18 @@ function buildQrPayload(r) {
   ].join('|');
 }
 
-function qrImageUrl(payload) {
-  return 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&ecc=M&data=' + encodeURIComponent(payload);
+/** PNG encodé en data URL — affiché même si le client mail bloque les images externes */
+async function qrPayloadToDataUrl(payloadText) {
+  return QRCode.toDataURL(payloadText, {
+    width: 280,
+    margin: 1,
+    errorCorrectionLevel: 'M',
+    type: 'image/png',
+    color: { dark: '#000000', light: '#ffffff' }
+  });
 }
 
-function buildConfirmationEmailHtml(r, qrUrl) {
+function buildConfirmationEmailHtml(r, qrDataUrl) {
   const rows = [
     ['Référence', r.ref],
     ['Client', r.client],
@@ -81,11 +89,10 @@ function buildConfirmationEmailHtml(r, qrUrl) {
 <tr><td style="padding:28px 28px 12px">
 <p style="margin:0 0 14px;font-size:15px;line-height:1.6">Bonjour ${escHtml(r.client)},</p>
 <p style="margin:0 0 14px;font-size:14px;line-height:1.65;color:#444">Merci pour votre confiance. Votre demande de transfert privé est <strong>bien enregistrée</strong> sous la référence indiquée ci-dessous.</p>
-<p style="margin:0 0 18px;font-size:14px;line-height:1.65;color:#555"><strong>À propos du QR code</strong> — Il résume votre course (trajet, véhicule, montant, mode de paiement choisi). Vous pourrez le présenter au chauffeur au départ ; il indique clairement que le <strong>paiement n’est pas encore réglé</strong> en ligne.</p>
-<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#555"><strong>Ensuite</strong> — Nous reprenons contact en général par <strong>WhatsApp</strong> pour confirmer les derniers détails et le règlement. Ce message est envoyé <strong>automatiquement</strong> dès validation du formulaire sur notre site.</p>
+<p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#555">Votre <strong>QR code</strong> figure ci-dessous — présentez-le au chauffeur au départ.</p>
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px">${tableRows}</table>
 <div style="text-align:center;padding:16px 0 8px">
-<img src="${escHtml(qrUrl)}" width="280" height="280" alt="QR code réservation IsmaDrive" style="display:inline-block;border:1px solid #ddd;border-radius:4px"/>
+<img src="${qrDataUrl}" width="280" height="280" alt="QR code réservation IsmaDrive" style="display:inline-block;border:1px solid #ddd;border-radius:4px"/>
 <p style="margin:12px 0 0;font-size:12px;color:#888">Réf. ${escHtml(r.ref)} · Paiement à finaliser</p>
 </div>
 <p style="margin:22px 0 0;font-size:13px;line-height:1.65;color:#555">Une question ou un changement d’horaire ? Répondez à cet email, écrivez-nous à <a href="mailto:contact@ismadrive.fr" style="color:#8a7348">contact@ismadrive.fr</a> ou sur <a href="${WHATSAPP_BOOKING_URL}" style="color:#8a7348">WhatsApp (+33 6 23 88 97 17)</a>.</p>
@@ -124,8 +131,8 @@ app.post('/api/reservations', async (req, res) => {
       try {
         const resend = new Resend(RESEND_API_KEY);
         const qrPayload = buildQrPayload(reservation);
-        const qrUrl = qrImageUrl(qrPayload);
-        const html = buildConfirmationEmailHtml(reservation, qrUrl);
+        const qrDataUrl = await qrPayloadToDataUrl(qrPayload);
+        const html = buildConfirmationEmailHtml(reservation, qrDataUrl);
 
         const sendResult = await resend.emails.send({
           from: RESEND_FROM,
