@@ -1,4 +1,4 @@
-﻿# IsmaDrive — Chauffeur Privé Paris & Île-de-France
+# IsmaDrive — Chauffeur Privé Paris & Île-de-France
 
 ## Service
 IsmaDrive est un service de chauffeur privé (VTC) basé en Île-de-France, disponible 24h/24 et 7j/7.
@@ -11,7 +11,7 @@ Spécialisé dans les transferts aéroport, les courses pour touristes, et les d
 - Familles : réhausseur enfant (3–12 ans) et siège bébé (0–3 ans) sans supplément
 
 ## Véhicules
-- Van Premium Mercedes Classe V (7 places, familles et groupes)
+- Van Premium Berline (7 places, familles et groupes)
 - Berline Business Mercedes Classe E/S (clientèle VIP)
 - Berline Éco (tarif accessible)
 

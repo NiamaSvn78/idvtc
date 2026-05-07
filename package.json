@@ -1,12 +1,16 @@
 {
   "name": "idvtc",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "echo 'No build step required'",
     "start": "node index.js",
     "dev": "node index.js"
   },
   "dependencies": {
-    "express": "^4.22.1"
+    "express": "^4.22.1",
+    "resend": "^6.12.3"
   }
 }

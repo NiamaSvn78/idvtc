@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -84,7 +84,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .tb:hover{opacity:.85;transform:scaleX(.98)}
 .tb.van   {background:rgba(201,169,110,.18);border-left:2px solid var(--gold)}
 .tb.business{background:rgba(110,154,201,.18);border-left:2px solid var(--blue)}
-.tb.eco   {background:rgba(110,201,164,.18);border-left:2px solid var(--teal)}
 .tb.manual{background:rgba(201,110,154,.18);border-left:2px solid var(--purple)}
 .tb.mad   {background:rgba(154,110,201,.18);border-left:2px solid var(--purple)}
 .tb.cancelled{opacity:.35;filter:grayscale(.8)}
@@ -94,7 +93,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .tb-badge{display:inline-block;font-size:.58rem;padding:0 4px;border-radius:2px;margin-top:2px}
 .tb.van .tb-badge   {background:rgba(201,169,110,.25);color:var(--gold)}
 .tb.business .tb-badge{background:rgba(110,154,201,.25);color:var(--blue)}
-.tb.eco .tb-badge   {background:rgba(110,201,164,.25);color:var(--teal)}
 
 /* ── MODAL DÉTAIL COURSE ── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
@@ -147,7 +145,6 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .driver-cat{display:inline-flex;align-items:center;font-size:.6rem;padding:.1rem .4rem;border-radius:2px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
 .cat-van{background:rgba(201,169,110,.12);color:var(--gold);border:1px solid rgba(201,169,110,.25)}
 .cat-business{background:rgba(74,158,255,.1);color:#4a9eff;border:1px solid rgba(74,158,255,.2)}
-.cat-eco{background:rgba(39,174,96,.1);color:var(--green);border:1px solid rgba(39,174,96,.2)}
 .cat-other{background:var(--dark4);color:var(--muted);border:1px solid var(--subtle)}
 .driver-del{background:none;border:none;color:var(--faint);cursor:pointer;font-size:.85rem;padding:0 .25rem;line-height:1;transition:color .15s;flex-shrink:0}
 .driver-del:hover{color:var(--red)}
@@ -470,7 +467,7 @@ let weekStart = getMonday(new Date());
 const HOUR_H = 64;   /* px par heure */
 const DAY_START = 5; /* 05:00 */
 const DAY_END   = 23;/* 23:00 */
-const VEH_LABEL = { van:'Van Premium', business:'Business', eco:'Éco', manual:'Manuel' };
+const VEH_LABEL = { van:'Van Premium', business:'Berline', eco:'Berline', manual:'Manuel' };
 const DOW = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 
@@ -619,7 +616,8 @@ function buildBlock(r){
   const top = (startMin/60 - DAY_START) * HOUR_H;
   const height = Math.max((dur / 60) * HOUR_H, 22);
   const veh = r.vehicle || 'manual';
-  const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':veh);
+  const clsVeh = (veh === 'eco') ? 'business' : veh;
+  const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':clsVeh);
 
   const div = document.createElement('div');
   div.className = `tb ${cls}`;
@@ -807,8 +805,7 @@ async function loadDrivers(){
 function catClass(cat){
   if(!cat) return 'cat-other';
   if(cat==='Van Premium') return 'cat-van';
-  if(cat==='Business')    return 'cat-business';
-  if(cat==='Éco')         return 'cat-eco';
+  if(cat==='Business' || cat==='Éco' || cat==='eco') return 'cat-business';
   return 'cat-other';
 }
 function renderDriverList(){

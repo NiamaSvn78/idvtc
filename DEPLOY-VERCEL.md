@@ -28,18 +28,29 @@ vercel --prod
 - **Output Directory?** → `.` (laisser vide)
 - **Development Command?** → `npm run dev`
 
-## ⚙️ Variables d'environnement (optionnel)
+## ⚙️ Variables d'environnement
 
-Pour les emails automatiques, configure dans Vercel Dashboard :
+### Confirmation par email (Resend)
+
+Après une réservation, l’API envoie la confirmation avec le **QR code** (même contenu que sur la modale) uniquement si un email valide est fourni. Configure dans Vercel → **Settings** → **Environment Variables** :
+
 ```env
-ADMIN_PWD=tonmotdepasse123
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tonemail@gmail.com
-SMTP_PASS=tonmotdepasseemail
-SMTP_FROM=tonemail@gmail.com
+RESEND_API_KEY=re_xxxxxxxx
+RESEND_FROM_EMAIL=booking@ton-domaine-verifie.fr
+```
+
+- **RESEND_API_KEY** : clé API depuis le tableau de bord [Resend](https://resend.com/api-keys).
+- **RESEND_FROM_EMAIL** : adresse d’expéditeur **vérifiée** dans Resend (domaine ou email de test selon ton plan).
+
+Sans ces variables, la réservation reste enregistrée mais `emailSent` sera `false` et le client verra un message d’échec d’envoi sur la modale.
+
+### Autres (si utilisées ailleurs)
+
+```env
 APP_URL=https://ton-projet.vercel.app
 ```
+
+Le projet cible **Node 20+** (requis par le SDK Resend). Dans Vercel → **Settings** → **General** → **Node.js Version**, choisis **20.x** ou supérieur.
 
 ## 🔄 Déploiements futurs
 

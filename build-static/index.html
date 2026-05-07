@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -657,7 +657,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="pvc-v" onclick="selPV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model">Berline</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
         <div class="v-card" id="pvc-b" onclick="selPV('business')">
@@ -713,7 +713,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div>
             <div class="price-lbl">Forfait fixe garanti</div>
             <div class="price-num"><sup>€</sup><span id="pp-price">100</span></div>
-            <div class="price-veh" id="pp-veh">Mercedes Classe V · Van Premium</div>
+            <div class="price-veh" id="pp-veh">Berline · Van Premium</div>
           </div>
           <div class="price-km" id="pp-tag">Forfait fixe</div>
         </div>
@@ -824,7 +824,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="vc-v" onclick="selV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model">Berline</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>📶 Wi-Fi</span><span>👶 Famille ✓</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
@@ -946,7 +946,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="vc-mv" onclick="selVM('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model">Berline</div>
           <div class="v-specs"><span>👤 7 pax</span></div>
           <div class="v-rate">95 € / heure · min. 2h</div>
         </div>
@@ -1326,9 +1326,9 @@ function toggleNav(){
 }
 const VID={van:'vc-v',business:'vc-b',eco:'vc-e'};
 const MVID={van:'vc-mv',business:'vc-mb',eco:'vc-me'};
-const VNAME={van:'Mercedes Classe V · Van Premium',business:'Mercedes Classe E · Business',eco:'Berline Économique · Éco'};
+const VNAME={van:'Berline · Van Premium',business:'Mercedes Classe E · Business',eco:'Berline Économique · Éco'};
 const MVNAME={van:'Van Premium',business:'Business',eco:'Éco'};
-const VMNAME={van:'Mercedes Classe V',business:'Mercedes Classe E',eco:'Berline Économique'};
+const VMNAME={van:'Berline',business:'Mercedes Classe E',eco:'Berline Économique'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}

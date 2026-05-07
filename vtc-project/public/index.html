@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -679,13 +679,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="pvc-v" onclick="selPV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
         <div class="v-card" id="pvc-b" onclick="selPV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name">Business</div>
-          <div class="v-model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
       </div>
@@ -729,7 +729,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div>
             <div class="price-lbl" data-i18n="airport.price_label">Forfait fixe garanti</div>
             <div class="price-num"><sup>€</sup><span id="pp-price">100</span></div>
-            <div class="price-veh" id="pp-veh">Mercedes Classe V · Van Premium</div>
+            <div class="price-veh" id="pp-veh">Van Premium</div>
           </div>
           <div class="price-km" id="pp-tag">Forfait fixe</div>
         </div>
@@ -824,14 +824,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="vc-v" onclick="selV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>📶 Wi-Fi</span><span>👶 Famille ✓</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
         <div class="v-card" id="vc-b" onclick="selV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name">Business</div>
-          <div class="v-model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>📶 Wi-Fi</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
@@ -960,14 +960,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card on" id="vc-mv" onclick="selVM('van')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚐</div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
-          <div class="v-model">Mercedes Classe V</div>
+          <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span></div>
           <div class="v-rate" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
         </div>
         <div class="v-card" id="vc-mb" onclick="selVM('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name" data-i18n="airport.business_name">Business</div>
-          <div class="v-model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
           <div class="v-specs"><span>👤 3 pax</span></div>
           <div class="v-rate" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
         </div>
@@ -1258,6 +1258,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <div class="suc" id="modal-suc">
       <div class="suc-ring"><svg viewBox="0 0 26 26"><path d="M5 13l5 5 11-11"/></svg></div>
       <h3 data-i18n="modal.suc_title">Réservation confirmée !</h3>
+      <p class="suc-email-note" style="font-size:.82rem;color:var(--muted);text-align:center;margin:-0.2rem 0 1rem;line-height:1.55;max-width:26rem;margin-left:auto;margin-right:auto" data-i18n-html="modal.email_sent_html">Un <strong>email de confirmation</strong> avec votre QR code vient d’être envoyé à l’adresse indiquée.</p>
 
       <div class="qr-alert">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -1356,9 +1357,9 @@ function toggleNav(){
 }
 const VID={van:'vc-v',business:'vc-b'};
 const MVID={van:'vc-mv',business:'vc-mb'};
-const VNAME={van:'Mercedes Classe V · Van Premium',business:'Mercedes Classe E · Business'};
-const MVNAME={van:'Van Premium',business:'Business'};
-const VMNAME={van:'Mercedes Classe V',business:'Mercedes Classe E'};
+const VNAME={van:'Van Premium',business:'Berline · Mercedes Classe E'};
+const MVNAME={van:'Van Premium',business:'Berline'};
+const VMNAME={van:'Van Premium',business:'Berline'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}
@@ -1567,34 +1568,82 @@ function openModal(type){
 function closeModal(){document.getElementById('ov').classList.remove('open');if(cardEl){try{cardEl.unmount();}catch(e){}}}
 
 /* ── PAIEMENT ── */
+function askPaymentMethod(){
+  const value = window.prompt(
+    'Choisissez le mode de paiement (carte, virement, espèces) :',
+    'carte'
+  );
+  if(!value) return null;
+  const cleaned = value.trim().toLowerCase();
+  if(cleaned==='carte' || cleaned==='virement' || cleaned==='espèces' || cleaned==='especes') return cleaned==='especes' ? 'espèces' : cleaned;
+  toast('Mode invalide. Choisissez : carte, virement ou espèces.');
+  return null;
+}
+function buildPaymentLabel(method){
+  if(method==='carte') return 'Carte bancaire';
+  if(method==='virement') return 'Virement';
+  return 'Espèces';
+}
+function openWAAfterForm(resData, paymentMethod){
+  const WA_NUM = '33623889717';
+  const modeLabel = buildPaymentLabel(paymentMethod);
+  const comments = (document.getElementById('mc')?.value || '').trim();
+  let msg = 'Bonjour IsmaDrive 👋\n\n';
+  msg += 'Je confirme ma demande de réservation :\n\n';
+  msg += `🧾 Réf : ${resData.ref}\n`;
+  msg += `👤 Client : ${resData.client}\n`;
+  msg += `📞 Téléphone : ${resData.tel}\n`;
+  msg += `✉️ Email : ${resData.email}\n`;
+  msg += `🚐 Véhicule : ${resData.vehicleName}\n`;
+  msg += `🛣️ Trajet : ${resData.trajet}\n`;
+  msg += `📅 Date : ${resData.date} à ${resData.time}\n`;
+  msg += `💶 Montant estimé : ${resData.price} €\n`;
+  msg += `💳 Mode de paiement choisi : ${modeLabel}\n`;
+  msg += '⚠️ Paiement non effectué pour le moment.\n';
+  if(resData.equipment) msg += `👶 Équipement : ${resData.equipment}\n`;
+  if(comments) msg += `📝 Commentaires : ${comments}\n`;
+  msg += '\nMerci de me confirmer la suite pour le règlement.';
+  window.open('https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg), '_blank');
+}
 async function doPay(){
   const nom=document.getElementById('mn').value.trim(),tel=document.getElementById('mt-tel').value.trim(),email=document.getElementById('me').value.trim();
   if(!nom||!tel||!email){toast('Renseignez tous les champs *');return;}
   if(!document.getElementById('cgv-ok').checked){toast('Veuillez accepter les Conditions Générales de Vente pour continuer.');return;}
+  const paymentMethod=askPaymentMethod();
+  if(!paymentMethod)return;
   const btn=document.getElementById('btn-ok'),bar=document.getElementById('lbar');
   btn.disabled=true;bar.classList.add('go');
   try{
-    /* PRODUCTION — décommenter :
-    const {clientSecret}=await fetch('/api/payment-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:S.price*100,currency:'eur'})}).then(r=>r.json());
-    const result=await stripe.confirmCardPayment(clientSecret,{payment_method:{card:cardEl,billing_details:{name:nom,email}}});
-    if(result.error)throw new Error(result.error.message); */
-    await new Promise(r=>setTimeout(r,1800));
+    await new Promise(r=>setTimeout(r,500));
     bar.classList.remove('go');btn.disabled=false;
     /* ── Vérification finale côté serveur avant sauvegarde ── */
-    const resData = buildReservationData();
+    const resData = buildReservationData(paymentMethod);
     const checkR = await fetch('/api/check-availability',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:resData.date,time:resData.time,durationMin:resData.durationMin})});
     const checkD = await checkR.json();
     if(!checkD.available){ toast('Ce créneau vient d\'être réservé. Choisissez '+(checkD.nextSlot||'un autre horaire')+'.'); return; }
-    await fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
+    const saveRes=await fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
+    const saveData=await saveRes.json().catch(()=>({}));
+    if(!saveRes.ok||saveData.ok===false){toast(saveData.error||'Enregistrement impossible');return;}
+    openWAAfterForm(resData, paymentMethod);
     document.getElementById('modal-form').style.display='none';
     document.getElementById('modal-suc').classList.add('show');
-    generateQR();
-  }catch(err){bar.classList.remove('go');btn.disabled=false;toast('Paiement refusé : '+err.message);}
+    generateQR(resData.ref, paymentMethod);
+    const emailNote=document.querySelector('#modal-suc .suc-email-note');
+    if(emailNote){
+      if(saveData.emailSent){
+        emailNote.setAttribute('data-i18n-html','modal.email_sent_html');
+        emailNote.innerHTML=typeof window.i18n==='function'?window.i18n('modal.email_sent_html'):emailNote.innerHTML;
+      }else{
+        emailNote.setAttribute('data-i18n-html','modal.email_fail_html');
+        emailNote.innerHTML=typeof window.i18n==='function'?window.i18n('modal.email_fail_html'):emailNote.innerHTML;
+      }
+    }
+  }catch(err){bar.classList.remove('go');btn.disabled=false;toast('Validation impossible : '+err.message);}
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4500);}
 
 /* ── CONSTRUCTION DES DONNÉES DE RÉSERVATION ── */
-function buildReservationData(){
+function buildReservationData(paymentMethod){
   const nom   = document.getElementById('mn').value.trim();
   const tel   = document.getElementById('mt-tel').value.trim();
   const email = document.getElementById('me').value.trim();
@@ -1621,7 +1670,8 @@ function buildReservationData(){
     date=document.getElementById('i-mdate').value;
     time=document.getElementById('i-mtime').value;
   }
-  return { ref, status:'confirmed', type:S.tab, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:S.price||0, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web' };
+  const notes=(document.getElementById('mc')?.value||'').trim();
+  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:S.price||0, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web' };
 }
 
 /* ── RÉSERVATION WHATSAPP ── */
@@ -1646,7 +1696,7 @@ function _doOpenWA(tab) {
 
   if (tab === 'p') {
     const pack = CFG.forfaits[S.fpack];
-    const veh  = S.fveh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const veh  = S.fveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
     const date = document.getElementById('i-pdate')?.value || '—';
     const time = document.getElementById('i-ptime')?.value || '—';
     const rehausseur = document.getElementById('f-rehausseur')?.checked;
@@ -1662,7 +1712,7 @@ function _doOpenWA(tab) {
   else if (tab === 't') {
     const dep  = S.dep?.label || document.getElementById('i-dep')?.value || '—';
     const arr  = S.arr?.label || document.getElementById('i-arr')?.value || '—';
-    const veh  = S.veh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const veh  = S.veh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
     const date = document.getElementById('i-date')?.value || '—';
     const time = document.getElementById('i-time')?.value || '—';
     const prix = S.price ? `${S.price} €` : 'à calculer';
@@ -1678,7 +1728,7 @@ function _doOpenWA(tab) {
   }
 
   else if (tab === 'm') {
-    const veh  = S.mveh === 'van' ? 'Van Premium (Mercedes Classe V · 7 places)' : 'Berline Business (Mercedes Classe E · 3 places)';
+    const veh  = S.mveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
     const date = document.getElementById('i-mdate')?.value || '—';
     const time = document.getElementById('i-mtime')?.value || '—';
     const dur  = S.mdur + (S.mdur > 1 ? ' heures' : ' heure');
@@ -1698,8 +1748,7 @@ function _doOpenWA(tab) {
 }
 
 /* ── QR CODE RÉSERVATION ── */
-function generateQR(){
-  const ref='ISMA-'+Date.now().toString(36).toUpperCase().slice(-6);
+function generateQR(ref,paymentMethod){
   const nom=(document.getElementById('mn').value.trim()||'').substring(0,22);
   let trajet,veh,date,time;
   if(S.tab==='p'){
@@ -1725,16 +1774,18 @@ function generateQR(){
   const equip=[reh&&'Rehausseur',sieg&&'Siege bebe'].filter(Boolean).join('+') || 'Non';
   const dateStr=(date||'').split('-').reverse().join('/');
   const qrText=[
-    'IsmaDrive - PAIEMENT VALIDE',
+    'IsmaDrive - PAIEMENT NON EFFECTUE',
     'Ref:'+ref,
     'Trajet:'+trajet,
     'Vehicule:'+veh,
     'Date:'+dateStr+' '+time,
     'Client:'+nom,
     'Equip:'+equip,
-    'Prix:'+S.price+'EUR'
+    'Prix:'+S.price+'EUR',
+    'Paiement:Non',
+    'Mode:'+buildPaymentLabel(paymentMethod)
   ].join('|');
-  document.getElementById('qr-ref').textContent='Réf. '+ref;
+  document.getElementById('qr-ref').textContent='Réf. '+ref+' · Paiement non effectué · Mode : '+buildPaymentLabel(paymentMethod);
   const container=document.getElementById('qr-canvas');
   container.innerHTML='';
   const img=document.createElement('img');
