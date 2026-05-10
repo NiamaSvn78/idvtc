@@ -22,7 +22,7 @@ Specialising in airport transfers, tourist rides, and business travel across Par
 
 ## Fleet
 - **Premium Van:** 7 passengers, large luggage capacity. Best for families and groups.
-- **Berline Business — Mercedes E-Class:** Leather, climate control. Ideal for executives and duo travel.
+- **Berline Business:** Leather, climate control. Ideal for executives and duo travel.
 
 ## Pricing Model
 - Airport transfers: fixed fare packages (forfait prix fixe — no traffic surcharge, no toll add-ons)
@@ -96,7 +96,7 @@ Spécialisé dans les transferts aéroport, les courses pour touristes, et les d
 
 ## Véhicules
 - Van Premium (7 places, familles et groupes)
-- Berline Business Mercedes Classe E (jusqu'à 3 passagers, déplacements pro ou duo)
+- Berline Business (jusqu'à 3 passagers, déplacements pro ou duo)
 
 ## Zones desservies
 Paris (tous arrondissements), Versailles, Neuilly-sur-Seine, Boulogne-Billancourt, La Défense, Vincennes, toute l'Île-de-France.

@@ -46,7 +46,7 @@
       'airport.van_name': 'Van Premium',
       'airport.van_model': 'Van Premium · 7 places',
       'airport.business_name': 'Business',
-      'airport.business_model': 'Mercedes Classe E',
+      'airport.business_model': 'Berline',
       'airport.family_label': 'Équipement famille',
       'airport.booster': 'Réhausseur enfant (3–12 ans)',
       'airport.seat': 'Siège bébé (0–3 ans)',
@@ -329,6 +329,43 @@
       'seo_vincennes.title_html': 'Chauffeur Privé à Vincennes<br><em>VTC Luxe 24/7</em>',
       'seo_vincennes.sub': 'Aux portes du Bois de Vincennes, IsmaDrive vous propose un service de chauffeur privé haut de gamme depuis votre domicile ou votre bureau. Transferts CDG, Orly, Paris et grande couronne — réservez en ligne en 2 minutes.',
       'seo_vincennes.cta': 'Réserver depuis Vincennes',
+
+      /* ── Trust Bar ── */
+      'trust.b1': 'Chauffeurs francophones & anglophones',
+      'trust.b2': 'Suivi de vol en temps réel',
+      'trust.b3': 'Accueil avec pancarte nominative',
+      'trust.b4': 'Support WhatsApp 24h/24',
+      'trust.b5': 'Prix fixe, sans surprise',
+      'trust.b6': 'Aucun frais cachés',
+      'trust.b7': 'Paiement par carte accepté',
+      'trust.b8': 'Annulation gratuite',
+
+      /* ── Paris Experience ── */
+      'paris.sub': 'Bien plus qu\'un trajet — une expérience à la hauteur de Paris',
+      'paris.c1_title': 'Accueil CDG & Orly',
+      'paris.c1_desc': 'Prise en charge dès votre atterrissage',
+      'paris.c2_title': 'Meet & Greet',
+      'paris.c2_desc': 'Votre chauffeur vous attend, pancarte à votre nom',
+      'paris.c3_title': 'Visites de Paris',
+      'paris.c3_desc': 'Découvrez les monuments à votre rythme',
+      'paris.c4_title': 'Van Familial 7 places',
+      'paris.c4_desc': 'Mercedes Classe V, siège bébé inclus',
+      'paris.c5_title': 'Escapade en couple',
+      'paris.c5_desc': 'Élégance et confort pour deux',
+      'paris.c6_title': 'Excursion Versailles',
+      'paris.c6_desc': 'Château, jardins, retour — tout géré',
+      'paris.c7_title': 'Navette Disneyland',
+      'paris.c7_desc': 'Transfert direct, enfants à bord, zéro stress',
+
+      /* ── Storytelling ── */
+      'story.title': 'Une expérience, pas juste un trajet',
+      'story.sub': 'Ce qui nous distingue des autres VTC parisiens',
+      'story.c1_title': 'Sérénité totale',
+      'story.c1_text': 'Vous arrivez à Paris ? Votre chauffeur est déjà là, pancarte à votre nom, suivi de vol activé. Vous n\'avez rien à gérer — absolument rien.',
+      'story.c2_title': 'Standing discret',
+      'story.c2_text': 'Nos Mercedes sont entretenues à la perfection. Pas d\'odeur, pas de bruit parasite, eau minérale à bord. Le détail qui change tout.',
+      'story.c3_title': 'Faits pour les exigeants',
+      'story.c3_text': 'Cadres en déplacement, familles en vacances, couples en week-end. Nous adaptons chaque trajet à votre rythme, pas au nôtre.',
     },
 
     en: {
@@ -375,7 +412,7 @@
       'airport.van_name': 'Premium Van',
       'airport.van_model': 'Premium Van · 7 seats',
       'airport.business_name': 'Business',
-      'airport.business_model': 'Mercedes E-Class',
+      'airport.business_model': 'Berline',
       'airport.family_label': 'Family equipment',
       'airport.booster': 'Child booster (3–12 yrs)',
       'airport.seat': 'Baby seat (0–3 yrs)',
@@ -657,6 +694,43 @@
       'seo_vincennes.title_html': 'Private Chauffeur in Vincennes<br><em>Luxury VTC 24/7</em>',
       'seo_vincennes.sub': 'At the gates of the Bois de Vincennes, IsmaDrive offers a premium private chauffeur service from your home or office. CDG, Orly, Paris and greater Île-de-France transfers — book online in 2 minutes.',
       'seo_vincennes.cta': 'Book from Vincennes',
+
+      /* ── Trust Bar ── */
+      'trust.b1': 'English Speaking Drivers',
+      'trust.b2': 'Real-Time Flight Tracking',
+      'trust.b3': 'Meet & Greet Service',
+      'trust.b4': 'WhatsApp Support 24/7',
+      'trust.b5': 'Fixed Price – No Surprises',
+      'trust.b6': 'No Hidden Fees',
+      'trust.b7': 'Card Payment Accepted',
+      'trust.b8': 'Free Cancellation',
+
+      /* ── Paris Experience ── */
+      'paris.sub': 'More than a ride — an experience worthy of Paris',
+      'paris.c1_title': 'CDG & Orly Airport Pickup',
+      'paris.c1_desc': 'Met from the moment you land',
+      'paris.c2_title': 'Meet & Greet Service',
+      'paris.c2_desc': 'Your driver waits with your name displayed',
+      'paris.c3_title': 'Paris City Tours',
+      'paris.c3_desc': 'Explore monuments at your own pace',
+      'paris.c4_title': 'Family Van – 7 Seats',
+      'paris.c4_desc': 'Mercedes V-Class, baby seat included',
+      'paris.c5_title': 'Couple Premium Experience',
+      'paris.c5_desc': 'Elegance and comfort for two',
+      'paris.c6_title': 'Versailles Day Transfer',
+      'paris.c6_desc': 'Palace, gardens, return — all handled',
+      'paris.c7_title': 'Disneyland Paris Shuttle',
+      'paris.c7_desc': 'Direct transfer, kids on board, zero stress',
+
+      /* ── Storytelling ── */
+      'story.title': 'An experience, not just a ride',
+      'story.sub': 'What sets us apart from other Paris chauffeur services',
+      'story.c1_title': 'Total Peace of Mind',
+      'story.c1_text': 'Landing in Paris? Your driver is already there, sign with your name, flight tracked. You have nothing to manage — absolutely nothing.',
+      'story.c2_title': 'Understated Luxury',
+      'story.c2_text': 'Our Mercedes are immaculately maintained. No odors, no noise, mineral water on board. The detail that makes all the difference.',
+      'story.c3_title': 'Built for Demanding Clients',
+      'story.c3_text': 'Business travellers, families on holiday, couples on a weekend away. We adapt every journey to your pace — not ours.',
     }
   };
 
@@ -739,7 +813,7 @@
   css.textContent = [
     '.lang-toggle{background:none;border:1px solid var(--gold-border,rgba(201,169,110,.25));color:var(--gold,#c9a96e);',
     'padding:.26rem .65rem;font-family:"DM Sans",sans-serif;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;',
-    'cursor:pointer;display:inline-flex;align-items:center;gap:.28rem;transition:border-color .2s;flex-shrink:0;line-height:1}',
+    'cursor:pointer;display:inline-flex;align-items:center;gap:.28rem;transition:border-color .2s;flex-shrink:0;line-height:1;margin-left:1rem}',
     '.lang-toggle:hover{border-color:var(--gold,#c9a96e)}',
     '.lt-sep{color:var(--faint,#4a4640);font-weight:300}',
     '.lt-fr,.lt-en{transition:opacity .2s,font-weight .2s}'

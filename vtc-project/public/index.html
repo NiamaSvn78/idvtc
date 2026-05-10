@@ -73,10 +73,10 @@ html{scroll-behavior:smooth;scroll-padding-top:80px}
 body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden}
 nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(8,8,8,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--subtle)}
 .nav-logo{text-decoration:none;display:flex;align-items:center;line-height:1}
-.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links{display:flex;gap:2.5rem;list-style:none;position:absolute;left:50%;transform:translateX(-50%)}
 .nav-links a{color:var(--muted);text-decoration:none;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;transition:color .2s}
 .nav-links a:hover{color:var(--gold)}
-.nav-btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.4rem 1.3rem;font-family:'DM Sans',sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.nav-btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.4rem 1.3rem;font-family:'DM Sans',sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-left:auto}
 .nav-btn:hover{background:var(--gold);color:var(--black)}
 /* ── HAMBURGER ── */
 .nav-burger{display:none;background:none;border:none;cursor:pointer;padding:.5rem;flex-direction:column;gap:5px;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0}
@@ -445,13 +445,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .mf input{font-size:1rem}
   /* Espace pour les overlays date/heure (bouton « Définir » / actions du picker) */
   input[type=time],input[type=date]{
-    scroll-margin-bottom:max(14rem,42vh);
+    scroll-margin-top:88px;
+    scroll-margin-bottom:max(18rem,55vh);
     min-height:48px;
   }
-  .fg2 input[type=time],.fg2 input[type=date]{scroll-margin-bottom:max(16rem,48vh)}
+  .fg2.fg-dt input[type=time],.fg2.fg-dt input[type=date]{scroll-margin-bottom:max(20rem,58vh)}
 
   /* Grids formulaire */
-  .fg2{grid-template-columns:1fr 1fr} /* date+heure reste côte à côte */
+  .fg2{grid-template-columns:1fr 1fr}
+  /* Date + heure en colonne : champ plus haut à l’écran → plus de place pour le picker natif */
+  .fg2.fg-dt{grid-template-columns:1fr;gap:.75rem}
   .v-grid{grid-template-columns:1fr}
   .d-grid{grid-template-columns:repeat(4,1fr)}
   .d-btn{min-height:48px;padding:.6rem .2rem}
@@ -597,13 +600,43 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .cgv-wa-confirm{background:#25D366;color:#fff}
 .cgv-wa-confirm:hover{opacity:.88}
 .cgv-wa-confirm:disabled{background:var(--faint);cursor:not-allowed;opacity:.5}
+/* ── TRUST BAR ── */
+#trust-bar{width:100%;background:#111;padding:14px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:2rem}
+.trust-bar-inner{display:flex;gap:12px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+.trust-bar-inner::-webkit-scrollbar{display:none}
+.trust-badge{flex-shrink:0;background:#1a1a1a;border:1px solid rgba(201,169,110,0.25);border-radius:8px;padding:10px 16px;color:#fff;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.trust-badge .badge-icon{font-size:16px}
+@media(min-width:768px){.trust-bar-inner{flex-wrap:wrap;justify-content:center}}
+/* ── PARIS EXPERIENCE ── */
+#paris-experience{padding:60px 20px;background:#0d0d0d}
+.experience-header{text-align:center;margin-bottom:36px}
+.experience-header h2{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:1px;font-weight:400}
+.experience-header p{color:#aaa;font-size:1rem;margin-top:8px}
+.experience-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;margin:0 auto}
+.exp-card{background:linear-gradient(145deg,#1a1a1a,#111);border:1px solid var(--border);border-radius:12px;padding:28px 20px;text-align:center;transition:transform 0.2s}
+.exp-card:hover{transform:translateY(-4px);border-color:rgba(201,169,110,0.5)}
+.exp-card .exp-icon{font-size:2.4rem;display:block;margin-bottom:12px}
+.exp-card h3{color:#fff;font-size:0.95rem;font-weight:600;margin-bottom:6px}
+.exp-card p{color:#888;font-size:0.82rem;line-height:1.4}
+@media(max-width:600px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
+/* ── STORYTELLING ── */
+#storytelling{padding:60px 20px;background:#f9f7f2}
+.story-header{text-align:center;margin-bottom:36px}
+.story-header h2{color:#111;font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:400}
+.story-header p{color:#666;font-size:1rem;margin-top:8px}
+.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto}
+.story-card{background:#fff;border-radius:12px;padding:32px 24px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid var(--gold)}
+.story-card .story-icon{font-size:2rem;display:block;margin-bottom:16px}
+.story-card h3{color:#111;font-size:1.05rem;font-weight:700;margin-bottom:10px}
+.story-card p{color:#555;font-size:0.9rem;line-height:1.7}
+@media(max-width:700px){.story-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <nav>
   <a class="nav-logo" href="#" aria-label="IsmaDrive — Accueil">
-    <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="38" style="display:block;width:auto">
+    <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
     <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
@@ -638,6 +671,19 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   <h1 class="hero-title" data-i18n-html="hero.title_html">Chauffeur Privé Paris &amp; Île-de-France<br><em>Votre VTC de Luxe 24/7</em></h1>
   <p class="hero-sub" data-i18n="hero.sub">Touristes, familles et professionnels — transferts aéroport CDG &amp; Orly, visites monuments, excursions Versailles. Réhausseur &amp; siège bébé inclus, Van 7 places, prix fixe 24h/24.</p>
   <a class="hero-cta" href="#" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false" data-i18n="hero.cta">ESTIMER MON PRIX EN 30 SECONDES</a>
+
+  <section id="trust-bar" aria-label="Garanties voyageurs internationaux">
+    <div class="trust-bar-inner">
+      <div class="trust-badge"><span class="badge-icon">✅</span><span data-i18n="trust.b1">Chauffeurs francophones &amp; anglophones</span></div>
+      <div class="trust-badge"><span class="badge-icon">✈️</span><span data-i18n="trust.b2">Suivi de vol en temps réel</span></div>
+      <div class="trust-badge"><span class="badge-icon">🪧</span><span data-i18n="trust.b3">Accueil avec pancarte nominative</span></div>
+      <div class="trust-badge"><span class="badge-icon">💬</span><span data-i18n="trust.b4">Support WhatsApp 24h/24</span></div>
+      <div class="trust-badge"><span class="badge-icon">🔒</span><span data-i18n="trust.b5">Prix fixe, sans surprise</span></div>
+      <div class="trust-badge"><span class="badge-icon">🚫</span><span data-i18n="trust.b6">Aucun frais cachés</span></div>
+      <div class="trust-badge"><span class="badge-icon">💳</span><span data-i18n="trust.b7">Paiement par carte accepté</span></div>
+      <div class="trust-badge"><span class="badge-icon">❌</span><span data-i18n="trust.b8">Annulation gratuite</span></div>
+    </div>
+  </section>
 
   <div class="booking-card">
     <div class="tab-select-wrap">
@@ -691,7 +737,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card" id="pvc-b" onclick="selPV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
       </div>
@@ -714,7 +760,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
 
       <!-- ── Date / Heure ── -->
-      <div class="fg2">
+      <div class="fg2 fg-dt">
         <div><label class="fl">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
         <div><label class="fl">🕐 Heure</label><input class="fi" id="i-ptime" type="time" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
       </div>
@@ -808,7 +854,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="ac-list" id="ac-arr"></div>
         </div>
       </div>
-      <div class="fg2">
+      <div class="fg2 fg-dt">
         <div><label class="fl">📅 Date</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
         <div><label class="fl">🕐 Heure</label><input class="fi" id="i-time" type="time" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
       </div>
@@ -837,7 +883,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card" id="vc-b" onclick="selV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>📶 Wi-Fi</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
@@ -947,7 +993,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="ac-list" id="ac-mdep"></div>
         </div>
       </div>
-      <div class="fg2">
+      <div class="fg2 fg-dt">
         <div><label class="fl" data-i18n="mad.date">📅 Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
         <div><label class="fl" data-i18n="mad.time">🕐 Heure</label><input class="fi" id="i-mtime" type="time" style="padding-left:.75rem"></div>
       </div>
@@ -973,7 +1019,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="v-card" id="vc-mb" onclick="selVM('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico">🚗</div><div class="v-name" data-i18n="airport.business_name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
+          <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span></div>
           <div class="v-rate" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
         </div>
@@ -1060,7 +1106,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="fleet-grid" style="margin-top:2px">
         <div class="fleet-item">
           <div class="fleet-gamme" data-i18n="fleet.bus_gamme">Option Business</div>
-          <h3 class="fleet-name">Mercedes Classe E</h3>
+          <h3 class="fleet-name">Berline</h3>
           <p class="fleet-desc" data-i18n="fleet.bus_desc">La berline executive pour les déplacements seul ou en duo. Discrétion absolue, performance et confort à chaque trajet professionnel.</p>
           <div class="fleet-pills"><span class="fleet-pill">3 passagers</span><span class="fleet-pill">3 bagages</span><span class="fleet-pill">Wi-Fi à bord</span><span class="fleet-pill">Eau minérale</span><span class="fleet-pill">Chargeurs USB</span><span class="fleet-pill">Clima 4 zones</span></div>
           <div class="fleet-tarifs">
@@ -1170,6 +1216,74 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
     </div>
 
+  </div>
+</section>
+
+<section id="paris-experience">
+  <div class="experience-header">
+    <h2>Paris Luxury Experience</h2>
+    <p data-i18n="paris.sub">Bien plus qu'un trajet — une expérience à la hauteur de Paris</p>
+  </div>
+  <div class="experience-grid">
+    <div class="exp-card">
+      <span class="exp-icon">🛬</span>
+      <h3 data-i18n="paris.c1_title">Accueil CDG &amp; Orly</h3>
+      <p data-i18n="paris.c1_desc">Prise en charge dès votre atterrissage</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">🪧</span>
+      <h3 data-i18n="paris.c2_title">Meet &amp; Greet</h3>
+      <p data-i18n="paris.c2_desc">Votre chauffeur vous attend, pancarte à votre nom</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">🗼</span>
+      <h3 data-i18n="paris.c3_title">Visites de Paris</h3>
+      <p data-i18n="paris.c3_desc">Découvrez les monuments à votre rythme</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">👨‍👩‍👧</span>
+      <h3 data-i18n="paris.c4_title">Van Familial 7 places</h3>
+      <p data-i18n="paris.c4_desc">Mercedes Classe V, siège bébé inclus</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">💑</span>
+      <h3 data-i18n="paris.c5_title">Escapade en couple</h3>
+      <p data-i18n="paris.c5_desc">Élégance et confort pour deux</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">🏰</span>
+      <h3 data-i18n="paris.c6_title">Excursion Versailles</h3>
+      <p data-i18n="paris.c6_desc">Château, jardins, retour — tout géré</p>
+    </div>
+    <div class="exp-card">
+      <span class="exp-icon">🎡</span>
+      <h3 data-i18n="paris.c7_title">Navette Disneyland</h3>
+      <p data-i18n="paris.c7_desc">Transfert direct, enfants à bord, zéro stress</p>
+    </div>
+  </div>
+</section>
+
+<section id="storytelling">
+  <div class="story-header">
+    <h2 data-i18n="story.title">Une expérience, pas juste un trajet</h2>
+    <p data-i18n="story.sub">Ce qui nous distingue des autres VTC parisiens</p>
+  </div>
+  <div class="story-grid">
+    <div class="story-card">
+      <span class="story-icon">🛡️</span>
+      <h3 data-i18n="story.c1_title">Sérénité totale</h3>
+      <p data-i18n="story.c1_text">Vous arrivez à Paris ? Votre chauffeur est déjà là, pancarte à votre nom, suivi de vol activé. Vous n'avez rien à gérer — absolument rien.</p>
+    </div>
+    <div class="story-card">
+      <span class="story-icon">✨</span>
+      <h3 data-i18n="story.c2_title">Standing discret</h3>
+      <p data-i18n="story.c2_text">Nos Mercedes sont entretenues à la perfection. Pas d'odeur, pas de bruit parasite, eau minérale à bord. Le détail qui change tout.</p>
+    </div>
+    <div class="story-card">
+      <span class="story-icon">🌍</span>
+      <h3 data-i18n="story.c3_title">Faits pour les exigeants</h3>
+      <p data-i18n="story.c3_text">Cadres en déplacement, familles en vacances, couples en week-end. Nous adaptons chaque trajet à votre rythme, pas au nôtre.</p>
+    </div>
   </div>
 </section>
 
@@ -1331,18 +1445,26 @@ const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', mdur:2, dep
 let _pendingModalType = null;
 const acT={}, acBT={};
 
-window.addEventListener('DOMContentLoaded', () => {
+/* Mobile : place date/heure sous la nav pour laisser la hauteur au picker natif (bouton « Définir » en bas) */
+function scrollPickerIntoView(el){
+  if(!el||window.matchMedia('(min-width:769px)').matches)return;
+  const NAV_PAD=88;
+  const align=()=>{
+    const rect=el.getBoundingClientRect();
+    const delta=rect.top-NAV_PAD;
+    if(Math.abs(delta)>6)window.scrollBy({top:delta,left:0,behavior:'smooth'});
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(align));
+  setTimeout(align,120);
+  setTimeout(align,400);
+  setTimeout(align,700);
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
   const now=new Date(), pad=n=>String(n).padStart(2,'0');
   const ds=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`, ts=`${pad(now.getHours())}:00`;
   ['i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   ['i-time','i-mtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ts;});
-  /* Mobile : centrer date/heure dans la fenêtre pour que le picker natif et « Définir » restent visibles */
-  function scrollPickerIntoView(el){
-    if(!el||window.matchMedia('(min-width:769px)').matches)return;
-    requestAnimationFrame(()=>{
-      el.scrollIntoView({block:'center',inline:'nearest',behavior:'smooth'});
-    });
-  }
   ['i-pdate','i-ptime','i-date','i-time','i-mdate','i-mtime'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
@@ -1350,6 +1472,16 @@ window.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('focus',run,{passive:true});
     el.addEventListener('click',run,{passive:true});
   });
+  if(window.visualViewport){
+    let vvTimer;
+    window.visualViewport.addEventListener('resize',()=>{
+      clearTimeout(vvTimer);
+      vvTimer=setTimeout(()=>{
+        const ae=document.activeElement;
+        if(ae&&(ae.type==='time'||ae.type==='date'))scrollPickerIntoView(ae);
+      },50);
+    },{passive:true});
+  }
   updateMAD();
   updatePackPrice();
   ['f-rehausseur','f-siege'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updatePackPrice);});
@@ -1380,7 +1512,7 @@ function toggleNav(){
 }
 const VID={van:'vc-v',business:'vc-b'};
 const MVID={van:'vc-mv',business:'vc-mb'};
-const VNAME={van:'Van Premium',business:'Berline · Mercedes Classe E'};
+const VNAME={van:'Van Premium',business:'Berline'};
 const MVNAME={van:'Van Premium',business:'Berline'};
 const VMNAME={van:'Van Premium',business:'Berline'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.km!==null)renderPrice(S.km);}
@@ -1731,7 +1863,7 @@ function _doOpenWA(tab) {
 
   if (tab === 'p') {
     const pack = CFG.forfaits[S.fpack];
-    const veh  = S.fveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
+    const veh  = S.fveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
     const date = document.getElementById('i-pdate')?.value || '—';
     const time = document.getElementById('i-ptime')?.value || '—';
     const rehausseur = document.getElementById('f-rehausseur')?.checked;
@@ -1747,7 +1879,7 @@ function _doOpenWA(tab) {
   else if (tab === 't') {
     const dep  = S.dep?.label || document.getElementById('i-dep')?.value || '—';
     const arr  = S.arr?.label || document.getElementById('i-arr')?.value || '—';
-    const veh  = S.veh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
+    const veh  = S.veh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
     const date = document.getElementById('i-date')?.value || '—';
     const time = document.getElementById('i-time')?.value || '—';
     const prix = S.price ? `${S.price} €` : 'à calculer';
@@ -1763,7 +1895,7 @@ function _doOpenWA(tab) {
   }
 
   else if (tab === 'm') {
-    const veh  = S.mveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business · Mercedes Classe E (3 places)';
+    const veh  = S.mveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
     const date = document.getElementById('i-mdate')?.value || '—';
     const time = document.getElementById('i-mtime')?.value || '—';
     const dur  = S.mdur + (S.mdur > 1 ? ' heures' : ' heure');

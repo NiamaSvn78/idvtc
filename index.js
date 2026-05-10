@@ -213,6 +213,13 @@ module.exports = app;
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    console.log(`Resend: ${RESEND_API_KEY ? 'clé présente' : 'RESEND_API_KEY manquante'} · From: ${RESEND_FROM || '(non défini)'}`);
+    const resendReady = !!(RESEND_API_KEY && RESEND_FROM);
+    if (resendReady) {
+      console.log('Resend: configuré (emails de confirmation actifs)');
+    } else if (process.env.VERCEL) {
+      console.warn('Resend: RESEND_API_KEY ou RESEND_FROM_EMAIL manquant — vérifier les variables sur Vercel');
+    } else {
+      console.log('Resend: désactivé en local (clés souvent uniquement sur Vercel — voir DEPLOY-VERCEL.md)');
+    }
   });
 }
