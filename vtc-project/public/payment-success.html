@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement confirmé — IsmaDrive</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c9a96e;--black:#080808;--dark:#111111;--text:#f0ece4;--muted:#9a9185;--green:#27ae60}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.card{max-width:480px;width:100%;background:#111;border:1px solid rgba(201,169,110,.2);border-radius:4px;overflow:hidden;text-align:center}
+.card-top{background:#080808;padding:32px 28px 24px;border-bottom:1px solid rgba(201,169,110,.15)}
+.check{width:64px;height:64px;background:rgba(39,174,96,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.check svg{width:32px;height:32px;stroke:var(--green);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold);letter-spacing:.12em;margin-bottom:16px}
+h1{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color:var(--text);line-height:1.2;margin-bottom:8px}
+.sub{font-size:.85rem;color:var(--muted);line-height:1.6}
+.card-body{padding:24px 28px}
+.ref{font-size:.72rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
+.ref-val{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);letter-spacing:.08em}
+.info{font-size:.82rem;color:var(--muted);line-height:1.65;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+.btn{display:inline-block;margin-top:24px;background:var(--gold);color:#080808;padding:12px 32px;text-decoration:none;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;border-radius:2px;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.footer{font-size:.7rem;color:rgba(154,145,133,.5);margin-top:20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-top">
+    <div class="logo">IsmaDrive</div>
+    <div class="check">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1 id="t-title">Paiement confirmé</h1>
+    <p class="sub" id="t-sub">Votre réservation est enregistrée.<br>Un email de confirmation vous a été envoyé.</p>
+  </div>
+  <div class="card-body">
+    <div id="ref-block" style="display:none">
+      <div class="ref" id="t-ref-label">Référence de réservation</div>
+      <div class="ref-val" id="ref-display">—</div>
+    </div>
+    <p class="info" id="t-info">Un email de confirmation avec votre QR code vous a été envoyé à l'adresse indiquée.<br>Présentez ce QR code à votre conducteur avant le départ — il est indispensable pour démarrer la course.</p>
+    <a href="/" class="btn" id="t-btn">Retour à l'accueil</a>
+  </div>
+</div>
+<div class="footer">© IsmaDrive · ismadrive.fr</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const ref = params.get('ref');
+const lang = params.get('lang');
+
+if (lang === 'en') {
+  document.getElementById('html-root').lang = 'en';
+  document.title = 'Payment confirmed — IsmaDrive';
+  document.getElementById('t-title').textContent = 'Payment confirmed';
+  document.getElementById('t-sub').innerHTML = 'Your booking is confirmed.<br>A confirmation email has been sent to you.';
+  document.getElementById('t-ref-label').textContent = 'Booking reference';
+  document.getElementById('t-info').innerHTML = 'A confirmation email with your QR code has been sent to the address provided.<br>Show this QR code to your driver before departure — it is required to start the ride.';
+  document.getElementById('t-btn').textContent = 'Back to home';
+}
+
+if (ref) {
+  document.getElementById('ref-display').textContent = ref;
+  document.getElementById('ref-block').style.display = 'block';
+}
+</script>
+</body>
+</html>

@@ -46,7 +46,7 @@
   ],
   "openingHours": "Mo-Su 00:00-23:59",
   "priceRange": "€€€",
-  "paymentAccepted": "Cash, WhatsApp",
+  "paymentAccepted": "Cash, CreditCard",
   "currenciesAccepted": "EUR",
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
@@ -98,6 +98,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 .nav-drawer-wa{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:.8rem;background:#25d366;color:#fff;padding:1.1rem;text-decoration:none;font-size:.88rem;font-weight:500;letter-spacing:.06em;-webkit-tap-highlight-color:transparent}
 
 @media(max-width:800px){.nav-links,.nav-btn{display:none}.nav-burger{display:flex}}
+@media(max-width:800px){
+  .lang-toggle{min-height:44px;min-width:60px;padding:.5rem 1rem;font-size:.8rem;justify-content:center;margin-left:.4rem;-webkit-tap-highlight-color:transparent}
+}
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 5vw 60px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,169,110,.07) 0%,transparent 70%)}
 .hero-tag{font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:1.4rem}
 .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,6vw,5.2rem);font-weight:300;line-height:1.08;text-align:center;max-width:780px;margin-bottom:.8rem}
@@ -180,11 +183,6 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .btn-pay:hover{background:var(--gold2)}.btn-pay:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1rem}
 .btn-row .btn-calc,.btn-row .btn-pay{margin-top:0}
-.btn-wa{width:100%;background:#25D366;border:none;color:#fff;padding:1rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
-.btn-wa:hover{background:#1ebe5d}
-.or-sep{display:flex;align-items:center;gap:.7rem;margin-top:.8rem;margin-bottom:.2rem}
-.or-sep::before,.or-sep::after{content:'';flex:1;height:1px;background:var(--subtle)}
-.or-sep span{font-size:.65rem;color:var(--faint);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
 .secure-line{text-align:center;font-size:.68rem;color:var(--faint);margin-top:.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:15px;height:15px;border:1.5px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
@@ -427,10 +425,10 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 @media(max-width:768px){
 
   /* Hero */
-  .hero{padding:80px 4vw 2rem;min-height:auto}
+  .hero{padding:88px 5vw 3rem;min-height:auto}
   .hero-tag{font-size:.62rem;letter-spacing:.2em;margin-bottom:.9rem}
   .hero-title{font-size:clamp(1.9rem,7.5vw,2.6rem);margin-bottom:.7rem}
-  .hero-sub{font-size:.86rem;margin-bottom:1.5rem;max-width:none}
+  .hero-sub{font-size:.86rem;margin-bottom:2.2rem;max-width:none}
   .hero-cta{width:100%;text-align:center;padding:1rem;font-size:.8rem;margin-bottom:1.2rem;display:block}
 
   /* Booking card */
@@ -439,7 +437,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .b-tabs{display:none}
   .tab-select-wrap{display:block;border-bottom:1px solid var(--border)}
   .b-tab{flex:none;padding:.82rem .95rem;font-size:.66rem;letter-spacing:.07em;white-space:nowrap}
-  .b-pane{padding:1.1rem}
+  .b-pane{padding:1.5rem}
   /* Grilles 3 col → 2 col sur mobile */
   .guar-3{grid-template-columns:1fr 1fr}
   .fleet-3{grid-template-columns:1fr}
@@ -477,16 +475,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .price-num{font-size:2.4rem}
 
   /* Sections générales */
-  section{padding:2.8rem 4vw}
-  .section-title{font-size:clamp(1.5rem,5.5vw,2rem);margin-bottom:1.4rem;max-width:none}
-  .seo-section{padding:2.8rem 4vw}
+  section{padding:3.5rem 4.5vw}
+  .section-title{font-size:clamp(1.5rem,5.5vw,2rem);margin-bottom:2rem;max-width:none}
+  .seo-section{padding:3.5rem 4.5vw}
   .seo-section .section-title{margin-bottom:1.4rem}
 
   /* Onglets — contenu */
   .fleet-grid{grid-template-columns:1fr}
-  .fleet-item{padding:1.5rem}
+  .fleet-item{padding:2rem 1.5rem}
   .srv-grid{grid-template-columns:1fr}
-  .guar-grid{grid-template-columns:1fr 1fr;gap:1.2rem}
+  .guar-grid{grid-template-columns:1fr 1fr;gap:1.6rem}
 
   /* SEO sections */
   .zones-grid{grid-template-columns:1fr}
@@ -588,22 +586,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .cgv-link{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
 .cgv-link:hover{color:var(--gold2)}
 
-/* ── CGV MINI-MODAL (WhatsApp) ── */
-.cgv-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:1.5rem}
-.cgv-ov.open{display:flex}
-#wa-res-info-ov{z-index:620}
-.cgv-box{background:var(--dark2);border:1px solid var(--gold-border);padding:2rem;max-width:420px;width:100%}
-.cgv-box h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);margin-bottom:.8rem}
-.cgv-box p{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:1.1rem}
-.cgv-box a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
-.cgv-box .cgv-lbl{margin-bottom:1.4rem;color:var(--text);font-size:.82rem}
-.cgv-wa-btns{display:flex;gap:.75rem}
-.cgv-wa-btns button{flex:1;padding:.75rem 1rem;border:none;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
-.cgv-wa-cancel{background:var(--subtle);color:var(--muted)}
-.cgv-wa-cancel:hover{opacity:.75}
-.cgv-wa-confirm{background:#25D366;color:#fff}
-.cgv-wa-confirm:hover{opacity:.88}
-.cgv-wa-confirm:disabled{background:var(--faint);cursor:not-allowed;opacity:.5}
 /* ── TRUST BAR ── */
 #trust-bar{width:100%;background:#111;padding:14px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:2rem}
 .trust-bar-inner{display:flex;gap:12px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
@@ -797,12 +779,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span data-i18n="airport.pay">Réserver</span>
       </button>
-      <div class="secure-line" data-i18n="airport.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
-      <div class="or-sep"><span data-i18n="airport.or_sep">ou écrivez-nous directement</span></div>
-      <a class="btn-wa" href="#" onclick="openWA('p');return false">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
-      </a>
+      <div class="secure-line" data-i18n="airport.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
@@ -927,12 +904,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span data-i18n="transfer.pay">Réserver</span>
         </button>
       </div>
-      <div class="secure-line" data-i18n="transfer.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
-      <div class="or-sep"><span data-i18n="transfer.or_sep">ou écrivez-nous directement</span></div>
-      <a class="btn-wa" href="#" onclick="openWA('t');return false">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
-      </a>
+      <div class="secure-line" data-i18n="transfer.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
@@ -1056,12 +1028,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         <span data-i18n="mad.pay">Réserver</span>
       </button>
-      <div class="secure-line" data-i18n="mad.secure">Finalisation sur WhatsApp · Pas de paiement par carte sur ce site pour le moment</div>
-      <div class="or-sep"><span data-i18n="mad.or_sep">ou écrivez-nous directement</span></div>
-      <a class="btn-wa" href="#" onclick="openWA('m');return false">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
-        <span data-i18n="airport.wa">Réserver via WhatsApp</span>
-      </a>
+      <div class="secure-line" data-i18n="mad.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
       <div class="qr-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
         <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
@@ -1356,7 +1323,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <button class="mx" onclick="closeModal()">✕</button>
     <div id="modal-form">
       <h2 class="mh" data-i18n="modal.title">Finaliser la réservation</h2>
-      <p class="msub" data-i18n="modal.sub">Renseignez vos coordonnées. La confirmation et le règlement se font pour l’instant sur WhatsApp.</p>
+      <p class="msub" data-i18n="modal.sub">Renseignez vos coordonnées. Paiement sécurisé par carte bancaire via Stripe.</p>
       <div class="m-recap" id="m-recap"></div>
       <div class="m-total"><div><div class="mt-lbl" data-i18n="modal.total">Total à régler</div></div><div class="mt-price" id="mt-p">—</div></div>
       <div class="mgrid">
@@ -1404,35 +1371,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 </div>
 <div class="toast" id="toast"></div>
 
-<!-- Modale : réservation via WhatsApp pour l'instant -->
-<div class="cgv-ov" id="wa-res-info-ov" onclick="if(event.target===this)closeWaResInfoModal()">
-  <div class="cgv-box" onclick="event.stopPropagation()">
-    <h3 data-i18n="wa_res_modal.title">Réservation sur WhatsApp</h3>
-    <p data-i18n-html="wa_res_modal.body_html">Pour le moment, <strong>aucun paiement par carte bancaire n’est accepté sur ce site</strong>. Après avoir envoyé votre demande, nous vous confirmons et finalisons ensemble la réservation et le mode de paiement <strong>sur WhatsApp</strong>.</p>
-    <div class="cgv-wa-btns">
-      <button type="button" class="cgv-wa-cancel" onclick="closeWaResInfoModal()" data-i18n="wa_res_modal.cancel">Annuler</button>
-      <button type="button" class="cgv-wa-confirm" onclick="continueReservationModal()" data-i18n="wa_res_modal.continue">Continuer</button>
-    </div>
-  </div>
-</div>
 
-<!-- Mini-modal CGV pour réservation WhatsApp -->
-<div class="cgv-ov" id="cgv-ov" onclick="if(event.target===this)closeCgvModal()">
-  <div class="cgv-box">
-    <h3>Conditions Générales de Vente</h3>
-    <p>En réservant via WhatsApp, vous confirmez avoir pris connaissance de nos <a href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et les accepter intégralement, notamment les dispositions relatives à la responsabilité du prestataire et aux modalités d'annulation.</p>
-    <label class="cgv-lbl">
-      <input type="checkbox" id="cgv-wa-ok" onchange="document.getElementById('cgv-wa-confirm').disabled=!this.checked">
-      <span>J'ai lu et j'accepte les CGV d'IsmaDrive</span>
-    </label>
-    <div class="cgv-wa-btns">
-      <button class="cgv-wa-cancel" onclick="closeCgvModal()">Annuler</button>
-      <button class="cgv-wa-confirm" id="cgv-wa-confirm" disabled onclick="proceedWA()">
-        Continuer vers WhatsApp
-      </button>
-    </div>
-  </div>
-</div>
 
 <script>
 const CFG = {
@@ -1720,18 +1659,24 @@ function mkBR(rows,total){return rows.map(([k,v])=>`<div class="brow"><span clas
 
 /* ── MODAL ── */
 function openModal(type){
-  _pendingModalType = type;
-  document.getElementById('wa-res-info-ov').classList.add('open');
-}
-function closeWaResInfoModal(){
-  document.getElementById('wa-res-info-ov').classList.remove('open');
-  _pendingModalType = null;
-}
-function continueReservationModal(){
-  const type = _pendingModalType;
-  document.getElementById('wa-res-info-ov').classList.remove('open');
-  _pendingModalType = null;
-  if(type) fillAndShowBookingModal(type);
+  if(type==='p'){
+    syncTimeVal('i-ptime');
+    if(!document.getElementById('i-pdate').value){
+      toast('Veuillez sélectionner une date.');return;
+    }
+  } else if(type==='t'){
+    if(!S.dep){toast('Veuillez sélectionner une adresse de départ dans les suggestions.');return;}
+    if(!S.arr){toast('Veuillez sélectionner une adresse d\'arrivée dans les suggestions.');return;}
+    if(!document.getElementById('i-date').value){toast('Veuillez sélectionner une date.');return;}
+    if(S.price===null){toast('Veuillez calculer le prix avant de réserver.');return;}
+  } else if(type==='m'){
+    syncTimeVal('i-mtime');
+    if(!document.getElementById('i-mdep').value.trim()){
+      toast('Veuillez indiquer une adresse de prise en charge.');return;
+    }
+    if(!document.getElementById('i-mdate').value){toast('Veuillez sélectionner une date.');return;}
+  }
+  fillAndShowBookingModal(type);
 }
 function fillAndShowBookingModal(type){
   document.getElementById('modal-form').style.display='block';
@@ -1752,76 +1697,26 @@ function fillAndShowBookingModal(type){
 function closeModal(){document.getElementById('ov').classList.remove('open');}
 
 /* ── PAIEMENT ── */
-function askPaymentMethod(){
-  const value = window.prompt(
-    'Choisissez le mode de paiement (carte, virement, espèces) :',
-    'carte'
-  );
-  if(!value) return null;
-  const cleaned = value.trim().toLowerCase();
-  if(cleaned==='carte' || cleaned==='virement' || cleaned==='espèces' || cleaned==='especes') return cleaned==='especes' ? 'espèces' : cleaned;
-  toast('Mode invalide. Choisissez : carte, virement ou espèces.');
-  return null;
-}
 function buildPaymentLabel(method){
   if(method==='carte') return 'Carte bancaire';
   if(method==='virement') return 'Virement';
   return 'Espèces';
 }
-function openWAAfterForm(resData, paymentMethod){
-  const WA_NUM = '33623889717';
-  const modeLabel = buildPaymentLabel(paymentMethod);
-  const comments = (document.getElementById('mc')?.value || '').trim();
-  let msg = 'Bonjour IsmaDrive 👋\n\n';
-  msg += 'Je confirme ma demande de réservation :\n\n';
-  msg += `🧾 Réf : ${resData.ref}\n`;
-  msg += `👤 Client : ${resData.client}\n`;
-  msg += `📞 Téléphone : ${resData.tel}\n`;
-  msg += `✉️ Email : ${resData.email}\n`;
-  msg += `🚐 Véhicule : ${resData.vehicleName}\n`;
-  msg += `🛣️ Trajet : ${resData.trajet}\n`;
-  msg += `📅 Date : ${resData.date} à ${resData.time}\n`;
-  msg += `💶 Montant estimé : ${resData.price} €\n`;
-  msg += `💳 Mode de paiement choisi : ${modeLabel}\n`;
-  msg += '⚠️ Paiement non effectué pour le moment.\n';
-  if(resData.equipment) msg += `👶 Équipement : ${resData.equipment}\n`;
-  if(comments) msg += `📝 Commentaires : ${comments}\n`;
-  msg += '\nMerci de me confirmer la suite pour le règlement.';
-  window.open('https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg), '_blank');
-}
 async function doPay(){
   const nom=document.getElementById('mn').value.trim(),tel=document.getElementById('mt-tel').value.trim(),email=document.getElementById('me').value.trim();
   if(!nom||!tel||!email){toast('Renseignez tous les champs *');return;}
   if(!document.getElementById('cgv-ok').checked){toast('Veuillez accepter les Conditions Générales de Vente pour continuer.');return;}
-  const paymentMethod=askPaymentMethod();
-  if(!paymentMethod)return;
   const btn=document.getElementById('btn-ok'),bar=document.getElementById('lbar');
   btn.disabled=true;bar.classList.add('go');
   try{
-    await new Promise(r=>setTimeout(r,500));
-    bar.classList.remove('go');btn.disabled=false;
-    /* ── Vérification finale côté serveur avant sauvegarde ── */
-    const resData = buildReservationData(paymentMethod);
+    const resData = buildReservationData('carte');
     const checkR = await fetch('/api/check-availability',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:resData.date,time:resData.time,durationMin:resData.durationMin})});
     const checkD = await checkR.json();
-    if(!checkD.available){ toast('Ce créneau vient d\'être réservé. Choisissez '+(checkD.nextSlot||'un autre horaire')+'.'); return; }
-    const saveRes=await fetch('/api/reservations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
-    const saveData=await saveRes.json().catch(()=>({}));
-    if(!saveRes.ok||saveData.ok===false){toast(saveData.error||'Enregistrement impossible');return;}
-    openWAAfterForm(resData, paymentMethod);
-    document.getElementById('modal-form').style.display='none';
-    document.getElementById('modal-suc').classList.add('show');
-    generateQR(resData.ref, paymentMethod);
-    const emailNote=document.querySelector('#modal-suc .suc-email-note');
-    if(emailNote){
-      if(saveData.emailSent){
-        emailNote.setAttribute('data-i18n-html','modal.email_sent_html');
-        emailNote.innerHTML=typeof window.i18n==='function'?window.i18n('modal.email_sent_html'):emailNote.innerHTML;
-      }else{
-        emailNote.setAttribute('data-i18n-html','modal.email_fail_html');
-        emailNote.innerHTML=typeof window.i18n==='function'?window.i18n('modal.email_fail_html'):emailNote.innerHTML;
-      }
-    }
+    if(!checkD.available){ toast('Ce créneau vient d\'être réservé. Choisissez '+(checkD.nextSlot||'un autre horaire')+'.'); bar.classList.remove('go');btn.disabled=false; return; }
+    const sessionRes=await fetch('/api/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
+    const sessionData=await sessionRes.json().catch(()=>({}));
+    if(!sessionRes.ok||!sessionData.url){toast(sessionData.error||'Erreur lors de la création du paiement Stripe');bar.classList.remove('go');btn.disabled=false;return;}
+    window.location.href=sessionData.url;
   }catch(err){bar.classList.remove('go');btn.disabled=false;toast('Validation impossible : '+err.message);}
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4500);}
@@ -1855,81 +1750,9 @@ function buildReservationData(paymentMethod){
     time=document.getElementById('i-mtime').value;
   }
   const notes=(document.getElementById('mc')?.value||'').trim();
-  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:S.price||0, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web' };
+  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, trajet, date, time, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:S.price||0, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr') };
 }
 
-/* ── RÉSERVATION WHATSAPP ── */
-let _waTab = null;
-function openWA(tab) {
-  _waTab = tab;
-  document.getElementById('cgv-wa-ok').checked = false;
-  document.getElementById('cgv-wa-confirm').disabled = true;
-  document.getElementById('cgv-ov').classList.add('open');
-}
-function closeCgvModal() {
-  document.getElementById('cgv-ov').classList.remove('open');
-}
-function proceedWA() {
-  if(!document.getElementById('cgv-wa-ok').checked){toast('Veuillez accepter les CGV pour continuer.');return;}
-  closeCgvModal();
-  _doOpenWA(_waTab);
-}
-function _doOpenWA(tab) {
-  const WA_NUM = '33623889717';
-  let msg = 'Bonjour IsmaDrive 👋\n\nJe souhaite réserver :\n\n';
-
-  if (tab === 'p') {
-    const pack = CFG.forfaits[S.fpack];
-    const veh  = S.fveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
-    const date = document.getElementById('i-pdate')?.value || '—';
-    const time = document.getElementById('i-ptime')?.value || '—';
-    const rehausseur = document.getElementById('f-rehausseur')?.checked;
-    const siege      = document.getElementById('f-siege')?.checked;
-    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
-    msg += `✈️ Trajet : ${pack.label}\n`;
-    msg += `📅 Date : ${date} à ${time}\n`;
-    msg += `🚐 Véhicule : ${veh}\n`;
-    msg += `💶 Prix : ${pack[S.fveh]} €\n`;
-    if (equip) msg += `👶 Équipement : ${equip}\n`;
-  }
-
-  else if (tab === 't') {
-    const dep  = S.dep?.label || document.getElementById('i-dep')?.value || '—';
-    const arr  = S.arr?.label || document.getElementById('i-arr')?.value || '—';
-    const veh  = S.veh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
-    const date = document.getElementById('i-date')?.value || '—';
-    const time = document.getElementById('i-time')?.value || '—';
-    const prix = S.price ? `${S.price} €` : 'à calculer';
-    const rehausseur = document.getElementById('t-rehausseur')?.checked;
-    const siege      = document.getElementById('t-siege')?.checked;
-    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
-    msg += `🗺️ Départ : ${dep}\n`;
-    msg += `📍 Arrivée : ${arr}\n`;
-    msg += `📅 Date : ${date} à ${time}\n`;
-    msg += `🚐 Véhicule : ${veh}\n`;
-    msg += `💶 Prix estimé : ${prix}\n`;
-    if (equip) msg += `👶 Équipement : ${equip}\n`;
-  }
-
-  else if (tab === 'm') {
-    const veh  = S.mveh === 'van' ? 'Van Premium (7 places)' : 'Berline Business (3 places)';
-    const date = document.getElementById('i-mdate')?.value || '—';
-    const time = document.getElementById('i-mtime')?.value || '—';
-    const dur  = S.mdur + (S.mdur > 1 ? ' heures' : ' heure');
-    const prix = S.price ? `${S.price} €` : '—';
-    const rehausseur = document.getElementById('m-rehausseur')?.checked;
-    const siege      = document.getElementById('m-siege')?.checked;
-    const equip = [rehausseur && 'Réhausseur enfant', siege && 'Siège bébé'].filter(Boolean).join(', ');
-    msg += `🕐 Mise à disposition : ${dur}\n`;
-    msg += `📅 Date : ${date} à ${time}\n`;
-    msg += `🚐 Véhicule : ${veh}\n`;
-    msg += `💶 Total : ${prix}\n`;
-    if (equip) msg += `👶 Équipement : ${equip}\n`;
-  }
-
-  msg += '\nMerci de confirmer la disponibilité.\n\n✅ J\'accepte les Conditions Générales de Vente d\'IsmaDrive (ismadrive.fr/cgv).';
-  window.open('https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg), '_blank');
-}
 
 /* ── QR CODE RÉSERVATION ── */
 function generateQR(ref,paymentMethod){

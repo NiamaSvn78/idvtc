@@ -1,3 +1,4 @@
+if (process.env.NODE_ENV !== 'production') require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const path    = require('path');
 const fs      = require('fs');
@@ -5,6 +6,7 @@ const crypto  = require('crypto');
 const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 const { Resend } = require('resend');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -348,6 +350,202 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 </body></html>`;
 }
 
+/* ── EMAIL CONFIRMATION CLIENT (après paiement Stripe) ── */
+async function buildConfirmationQrDataUrl(r) {
+  const ref = r.ref || r.id || '';
+  const dateStr = fmtDateFr(r.date);
+  const qrText = [
+    'IsmaDrive',
+    'Ref:' + ref,
+    'Trajet:' + (r.trajet || ''),
+    'Date:' + dateStr + ' ' + (r.time || ''),
+    'Client:' + (r.client || ''),
+    'Vehicule:' + (r.vehicleName || r.vehicle || ''),
+    'Statut:CONFIRME'
+  ].join('|');
+  return QRCode.toDataURL(qrText, {
+    width: 260, margin: 2, errorCorrectionLevel: 'M',
+    type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+  });
+}
+
+function buildClientConfirmationHtml(r, qrDataUrl) {
+  if (r.lang === 'en') return buildClientConfirmationHtmlEN(r, qrDataUrl);
+  const client  = escHtml(r.client || 'cher client');
+  const ref     = escHtml(r.ref || r.id || '');
+  const trajet  = escHtml(r.trajet || '—');
+  const dateStr = escHtml(fmtDateFr(r.date));
+  const time    = escHtml(r.time || '—');
+  const veh     = escHtml(r.vehicleName || r.vehicle || '—');
+  const price   = escHtml(String(r.price || '—'));
+  const equip   = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Équipement</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:4px;overflow:hidden;border:1px solid #e8e8e8">
+
+  <!-- Header -->
+  <tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
+    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">IsmaDrive</div>
+    <div style="font-size:.68rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-top:4px">Confirmation de réservation</div>
+  </td></tr>
+
+  <!-- Confirmation badge -->
+  <tr><td style="background:#080808;padding:28px 32px 24px;text-align:center;border-bottom:1px solid #1a1a1a">
+    <div style="width:56px;height:56px;background:rgba(39,174,96,.15);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px">
+      <span style="font-size:26px;line-height:1">✓</span>
+    </div>
+    <div style="font-family:Georgia,serif;font-size:1.6rem;font-weight:400;color:#f0ece4;margin-bottom:6px">Paiement confirmé</div>
+    <div style="font-size:.85rem;color:#9a9185">Votre réservation est enregistrée. Votre chauffeur sera ponctuel.</div>
+  </td></tr>
+
+  <!-- Détails réservation -->
+  <tr><td style="padding:28px 32px 20px">
+    <p style="margin:0 0 6px;font-size:15px;line-height:1.6">Bonjour <strong>${client}</strong>,</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#555;line-height:1.65">Votre paiement a bien été reçu. Retrouvez ci-dessous le récapitulatif de votre course et votre QR code obligatoire.</p>
+
+    <div style="background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px;padding:16px 20px;margin-bottom:22px">
+      <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:12px">Récapitulatif</div>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;color:#888;font-size:13px">Référence</td><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;text-align:right;font-weight:bold;color:#080808;font-size:13px;letter-spacing:.05em">${ref}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Trajet</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${trajet}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Heure</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} à ${time}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Véhicule</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${veh}</td></tr>
+        ${equip}
+        <tr><td style="padding:8px 0 0;color:#333;font-size:14px;font-weight:bold">Total payé</td><td style="padding:8px 0 0;text-align:right;font-size:16px;font-weight:bold;color:#c9a96e">${price} €</td></tr>
+      </table>
+    </div>
+
+    <!-- QR code block -->
+    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:22px">
+      <div style="font-size:.63rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">QR code obligatoire</div>
+      <div style="font-family:Georgia,serif;font-size:1rem;color:#c9a96e;margin-bottom:16px">À présenter au conducteur avant le départ</div>
+      <img src="${qrDataUrl}" width="200" height="200" alt="QR code réservation IsmaDrive" style="display:block;margin:0 auto;border:4px solid #fff;border-radius:2px"/>
+      <div style="margin-top:14px;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.35);border-radius:2px;padding:10px 14px;font-size:.78rem;color:#f0e68c;line-height:1.5">
+        ⚠️ Ce QR code est <strong>indispensable</strong>. Sans présentation au conducteur, la course ne peut pas démarrer.
+      </div>
+      <div style="margin-top:10px;font-size:.72rem;color:#555">Sauvegardez ce mail ou faites une capture d'écran.</div>
+    </div>
+
+    <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">Une question ou un changement de dernière minute ?</p>
+    <p style="margin:0 0 0;font-size:.85rem">
+      <a href="https://wa.me/33623889717" style="color:#c9a96e;text-decoration:none">WhatsApp : +33 6 23 88 97 17</a>
+    </p>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:14px 32px;text-align:center">
+    <div style="font-size:11px;color:#aaa">Réf. ${ref} &nbsp;·&nbsp; IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France &nbsp;·&nbsp; <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function buildClientConfirmationHtmlEN(r, qrDataUrl) {
+  const client  = escHtml(r.client || 'valued customer');
+  const ref     = escHtml(r.ref || r.id || '');
+  const trajet  = escHtml(r.trajet || '—');
+  const dateStr = escHtml(fmtDateFr(r.date));
+  const time    = escHtml(r.time || '—');
+  const veh     = escHtml(r.vehicleName || r.vehicle || '—');
+  const price   = escHtml(String(r.price || '—'));
+  const equip   = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Equipment</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:4px;overflow:hidden;border:1px solid #e8e8e8">
+
+  <!-- Header -->
+  <tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
+    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">IsmaDrive</div>
+    <div style="font-size:.68rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-top:4px">Booking confirmation</div>
+  </td></tr>
+
+  <!-- Confirmation badge -->
+  <tr><td style="background:#080808;padding:28px 32px 24px;text-align:center;border-bottom:1px solid #1a1a1a">
+    <div style="width:56px;height:56px;background:rgba(39,174,96,.15);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px">
+      <span style="font-size:26px;line-height:1">✓</span>
+    </div>
+    <div style="font-family:Georgia,serif;font-size:1.6rem;font-weight:400;color:#f0ece4;margin-bottom:6px">Payment confirmed</div>
+    <div style="font-size:.85rem;color:#9a9185">Your booking is confirmed. Your driver will be on time.</div>
+  </td></tr>
+
+  <!-- Booking details -->
+  <tr><td style="padding:28px 32px 20px">
+    <p style="margin:0 0 6px;font-size:15px;line-height:1.6">Hello <strong>${client}</strong>,</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#555;line-height:1.65">Your payment has been received. Below is your booking summary and your mandatory QR code.</p>
+
+    <div style="background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px;padding:16px 20px;margin-bottom:22px">
+      <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:12px">Summary</div>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;color:#888;font-size:13px">Reference</td><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;text-align:right;font-weight:bold;color:#080808;font-size:13px;letter-spacing:.05em">${ref}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Trip</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${trajet}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Time</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} at ${time}</td></tr>
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Vehicle</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${veh}</td></tr>
+        ${equip}
+        <tr><td style="padding:8px 0 0;color:#333;font-size:14px;font-weight:bold">Total paid</td><td style="padding:8px 0 0;text-align:right;font-size:16px;font-weight:bold;color:#c9a96e">${price} €</td></tr>
+      </table>
+    </div>
+
+    <!-- QR code block -->
+    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:22px">
+      <div style="font-size:.63rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">Mandatory QR code</div>
+      <div style="font-family:Georgia,serif;font-size:1rem;color:#c9a96e;margin-bottom:16px">Show to your driver before departure</div>
+      <img src="${qrDataUrl}" width="200" height="200" alt="IsmaDrive booking QR code" style="display:block;margin:0 auto;border:4px solid #fff;border-radius:2px"/>
+      <div style="margin-top:14px;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.35);border-radius:2px;padding:10px 14px;font-size:.78rem;color:#f0e68c;line-height:1.5">
+        ⚠️ This QR code is <strong>mandatory</strong>. Your ride cannot start without presenting it to the driver.
+      </div>
+      <div style="margin-top:10px;font-size:.72rem;color:#555">Save this email or take a screenshot.</div>
+    </div>
+
+    <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">A question or last-minute change?</p>
+    <p style="margin:0 0 0;font-size:.85rem">
+      <a href="https://wa.me/33623889717" style="color:#c9a96e;text-decoration:none">WhatsApp: +33 6 23 88 97 17</a>
+    </p>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:14px 32px;text-align:center">
+    <div style="font-size:11px;color:#aaa">Ref. ${ref} &nbsp;·&nbsp; IsmaDrive — Private Driver Paris &amp; Île-de-France &nbsp;·&nbsp; <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+async function sendClientConfirmationEmail(r) {
+  const email = String(r.email || '').trim();
+  if (!email) return;
+  const qrDataUrl = await buildConfirmationQrDataUrl(r);
+  const html = buildClientConfirmationHtml(r, qrDataUrl);
+  const subject = r.lang === 'en'
+    ? `IsmaDrive — Booking confirmed · Ref. ${r.ref || r.id}`
+    : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
+
+  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
+    const resend = new Resend(RESEND_API_KEY);
+    await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
+  } else if (SMTP_HOST) {
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST, port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    });
+    await transporter.sendMail({ from: `IsmaDrive <${SMTP_FROM || SMTP_USER}>`, to: email, subject, html });
+  } else {
+    console.log(`📧 [local] Email confirmation non envoyé (RESEND_API_KEY et SMTP_HOST non configurés) — destinataire : ${email}`);
+  }
+}
+
 /* ── EMAIL AVIS CLIENT ── */
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -361,6 +559,7 @@ async function buildReviewQrDataUrl() {
 }
 
 function buildReviewEmailHtml(r, qrDataUrl) {
+  if (r.lang === 'en') return buildReviewEmailHtmlEN(r, qrDataUrl);
   const client = escHtml(r.client || 'cher client');
   const ref = escHtml(r.ref || r.id || '');
   const reviewUrl = escHtml(GOOGLE_REVIEWS_URL);
@@ -392,6 +591,38 @@ function buildReviewEmailHtml(r, qrDataUrl) {
 </body></html>`;
 }
 
+function buildReviewEmailHtmlEN(r, qrDataUrl) {
+  const client = escHtml(r.client || 'valued customer');
+  const ref = escHtml(r.ref || r.id || '');
+  const reviewUrl = escHtml(GOOGLE_REVIEWS_URL);
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #e8e8e8">
+<tr><td style="background:#080808;padding:22px 28px;border-bottom:2px solid #c9a96e">
+  <div style="font-family:Georgia,serif;font-size:1.45rem;color:#c9a96e;letter-spacing:.08em">IsmaDrive</div>
+  <div style="font-size:.72rem;color:#9a9185;letter-spacing:.18em;text-transform:uppercase;margin-top:4px">Thank you for your trust</div>
+</td></tr>
+<tr><td style="padding:28px 28px 20px">
+  <p style="margin:0 0 14px;font-size:15px;line-height:1.6">Hello ${client},</p>
+  <p style="margin:0 0 14px;font-size:14px;line-height:1.65;color:#444">Thank you for travelling with IsmaDrive. We hope your ride went smoothly.</p>
+  <p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#555">Your Google review helps other travellers find us. It only takes 30 seconds.</p>
+  <div style="text-align:center;padding:24px 0 16px;border:1px solid #f0ece4;border-radius:4px;background:#fffbf5;margin-bottom:20px">
+    <img src="${qrDataUrl}" width="180" height="180" alt="IsmaDrive Google review QR code" style="display:inline-block;border:1px solid #e8e0d0;border-radius:4px"/>
+    <p style="margin:12px 0 4px;font-size:11px;color:#bbb;letter-spacing:.1em;text-transform:uppercase">Scan to leave a review</p>
+    <a href="${reviewUrl}" style="display:inline-block;margin-top:14px;background:#080808;color:#c9a96e;padding:11px 28px;text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:1px solid #c9a96e;border-radius:2px">Leave a Google review →</a>
+  </div>
+  <p style="margin:16px 0 0;font-size:13px;line-height:1.65;color:#555">A question? Reply to this email or contact us on <a href="https://wa.me/33623889717" style="color:#8a7348">WhatsApp (+33 6 23 88 97 17)</a>.</p>
+  <p style="margin:16px 0 0;font-size:12px;line-height:1.5;color:#999">See you soon,<br/>The IsmaDrive team</p>
+</td></tr>
+<tr><td style="background:#fafafa;border-top:1px solid #eee;padding:14px 28px;text-align:center">
+  <div style="font-size:11px;color:#aaa">Ref. ${ref} · © IsmaDrive · <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
 async function sendReviewEmail(r) {
   const email = String(r.email || '').trim();
   if (!email || !GOOGLE_REVIEWS_URL) return;
@@ -399,13 +630,19 @@ async function sendReviewEmail(r) {
   const html = buildReviewEmailHtml(r, qrDataUrl);
   if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
     const resend = new Resend(RESEND_API_KEY);
+    const reviewSubject = r.lang === 'en'
+      ? `IsmaDrive — Thank you for your trust · Ref. ${r.ref || r.id}`
+      : `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`;
     await resend.emails.send({
       from: RESEND_FROM_EMAIL,
       to: email,
-      subject: `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`,
+      subject: reviewSubject,
       html
     });
   } else if (SMTP_HOST) {
+    const reviewSubject = r.lang === 'en'
+      ? `IsmaDrive — Thank you for your trust · Ref. ${r.ref || r.id}`
+      : `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`;
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST, port: SMTP_PORT,
       secure: SMTP_PORT === 465,
@@ -414,14 +651,92 @@ async function sendReviewEmail(r) {
     await transporter.sendMail({
       from: `IsmaDrive <${SMTP_FROM || SMTP_USER}>`,
       to: email,
-      subject: `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`,
+      subject: reviewSubject,
       html
     });
   }
 }
 
+/* ── STRIPE WEBHOOK (raw body — doit être avant express.json()) ── */
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) return res.status(500).json({ error: 'STRIPE_WEBHOOK_SECRET manquant' });
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+  } catch (err) {
+    console.error('Webhook signature invalide:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const reservationId = session.metadata?.reservationId;
+    if (reservationId) {
+      const all = readRes();
+      const idx = all.findIndex(r => r.id === reservationId);
+      if (idx !== -1) {
+        all[idx] = {
+          ...all[idx],
+          status: 'confirmed',
+          paymentStatus: 'paid',
+          stripeSessionId: session.id,
+          paidAt: new Date().toISOString()
+        };
+        writeRes(all);
+        console.log(`✅ Paiement confirmé pour réservation ${reservationId}`);
+        sendClientConfirmationEmail(all[idx]).catch(e => console.error('Confirmation email error:', e.message));
+      }
+    }
+  }
+
+  res.json({ received: true });
+});
+
 /* ── MIDDLEWARE ── */
 app.use(express.json());
+
+/* ── STRIPE CHECKOUT SESSION ── */
+app.post('/api/create-checkout-session', async (req, res) => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans vos variables d\'environnement.' });
+  }
+  const { date, time, durationMin, price, trajet, email } = req.body;
+  const conflict = checkConflict(date, time, durationMin || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+
+  const id = Date.now().toString(36).toUpperCase().slice(-8);
+  const newRes = { ...req.body, id, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString() };
+  const all = readRes();
+  all.push(newRes);
+  writeRes(all);
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: { name: `IsmaDrive — ${trajet || 'Course'}` },
+          unit_amount: Math.round((price || 0) * 100),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      customer_email: email || undefined,
+      success_url: `${APP_URL}/payment-success?ref=${newRes.ref || id}&lang=${newRes.lang || 'fr'}`,
+      cancel_url: `${APP_URL}/?cancelled=1`,
+      metadata: { reservationId: id },
+    });
+
+    res.json({ url: session.url, id });
+  } catch (err) {
+    console.error('Stripe error:', err.message);
+    res.status(500).json({ error: 'Erreur Stripe : ' + err.message });
+  }
+});
 
 /* ── API : VÉRIFICATION DISPONIBILITÉ ── */
 app.post('/api/check-availability', (req, res) => {
@@ -546,8 +861,8 @@ app.delete('/api/drivers/:id', (req, res) => {
 app.post('/api/send-driver-email', async (req, res) => {
   const { pwd, tripId, driverEmail, driverName, driverPrice } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  if (!SMTP_HOST) return res.status(503).json({
-    error: 'SMTP non configuré. Ajoutez SMTP_HOST, SMTP_USER et SMTP_PASS dans vos variables d\'environnement.'
+  if (!RESEND_API_KEY && !SMTP_HOST) return res.status(503).json({
+    error: 'Email non configuré. Ajoutez RESEND_API_KEY ou SMTP_HOST dans vos variables d\'environnement.'
   });
   const r = readRes().find(x => x.id === tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
@@ -555,19 +870,20 @@ app.post('/api/send-driver-email', async (req, res) => {
   const token      = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
   const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice);
+  const subject    = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: SMTP_HOST, port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
-      auth: { user: SMTP_USER, pass: SMTP_PASS }
-    });
-    await transporter.sendMail({
-      from:    `IsmaDrive <${SMTP_FROM || SMTP_USER}>`,
-      to:      driverEmail,
-      subject: `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`,
-      html
-    });
+    if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
+      const resend = new Resend(RESEND_API_KEY);
+      await resend.emails.send({ from: RESEND_FROM_EMAIL, to: driverEmail, subject, html });
+    } else {
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST, port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
+        auth: { user: SMTP_USER, pass: SMTP_PASS }
+      });
+      await transporter.sendMail({ from: `IsmaDrive <${SMTP_FROM || SMTP_USER}>`, to: driverEmail, subject, html });
+    }
     /* Sauvegarde automatique du conducteur si nouveau */
     const drivers = readDrivers();
     if (driverName && !drivers.find(d => d.email === driverEmail)) {
@@ -591,6 +907,7 @@ app.get('/mission-order/:id', (req, res) => {
 });
 
 /* ── PAGES ── */
+app.get('/payment-success', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'payment-success.html')));
 app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 const pages = [
