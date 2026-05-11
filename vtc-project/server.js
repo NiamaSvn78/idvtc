@@ -53,6 +53,7 @@ const APP_URL   = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\
 const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
+const RESEND_BCC_EMAIL = process.env.RESEND_BCC_EMAIL || '';
 
 /* ── RÉSERVATIONS ── */
 function readRes() {
@@ -533,7 +534,13 @@ async function sendClientConfirmationEmail(r) {
 
   if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
     const resend = new Resend(RESEND_API_KEY);
-    await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
+    await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to: email,
+      ...(RESEND_BCC_EMAIL && { bcc: RESEND_BCC_EMAIL }),
+      subject,
+      html
+    });
   } else if (SMTP_HOST) {
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST, port: SMTP_PORT,
@@ -636,6 +643,7 @@ async function sendReviewEmail(r) {
     await resend.emails.send({
       from: RESEND_FROM_EMAIL,
       to: email,
+      ...(RESEND_BCC_EMAIL && { bcc: RESEND_BCC_EMAIL }),
       subject: reviewSubject,
       html
     });
