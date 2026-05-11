@@ -13,7 +13,7 @@
   "@type": "TaxiService",
   "name": "IsmaDrive — Chauffeur Privé Vincennes",
   "url": "https://ismadrive.fr/vtc-vincennes",
-  "telephone": "+33600000000",
+  "telephone": "+33623889717",
   "address": {"@type": "PostalAddress", "addressLocality": "Vincennes", "postalCode": "94300", "addressCountry": "FR"},
   "areaServed": {"@type": "City", "name": "Vincennes"},
   "openingHours": "Mo-Su 00:00-23:59"
@@ -62,14 +62,19 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 <body>
 <nav>
   <a class="nav-logo" href="/">IsmaDrive</a>
-  <a class="nav-back" href="/">← Retour à l'accueil</a>
+  <div style="display:flex;align-items:center;gap:1.2rem">
+    <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+      <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
+    </button>
+    <a class="nav-back" href="/" data-i18n="nav.back">← Retour à l'accueil</a>
+  </div>
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag">Val-de-Marne · 94300</p>
-  <h1>Chauffeur Privé à Vincennes<br><em>VTC Luxe 24/7</em></h1>
-  <p class="page-sub">Aux portes du Bois de Vincennes, IsmaDrive vous propose un service de chauffeur privé haut de gamme depuis votre domicile ou votre bureau. Transferts CDG, Orly, Paris et grande couronne — réservez en ligne en 2 minutes.</p>
-  <a class="cta-btn" href="/#reservation">Réserver depuis Vincennes</a>
+  <p class="page-tag" data-i18n="seo_vincennes.page_tag">Val-de-Marne · 94300</p>
+  <h1 data-i18n-html="seo_vincennes.title_html">Chauffeur Privé à Vincennes<br><em>VTC Luxe 24/7</em></h1>
+  <p class="page-sub" data-i18n="seo_vincennes.sub">Aux portes du Bois de Vincennes, IsmaDrive vous propose un service de chauffeur privé haut de gamme depuis votre domicile ou votre bureau. Transferts CDG, Orly, Paris et grande couronne — réservez en ligne en 2 minutes.</p>
+  <a class="cta-btn" href="/#reservation" data-i18n="seo_vincennes.cta">Réserver depuis Vincennes</a>
 </section>
 
 <div class="page-body">
@@ -102,12 +107,12 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 <footer>
   <div class="foot-logo">IsmaDrive</div>
   <div class="foot-links">
-    <a href="/">Accueil</a>
-    <a href="/transfert-orly-paris">Transfert Orly</a>
-    <a href="/transfert-roissy-cdg">Transfert CDG</a>
+    <a href="/" data-i18n="footer.home">Accueil</a>
+    <a href="/transfert-orly-paris" data-i18n="footer.orly">Transfert Orly</a>
+    <a href="/transfert-roissy-cdg" data-i18n="footer.cdg">Transfert CDG</a>
     <a href="/chauffeur-prive-neuilly-sur-seine">VTC Neuilly</a>
   </div>
-  <div style="font-size:.72rem;color:var(--faint)">© 2025 IsmaDrive</div>
+  <div style="font-size:.72rem;color:var(--faint)" data-i18n="footer.copy_simple">© 2025 IsmaDrive</div>
 </footer>
 
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
@@ -115,5 +120,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   <span>WhatsApp</span>
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
+<script src="/js/i18n.js"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@
     {
       "@type": "Question",
       "name": "Quels sont les tarifs d'un chauffeur privé ?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Le tarif chauffeur privé IsmaDrive est fixé dès la réservation et ne change pas, quelle que soit la circulation. Nos prix démarrent à 1,90 €/km pour la berline Éco, 3,20 €/km pour le Business (Classe E) et 4,10 €/km pour le Van Premium (Berline). Aucun supplément caché : le prix affiché est le prix payé."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Le tarif chauffeur privé IsmaDrive est fixé dès la réservation et ne change pas, quelle que soit la circulation. Deux types de véhicules : Van Premium (jusqu'à 7 passagers) et Berline Business (jusqu'à 3 passagers). Hors Paris, tarif de référence 2,50 €/km par catégorie sur le simulateur. Aucun supplément caché : le prix affiché est le prix payé."}
     },
     {
       "@type": "Question",
@@ -132,13 +132,18 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 
 <nav>
   <a class="nav-logo" href="/">IsmaDrive</a>
-  <a class="nav-back" href="/">← Retour à l'accueil</a>
+  <div style="display:flex;align-items:center;gap:1.2rem">
+    <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+      <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
+    </button>
+    <a class="nav-back" href="/" data-i18n="nav.back">← Retour à l'accueil</a>
+  </div>
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag">Chauffeur Privé VTC · Paris &amp; IDF</p>
-  <h1>Questions fréquentes<br><em>sur notre service VTC</em></h1>
-  <p class="page-sub">Tarifs, réservation, disponibilité, aéroports — toutes les réponses pour réserver votre chauffeur privé en toute confiance.</p>
+  <p class="page-tag" data-i18n="faq.page_tag">Chauffeur Privé VTC · Paris &amp; IDF</p>
+  <h1 data-i18n-html="faq.title_html">Questions fréquentes<br><em>sur notre service VTC</em></h1>
+  <p class="page-sub" data-i18n="faq.sub">Tarifs, réservation, disponibilité, aéroports — toutes les réponses pour réserver votre chauffeur privé en toute confiance.</p>
 </section>
 
 <div class="faq-wrap">
@@ -146,112 +151,112 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Comment réserver un chauffeur privé avec IsmaDrive&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q1">Comment réserver un chauffeur privé avec IsmaDrive&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>La réservation d'un chauffeur privé se fait directement sur <a href="/" style="color:var(--gold)">ismadrive.fr</a>&nbsp;: saisissez votre adresse de départ et d'arrivée, calculez votre prix en quelques secondes, puis payez en ligne en toute sécurité. Vous pouvez également réserver votre chauffeur VTC par WhatsApp au 06&nbsp;23&nbsp;88&nbsp;97&nbsp;17 pour toute demande spécifique ou devis sur mesure.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a1_html">La réservation d'un chauffeur privé se fait directement sur <a href="/" style="color:var(--gold)">ismadrive.fr</a>&nbsp;: saisissez votre adresse de départ et d'arrivée, calculez votre prix en quelques secondes, puis payez en ligne en toute sécurité. Vous pouvez également réserver votre chauffeur VTC par WhatsApp au 06&nbsp;23&nbsp;88&nbsp;97&nbsp;17 pour toute demande spécifique ou devis sur mesure.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Quels sont les tarifs d'un chauffeur privé&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q2">Quels sont les tarifs d'un chauffeur privé&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Le tarif chauffeur privé IsmaDrive est fixé dès la réservation et ne change pas, quelle que soit la circulation. Nos prix démarrent à <strong>1,90&nbsp;€/km</strong> pour la berline Éco, <strong>3,20&nbsp;€/km</strong> pour le Business (Classe E) et <strong>4,10&nbsp;€/km</strong> pour le Van Premium (Berline). Aucun supplément caché&nbsp;: le prix affiché est le prix payé.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a2_html">Le tarif chauffeur privé IsmaDrive est fixé dès la réservation et ne change pas, quelle que soit la circulation. Nous proposons <strong>deux types de véhicules</strong> : <strong>Van Premium</strong> (jusqu'à 7 passagers) et <strong>Berline Business</strong> (jusqu'à 3 passagers). Pour les courses au kilomètre hors Paris, le tarif de référence affiché sur le simulateur est de <strong>2,50&nbsp;€/km</strong> pour chaque catégorie, avec un minimum de course selon le véhicule. Aucun supplément caché&nbsp;: le prix affiché est le prix payé.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Le chauffeur VTC est-il disponible la nuit et le week-end&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q3">Le chauffeur VTC est-il disponible la nuit et le week-end&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Oui, le chauffeur VTC IsmaDrive est disponible <strong>7j/7 et 24h/24</strong>, dimanches et jours fériés inclus. Les transferts aéroport à 4h du matin, les retours tardifs après une soirée ou les prises en charge le jour de Noël sont traités exactement comme n'importe quelle autre course — aux mêmes tarifs, sans majoration de nuit.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a3_html">Oui, le chauffeur VTC IsmaDrive est disponible <strong>7j/7 et 24h/24</strong>, dimanches et jours fériés inclus. Les transferts aéroport à 4h du matin, les retours tardifs après une soirée ou les prises en charge le jour de Noël sont traités exactement comme n'importe quelle autre course — aux mêmes tarifs, sans majoration de nuit.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Quelle est la différence entre un VTC et un taxi&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q4">Quelle est la différence entre un VTC et un taxi&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Un chauffeur privé VTC (Véhicule de Transport avec Chauffeur) se distingue du taxi par la réservation obligatoire et le <strong>prix fixe convenu à l'avance</strong>. Contrairement au taxi dont le tarif s'affiche au compteur, le tarif VTC est transparent dès la réservation. Le service est également supérieur&nbsp;: véhicule haut de gamme, chauffeur en tenue soignée, accueil personnalisé.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a4_html">Un chauffeur privé VTC (Véhicule de Transport avec Chauffeur) se distingue du taxi par la réservation obligatoire et le <strong>prix fixe convenu à l'avance</strong>. Contrairement au taxi dont le tarif s'affiche au compteur, le tarif VTC est transparent dès la réservation. Le service est également supérieur&nbsp;: véhicule haut de gamme, chauffeur en tenue soignée, accueil personnalisé.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Comment fonctionne l'accueil à l'aéroport par votre chauffeur privé&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q5">Comment fonctionne l'accueil à l'aéroport par votre chauffeur privé&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>À CDG ou Orly, votre chauffeur privé suit votre vol en temps réel et s'ajuste automatiquement en cas de retard. Il vous attend dans le hall des arrivées, pancarte nominative à la main, avec <strong>60 minutes d'attente offertes</strong>. Pas besoin de courir&nbsp;: il est là quand vous êtes prêt.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a5_html">À CDG ou Orly, votre chauffeur privé suit votre vol en temps réel et s'ajuste automatiquement en cas de retard. Il vous attend dans le hall des arrivées, pancarte nominative à la main, avec <strong>60 minutes d'attente offertes</strong>. Pas besoin de courir&nbsp;: il est là quand vous êtes prêt.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Puis-je réserver un chauffeur privé fiable pour un mariage ou un événement&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q6">Puis-je réserver un chauffeur privé fiable pour un mariage ou un événement&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Absolument. IsmaDrive propose des formules de mise à disposition pour les mariages, séminaires et événements d'entreprise. Votre chauffeur privé fiable reste à votre disposition toute la durée de l'événement, gère les allers-retours et accueille vos invités avec discrétion. Contactez-nous par WhatsApp pour un devis personnalisé.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a6_html">Absolument. IsmaDrive propose des formules de mise à disposition pour les mariages, séminaires et événements d'entreprise. Votre chauffeur privé fiable reste à votre disposition toute la durée de l'événement, gère les allers-retours et accueille vos invités avec discrétion. Contactez-nous par WhatsApp pour un devis personnalisé.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Quelles zones sont couvertes par votre service VTC&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q7">Quelles zones sont couvertes par votre service VTC&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Notre chauffeur VTC intervient dans tout Paris&nbsp;(75) et l'Île-de-France&nbsp;: Hauts-de-Seine&nbsp;(92), Val-de-Marne&nbsp;(94), Yvelines&nbsp;(78), Seine-Saint-Denis&nbsp;(93). Les aéroports CDG, Orly, les gares parisiennes et les grandes villes comme Neuilly, Versailles, La Défense ou Boulogne-Billancourt sont desservis quotidiennement.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a7_html">Notre chauffeur VTC intervient dans tout Paris&nbsp;(75) et l'Île-de-France&nbsp;: Hauts-de-Seine&nbsp;(92), Val-de-Marne&nbsp;(94), Yvelines&nbsp;(78), Seine-Saint-Denis&nbsp;(93). Les aéroports CDG, Orly, les gares parisiennes et les grandes villes comme Neuilly, Versailles, La Défense ou Boulogne-Billancourt sont desservis quotidiennement.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Le paiement en ligne de la réservation chauffeur privé est-il sécurisé&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q8">Le paiement en ligne de la réservation chauffeur privé est-il sécurisé&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Oui. La réservation chauffeur privé en ligne est sécurisée par <strong>Stripe</strong>, le standard mondial du paiement sur Internet. Vos coordonnées bancaires ne transitent jamais par nos serveurs. Vous recevez un email de confirmation immédiatement après le paiement.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a8_html">Oui. La réservation chauffeur privé en ligne est sécurisée par <strong>Stripe</strong>, le standard mondial du paiement sur Internet. Vos coordonnées bancaires ne transitent jamais par nos serveurs. Vous recevez un email de confirmation immédiatement après le paiement.</p></div>
       </div>
     </div>
 
     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
       <button class="faq-q" onclick="toggleFaq(this)" aria-expanded="false">
-        <h3 itemprop="name">Que se passe-t-il si mon vol a du retard&nbsp;?</h3>
+        <h3 itemprop="name" data-i18n="faq.q9">Que se passe-t-il si mon vol a du retard&nbsp;?</h3>
         <span class="faq-chevron" aria-hidden="true"></span>
       </button>
       <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-        <div itemprop="text"><p>Aucun problème. En indiquant votre numéro de vol lors de la réservation, votre chauffeur VTC suit l'heure d'atterrissage réelle en temps réel. Le retard est automatiquement pris en compte, sans supplément. L'attente gratuite de <strong>60 minutes</strong> commence à l'heure d'atterrissage effective, pas à l'heure prévue.</p></div>
+        <div itemprop="text"><p data-i18n-html="faq.a9_html">Aucun problème. En indiquant votre numéro de vol lors de la réservation, votre chauffeur VTC suit l'heure d'atterrissage réelle en temps réel. Le retard est automatiquement pris en compte, sans supplément. L'attente gratuite de <strong>60 minutes</strong> commence à l'heure d'atterrissage effective, pas à l'heure prévue.</p></div>
       </div>
     </div>
 
   </div>
 
   <div class="faq-cta">
-    <div class="faq-cta-title">Vous n'avez pas trouvé votre réponse&nbsp;?</div>
-    <p class="faq-cta-sub">Contactez directement votre chauffeur privé — réponse garantie en moins d'une heure.</p>
-    <a class="cta-btn" href="/">Réserver maintenant</a>
+    <div class="faq-cta-title" data-i18n="faq.cta_title">Vous n'avez pas trouvé votre réponse&nbsp;?</div>
+    <p class="faq-cta-sub" data-i18n="faq.cta_sub">Contactez directement votre chauffeur privé — réponse garantie en moins d'une heure.</p>
+    <a class="cta-btn" href="/" data-i18n="faq.cta_btn">Réserver maintenant</a>
   </div>
 </div>
 
 <footer>
   <div class="foot-logo">IsmaDrive</div>
   <div class="foot-links">
-    <a href="/">Accueil</a>
-    <a href="/a-propos">À propos</a>
-    <a href="/transfert-roissy-cdg">Transfert CDG</a>
-    <a href="/transfert-orly-paris">Transfert Orly</a>
+    <a href="/" data-i18n="footer.home">Accueil</a>
+    <a href="/a-propos" data-i18n="footer.about">À propos</a>
+    <a href="/transfert-roissy-cdg" data-i18n="footer.cdg">Transfert CDG</a>
+    <a href="/transfert-orly-paris" data-i18n="footer.orly">Transfert Orly</a>
   </div>
-  <div style="font-size:.72rem;color:var(--faint)">© 2025 IsmaDrive</div>
+  <div style="font-size:.72rem;color:var(--faint)" data-i18n="footer.copy_simple">© 2025 IsmaDrive</div>
 </footer>
 
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
@@ -260,6 +265,7 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </a>
 
 <script>
+/* i18n loaded below */
 function toggleFaq(btn){
   const isOpen=btn.getAttribute('aria-expanded')==='true';
   document.querySelectorAll('.faq-q[aria-expanded="true"]').forEach(b=>{
@@ -269,5 +275,6 @@ function toggleFaq(btn){
   btn.nextElementSibling.classList.toggle('open',!isOpen);
 }
 </script>
+<script src="/js/i18n.js"></script>
 </body>
 </html>

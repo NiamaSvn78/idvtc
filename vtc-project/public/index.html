@@ -113,9 +113,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 .fg1{margin-bottom:1rem}
 label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
 .fi,.fs{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;transition:border-color .2s}
-/* Ne pas forcer appearance:none sur date/heure : sinon sélecteurs natifs et bouton « Définir » mal positionnés sur mobile */
-.fi:not([type=date]):not([type=time]),
+/* Ne pas forcer appearance:none sur date : sinon sélecteur natif et bouton « Définir » mal positionné sur mobile */
+.fi:not([type=date]),
 .fs{-webkit-appearance:none;appearance:none}
+.time-sel-wrap{display:flex;align-items:center;gap:.3rem;width:100%}
+.ts{flex:1;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.75rem .3rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;transition:border-color .2s;text-align:center;cursor:pointer;-webkit-appearance:none;appearance:none;min-height:48px}
+.ts:focus{border-color:var(--gold)}
+.time-sep{color:var(--gold);font-weight:500;flex-shrink:0;padding:0 .2rem}
 .fi:focus,.fs:focus{border-color:var(--gold)}
 .fi.ok{border-color:rgba(201,169,110,.45)}
 .fs{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:2.2rem;cursor:pointer}
@@ -762,7 +766,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <!-- ── Date / Heure ── -->
       <div class="fg2 fg-dt">
         <div><label class="fl">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
-        <div><label class="fl">🕐 Heure</label><input class="fi" id="i-ptime" type="time" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
+        <div><label class="fl">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
       </div>
       <!-- Indicateur disponibilité -->
       <div class="avail" id="avail-p">
@@ -856,7 +860,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <div class="fg2 fg-dt">
         <div><label class="fl">📅 Date</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
-        <div><label class="fl">🕐 Heure</label><input class="fi" id="i-time" type="time" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
+        <div><label class="fl">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
       </div>
       <!-- Indicateur disponibilité -->
       <div class="avail" id="avail-t">
@@ -995,7 +999,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <div class="fg2 fg-dt">
         <div><label class="fl" data-i18n="mad.date">📅 Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
-        <div><label class="fl" data-i18n="mad.time">🕐 Heure</label><input class="fi" id="i-mtime" type="time" style="padding-left:.75rem"></div>
+        <div><label class="fl" data-i18n="mad.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-mtime-h" onchange="syncTimeVal('i-mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-mtime-m" onchange="syncTimeVal('i-mtime')"></select><input type="hidden" id="i-mtime"></div></div>
       </div>
       <label class="fl" style="margin-bottom:.6rem" data-i18n="mad.duration_label">Durée souhaitée</label>
       <div class="d-grid">
@@ -1211,7 +1215,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           </div>
         </div>
         <div class="reviews-cta">
-          <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" data-i18n="guar.reviews_link">Voir tous nos avis Google →</a>
+          <a href="https://g.page/r/CWL4dJY-hj2oEAE/review" target="_blank" rel="noopener noreferrer" data-i18n="guar.reviews_link">Voir tous nos avis Google →</a>
         </div>
       </div>
     </div>
@@ -1444,6 +1448,7 @@ const CFG = {
 const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', mdur:2, dep:null, arr:null, price:null, km:null };
 let _pendingModalType = null;
 const acT={}, acBT={};
+function syncTimeVal(id){const h=(document.getElementById(id+'-h')||{}).value||'00',m=(document.getElementById(id+'-m')||{}).value||'00',el=document.getElementById(id);if(el)el.value=h+':'+m;}
 
 /* Mobile : place date/heure sous la nav pour laisser la hauteur au picker natif (bouton « Définir » en bas) */
 function scrollPickerIntoView(el){
@@ -1464,8 +1469,20 @@ window.addEventListener('DOMContentLoaded', ()=>{
   const now=new Date(), pad=n=>String(n).padStart(2,'0');
   const ds=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`, ts=`${pad(now.getHours())}:00`;
   ['i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
-  ['i-time','i-mtime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ts;});
-  ['i-pdate','i-ptime','i-date','i-time','i-mdate','i-mtime'].forEach(id=>{
+  const hOpts=Array.from({length:24},(_,i)=>{const v=pad(i);return `<option value="${v}">${v}</option>`;}).join('');
+  const mOpts=[0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad(m);return `<option value="${v}">${v}</option>`;}).join('');
+  ['i-ptime','i-time','i-mtime'].forEach(id=>{
+    const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
+    if(hEl)hEl.innerHTML=hOpts;
+    if(mEl)mEl.innerHTML=mOpts;
+  });
+  ['i-time','i-mtime'].forEach(id=>{
+    const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
+    if(hEl)hEl.value=pad(now.getHours());
+    if(mEl)mEl.value='00';
+    syncTimeVal(id);
+  });
+  ['i-pdate','i-date','i-mdate'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
     const run=()=>scrollPickerIntoView(el);
@@ -1478,7 +1495,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       clearTimeout(vvTimer);
       vvTimer=setTimeout(()=>{
         const ae=document.activeElement;
-        if(ae&&(ae.type==='time'||ae.type==='date'))scrollPickerIntoView(ae);
+        if(ae&&ae.type==='date')scrollPickerIntoView(ae);
       },50);
     },{passive:true});
   }

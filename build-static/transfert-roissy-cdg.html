@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -7,15 +7,17 @@
 <meta name="description" content="Transfert depuis Roissy CDG pour touristes &amp; voyageurs. Accueil pancarte, attente 60 min offerte, suivi vol en temps réel. Mercedes, prix fixe garanti 24h/24 — IsmaDrive.">
 <meta name="keywords" content="transfert touriste CDG Paris, VTC Roissy CDG touriste, chauffeur privé aéroport CDG, navette touriste CDG, accueil aéroport touriste">
 <link rel="canonical" href="https://ismadrive.fr/transfert-roissy-cdg">
+<link rel="alternate" hreflang="fr" href="https://ismadrive.fr/transfert-roissy-cdg">
+<link rel="alternate" hreflang="en" href="https://ismadrive.fr/cdg-airport-transfer-paris">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "TaxiService",
   "name": "IsmaDrive — Transfert Aéroport Roissy CDG Paris",
   "url": "https://ismadrive.fr/transfert-roissy-cdg",
-  "telephone": "+33600000000",
+  "telephone": "+33623889717",
   "address": {"@type": "PostalAddress", "addressLocality": "Paris", "postalCode": "75000", "addressCountry": "FR"},
-  "areaServed": [{"@type": "Airport", "name": "Aéroport Paris-Charles de Gaulle"}, {"@type": "City", "name": "Paris"}],
+  "areaServed": [{"@type": "Airport", "name": "Aéroport Paris-Charles de Gaulle", "iataCode": "CDG"}, {"@type": "City", "name": "Paris"}],
   "openingHours": "Mo-Su 00:00-23:59"
 }
 </script>
@@ -69,14 +71,19 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 <body>
 <nav>
   <a class="nav-logo" href="/">IsmaDrive</a>
-  <a class="nav-back" href="/">← Retour à l'accueil</a>
+  <div style="display:flex;align-items:center;gap:1.2rem">
+    <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+      <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
+    </button>
+    <a class="nav-back" href="/" data-i18n="nav.back">← Retour à l'accueil</a>
+  </div>
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag">Aéroport Paris-Charles de Gaulle · Terminal 1, 2A–2G &amp; 3</p>
-  <h1>Transfert Aéroport Roissy CDG → Paris<br><em>Votre Chauffeur Privé à l'Arrivée</em></h1>
-  <p class="page-sub">CDG est le plus grand aéroport d'Europe — naviguer entre ses terminaux peut être un défi. Votre chauffeur IsmaDrive connaît chaque point de rendez-vous, attend dans le hall des arrivées pancarte à la main, et surveille votre vol en temps réel.</p>
-  <a class="cta-btn" href="/#reservation">Réserver mon transfert CDG</a>
+  <p class="page-tag" data-i18n="seo_cdg.page_tag">Aéroport Paris-Charles de Gaulle · Terminal 1, 2A–2G &amp; 3</p>
+  <h1 data-i18n-html="seo_cdg.title_html">Transfert Aéroport Roissy CDG → Paris<br><em>Votre Chauffeur Privé à l'Arrivée</em></h1>
+  <p class="page-sub" data-i18n="seo_cdg.sub">CDG est le plus grand aéroport d'Europe — naviguer entre ses terminaux peut être un défi. Votre chauffeur IsmaDrive connaît chaque point de rendez-vous, attend dans le hall des arrivées pancarte à la main, et surveille votre vol en temps réel.</p>
+  <a class="cta-btn" href="/#reservation" data-i18n="seo.book_transfer">Réserver mon transfert CDG</a>
 </section>
 
 <div class="page-body">
@@ -90,34 +97,34 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   <h2>Tarifs transfert CDG → Paris (prix fixes)</h2>
   <div class="tarif-grid">
     <div class="tarif-cell">
-      <div class="tarif-label">CDG → Paris Centre (1er–10e)</div>
-      <div class="tarif-value">à partir de 65 €</div>
+      <div class="tarif-label">Berline Business</div>
+      <div class="tarif-value">100 €</div>
     </div>
     <div class="tarif-cell">
-      <div class="tarif-label">CDG → Paris Ouest (16e–17e)</div>
-      <div class="tarif-value">à partir de 80 €</div>
+      <div class="tarif-label">Van Premium · Berline</div>
+      <div class="tarif-value">100 €</div>
     </div>
     <div class="tarif-cell">
-      <div class="tarif-label">CDG → Neuilly / La Défense</div>
-      <div class="tarif-value">à partir de 85 €</div>
+      <div class="tarif-label">Toutes destinations Paris & Île-de-France</div>
+      <div class="tarif-value">Forfait fixe garanti</div>
     </div>
     <div class="tarif-cell">
-      <div class="tarif-label">CDG → Versailles</div>
-      <div class="tarif-value">à partir de 100 €</div>
+      <div class="tarif-label">Siège bébé & réhausseur enfant</div>
+      <div class="tarif-value">Inclus · sans supplément</div>
     </div>
   </div>
-  <p>Van Premium disponible pour les groupes jusqu'à 7 personnes. <a href="/#reservation" style="color:var(--gold)">Calculez votre trajet exact →</a></p>
+  <p>Van Premium disponible pour les groupes jusqu'à 7 personnes. <a href="/#reservation" style="color:var(--gold)">Réserver mon transfert CDG →</a></p>
 </div>
 
 <footer>
   <div class="foot-logo">IsmaDrive</div>
   <div class="foot-links">
-    <a href="/">Accueil</a>
-    <a href="/transfert-orly-paris">Transfert Orly</a>
+    <a href="/" data-i18n="footer.home">Accueil</a>
+    <a href="/transfert-orly-paris" data-i18n="footer.orly">Transfert Orly</a>
     <a href="/chauffeur-prive-versailles">VTC Versailles</a>
     <a href="/chauffeur-prive-neuilly-sur-seine">VTC Neuilly</a>
   </div>
-  <div style="font-size:.72rem;color:var(--faint)">© 2025 IsmaDrive</div>
+  <div style="font-size:.72rem;color:var(--faint)" data-i18n="footer.copy_simple">© 2025 IsmaDrive</div>
 </footer>
 
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
@@ -125,5 +132,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   <span>WhatsApp</span>
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
+<script src="/js/i18n.js"></script>
 </body>
 </html>

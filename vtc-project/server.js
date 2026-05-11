@@ -253,6 +253,8 @@ function buildMissionOrderHtml(r) {
   const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref||r.id}|${r.trajet||''}|${dateStr}|${r.time||''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
+  const driverName = 'ISMA';
+  const plate = r.vehicle === 'van' ? 'FT-365-XH' : '';
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -318,6 +320,19 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
       <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${r.tel||'—'}</a></div></div>
     </div>
     ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
+  </div>
+  <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Votre chauffeur</div>
+    <div class="grid2">
+      <div>
+        <div class="lbl">Prénom</div>
+        <div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">${driverName}</div>
+      </div>
+      ${plate ? `<div>
+        <div class="lbl">Immatriculation</div>
+        <div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${plate}</div>
+      </div>` : ''}
+    </div>
   </div>
   <div class="qr-block">
     <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
