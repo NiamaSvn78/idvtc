@@ -185,7 +185,7 @@
 
       /* ── Modal ── */
       'modal.title': 'Finaliser la réservation',
-      ‘modal.sub’: ‘Renseignez vos coordonnées. Paiement sécurisé par carte bancaire via Stripe.’,
+      'modal.sub': 'Renseignez vos coordonnées. Paiement sécurisé par carte bancaire via Stripe.',
       'modal.total': 'Montant estimé',
       'modal.name': 'Prénom & Nom *',
       'modal.name_ph': 'Jean Dupont',
@@ -199,7 +199,7 @@
 
       /* ── Modale avant formulaire (WhatsApp) ── */
       'wa_res_modal.title': 'Réservation sur WhatsApp',
-      'wa_res_modal.body_html': 'Pour le moment, <strong>aucun paiement par carte bancaire n’est accepté sur ce site</strong>. Après avoir envoyé votre demande, nous vous confirmons et finalisons ensemble la réservation et le mode de paiement <strong>sur WhatsApp</strong>.',
+      'wa_res_modal.body_html': 'Pour le moment, <strong>aucun paiement par carte bancaire n\'est accepté sur ce site</strong>. Après avoir envoyé votre demande, nous vous confirmons et finalisons ensemble la réservation et le mode de paiement <strong>sur WhatsApp</strong>.',
       'wa_res_modal.cancel': 'Annuler',
       'wa_res_modal.continue': 'Continuer',
       'modal.suc_title': 'Réservation confirmée !',

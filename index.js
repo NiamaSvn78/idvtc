@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+  try { require('dotenv').config({ path: '.env.local' }); } catch {}
+  try { require('dotenv').config({ path: 'vtc-project/.env.local' }); } catch {}
+}
 const express = require('express');
 const path = require('path');
 const QRCode = require('qrcode');
@@ -9,17 +13,21 @@ const port = process.env.PORT || 3000;
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || '';
-/** Copie invisible vers votre boîte — conserve nom, tel, email, trajet, QR (sans base de données). */
 const RESEND_BCC_EMAIL = String(process.env.RESEND_BCC_EMAIL || '').trim();
-const PUBLIC_SITE_URL = process.env.APP_URL || 'https://ismadrive.fr';
+const APP_URL = (process.env.APP_URL || 'https://ismadrive.fr').replace(/\/$/, '');
+const PUBLIC_SITE_URL = APP_URL;
 const WHATSAPP_BOOKING_URL = 'https://wa.me/33623889717';
 const GOOGLE_REVIEWS_URL = String(process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review').trim();
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hawwbdpixtmdgnftklsd.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   : null;
+
+const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
 
 /* ── DB helpers (fallback mémoire si Supabase absent) ── */
 let _mem = [];
@@ -53,16 +61,67 @@ async function dbGetById(id) {
 
 async function dbUpdate(id, updates) {
   if (supabase) {
-    const { data, error } = await supabase
-      .from('reservations').update(updates).eq('id', id).select().single();
+    const { error } = await supabase
+      .from('reservations').update(updates).eq('id', id);
     if (error) throw new Error(error.message);
-    return data;
+    return { id, ...updates };
   }
   const idx = _mem.findIndex(r => r.id === id);
   if (idx === -1) return null;
   _mem[idx] = { ..._mem[idx], ...updates };
   return _mem[idx];
 }
+
+/* ── Helpers disponibilité ── */
+function timeToMin(t) {
+  const [h, m] = (t || '00:00').split(':').map(Number);
+  return h * 60 + m;
+}
+
+async function dbListByDate(date) {
+  if (!supabase) return _mem.filter(r => r.date === date && r.status !== 'cancelled');
+  const { data } = await supabase.from('reservations').select('*')
+    .eq('date', date).neq('status', 'cancelled');
+  return data || [];
+}
+
+async function checkConflict(date, time, durationMin, excludeId = null) {
+  const newStart = timeToMin(time);
+  const newEnd = newStart + Number(durationMin);
+  const dayRes = (await dbListByDate(date)).filter(r => r.id !== excludeId);
+  for (const r of dayRes) {
+    const rStart = timeToMin(r.time);
+    const rEnd = rStart + Number(r.durationMin || 60);
+    if (newStart < rEnd && newEnd > rStart) return r;
+  }
+  return null;
+}
+
+/* ── Stripe webhook — doit être AVANT express.json() ── */
+app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(500).json({ error: 'Stripe non configuré' });
+  const sig = req.headers['stripe-signature'];
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature invalide:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const reservationId = session.metadata?.reservationId;
+    if (reservationId) {
+      await dbUpdate(reservationId, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        stripeSessionId: session.id,
+        paidAt: new Date().toISOString()
+      }).catch(e => console.error('DB update webhook error:', e.message));
+    }
+  }
+  res.json({ received: true });
+});
 
 /* ── Middleware ── */
 app.use(express.json());
@@ -299,8 +358,63 @@ app.patch('/api/reservations/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/check-availability', (req, res) => {
+app.post('/api/check-availability', async (req, res) => {
+  const { date, time, durationMin, excludeId } = req.body || {};
+  if (!date || !time) return res.json({ available: true });
+  const conflict = await checkConflict(date, time, durationMin || 60, excludeId);
+  if (conflict) {
+    return res.json({
+      available: false,
+      conflict: { ref: conflict.ref, trajet: conflict.trajet, time: conflict.time }
+    });
+  }
   res.json({ available: true });
+});
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans les variables d\'environnement.' });
+  }
+  const { date, time, durationMin, price, trajet, email } = req.body || {};
+  const conflict = await checkConflict(date, time, durationMin || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+
+  const id = Date.now().toString(36).toUpperCase().slice(-8);
+  const newRes = {
+    ...req.body,
+    id,
+    status: 'pending_payment',
+    paymentStatus: 'unpaid',
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    await dbInsert(newRes);
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          product_data: { name: `IsmaDrive — ${trajet || 'Course'}` },
+          unit_amount: Math.round((price || 0) * 100),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      customer_email: email || undefined,
+      success_url: `${APP_URL}/payment-success?ref=${newRes.ref || id}&lang=${newRes.lang || 'fr'}`,
+      cancel_url: `${APP_URL}/?cancelled=1`,
+      metadata: { reservationId: id },
+    });
+    res.json({ url: session.url, id });
+  } catch (err) {
+    console.error('Checkout error:', err.message);
+    res.status(500).json({ error: 'Erreur lors du paiement : ' + err.message });
+  }
+});
+
+app.get('/payment-success', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'vtc-project', 'public', 'payment-success.html'));
 });
 
 /* ── Fichiers statiques ── */
