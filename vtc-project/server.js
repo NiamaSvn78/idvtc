@@ -3,6 +3,8 @@ const path    = require('path');
 const fs      = require('fs');
 const crypto  = require('crypto');
 const nodemailer = require('nodemailer');
+const QRCode = require('qrcode');
+const { Resend } = require('resend');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +48,9 @@ const SMTP_USER = process.env.SMTP_USER || '';
 const SMTP_PASS = process.env.SMTP_PASS || '';
 const SMTP_FROM = process.env.SMTP_FROM || SMTP_USER;
 const APP_URL   = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
+const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || '';
 
 /* ── RÉSERVATIONS ── */
 function readRes() {
@@ -343,6 +348,78 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 </body></html>`;
 }
 
+/* ── EMAIL AVIS CLIENT ── */
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function buildReviewQrDataUrl() {
+  return QRCode.toDataURL(GOOGLE_REVIEWS_URL, {
+    width: 280, margin: 1, errorCorrectionLevel: 'M',
+    type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+  });
+}
+
+function buildReviewEmailHtml(r, qrDataUrl) {
+  const client = escHtml(r.client || 'cher client');
+  const ref = escHtml(r.ref || r.id || '');
+  const reviewUrl = escHtml(GOOGLE_REVIEWS_URL);
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #e8e8e8">
+<tr><td style="background:#080808;padding:22px 28px;border-bottom:2px solid #c9a96e">
+  <div style="font-family:Georgia,serif;font-size:1.45rem;color:#c9a96e;letter-spacing:.08em">IsmaDrive</div>
+  <div style="font-size:.72rem;color:#9a9185;letter-spacing:.18em;text-transform:uppercase;margin-top:4px">Merci pour votre confiance</div>
+</td></tr>
+<tr><td style="padding:28px 28px 20px">
+  <p style="margin:0 0 14px;font-size:15px;line-height:1.6">Bonjour ${client},</p>
+  <p style="margin:0 0 14px;font-size:14px;line-height:1.65;color:#444">Merci d'avoir voyagé avec IsmaDrive. Nous espérons que votre trajet s'est déroulé dans les meilleures conditions.</p>
+  <p style="margin:0 0 20px;font-size:14px;line-height:1.65;color:#555">Votre avis sur Google nous aide à aider d'autres voyageurs à nous trouver. Cela ne prend que 30 secondes.</p>
+  <div style="text-align:center;padding:24px 0 16px;border:1px solid #f0ece4;border-radius:4px;background:#fffbf5;margin-bottom:20px">
+    <img src="${qrDataUrl}" width="180" height="180" alt="QR code avis Google IsmaDrive" style="display:inline-block;border:1px solid #e8e0d0;border-radius:4px"/>
+    <p style="margin:12px 0 4px;font-size:11px;color:#bbb;letter-spacing:.1em;text-transform:uppercase">Scanner pour laisser un avis</p>
+    <a href="${reviewUrl}" style="display:inline-block;margin-top:14px;background:#080808;color:#c9a96e;padding:11px 28px;text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:1px solid #c9a96e;border-radius:2px">Laisser un avis Google →</a>
+  </div>
+  <p style="margin:16px 0 0;font-size:13px;line-height:1.65;color:#555">Une question ? Répondez à cet email ou contactez-nous sur <a href="https://wa.me/33623889717" style="color:#8a7348">WhatsApp (+33 6 23 88 97 17)</a>.</p>
+  <p style="margin:16px 0 0;font-size:12px;line-height:1.5;color:#999">À très bientôt,<br/>L'équipe IsmaDrive</p>
+</td></tr>
+<tr><td style="background:#fafafa;border-top:1px solid #eee;padding:14px 28px;text-align:center">
+  <div style="font-size:11px;color:#aaa">Réf. ${ref} · © IsmaDrive · <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
+async function sendReviewEmail(r) {
+  const email = String(r.email || '').trim();
+  if (!email || !GOOGLE_REVIEWS_URL) return;
+  const qrDataUrl = await buildReviewQrDataUrl();
+  const html = buildReviewEmailHtml(r, qrDataUrl);
+  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
+    const resend = new Resend(RESEND_API_KEY);
+    await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to: email,
+      subject: `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`,
+      html
+    });
+  } else if (SMTP_HOST) {
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST, port: SMTP_PORT,
+      secure: SMTP_PORT === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    });
+    await transporter.sendMail({
+      from: `IsmaDrive <${SMTP_FROM || SMTP_USER}>`,
+      to: email,
+      subject: `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`,
+      html
+    });
+  }
+}
+
 /* ── MIDDLEWARE ── */
 app.use(express.json());
 
@@ -408,14 +485,20 @@ app.post('/api/reservations/manual', (req, res) => {
 });
 
 /* ── ADMIN : mettre à jour le statut ── */
-app.patch('/api/reservations/:id', (req, res) => {
+app.patch('/api/reservations/:id', async (req, res) => {
   const { pwd, ...updates } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   const all = readRes();
   const idx = all.findIndex(r => r.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Introuvable' });
-  all[idx] = { ...all[idx], ...updates };
+  const previous = { ...all[idx] };
+  all[idx] = { ...previous, ...updates };
   writeRes(all);
+
+  if (updates.status === 'done' && previous.status !== 'done') {
+    sendReviewEmail(all[idx]).catch(e => console.error('Review email error:', e.message));
+  }
+
   res.json({ ok: true });
 });
 
