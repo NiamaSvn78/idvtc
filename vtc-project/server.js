@@ -39,6 +39,7 @@ const APP_URL            = (
 const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review';
 const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
+const RESEND_FROM        = RESEND_FROM_EMAIL ? `IsmaDrive <${RESEND_FROM_EMAIL}>` : '';
 const RESEND_BCC_EMAIL   = String(process.env.RESEND_BCC_EMAIL || '').trim();
 
 /** Envoie via Resend ; renvoie { data, error } (les erreurs API ne lèvent pas toujours d’exception). */
@@ -215,7 +216,7 @@ async function nextSlot(date, durationMin, afterTime = null) {
 }
 
 /* ── EMAIL CONDUCTEUR ── */
-function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
+function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl) {
   const dateStr = fmtDateFr(r.date);
   const endTime = addMinToTime(r.time, r.durationMin || 60);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
@@ -289,9 +290,10 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
       <div style="font-family:Georgia,serif;font-size:1.8rem;color:#c9a96e;font-weight:bold;letter-spacing:.04em">${driverPrice} €</div>
       <div style="font-size:.75rem;color:#9a9185;margin-top:4px">Montant fixé pour cette course</div>
     </td></tr></table>
-    <div style="background:#080808;border:1px solid #c9a96e;padding:18px 20px;margin-bottom:28px;border-radius:2px">
+    <div style="background:#080808;border:1px solid #c9a96e;padding:18px 20px;margin-bottom:28px;border-radius:2px;text-align:center">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Ordre de mission</div>
-      <div style="font-size:.82rem;color:#f0ece4;margin-bottom:12px">Veuillez trouver l'ordre de mission avec les détails complets de la course :</div>
+      <div style="font-size:.82rem;color:#f0ece4;margin-bottom:16px">Scannez le QR ou cliquez pour accéder à votre bon de commande :</div>
+      ${qrDataUrl ? `<img src="${qrDataUrl}" width="160" height="160" alt="QR ordre de mission" style="display:block;margin:0 auto 16px;border:3px solid #c9a96e;border-radius:2px"/>` : ''}
       <a href="${missionUrl}" style="display:inline-block;background:#c9a96e;color:#080808;padding:9px 22px;text-decoration:none;font-size:.8rem;font-weight:bold;letter-spacing:.1em;border-radius:2px">Voir l'ordre de mission →</a>
     </div>
     <p style="font-size:.85rem;color:#666;margin:0 0 12px">Si vous avez des questions supplémentaires ou besoin de plus d'informations, n'hésitez pas à nous contacter.</p>
@@ -305,13 +307,12 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
 </body></html>`;
 }
 
-function buildMissionOrderHtml(r) {
+function buildMissionOrderHtml(r, qrDataUrl) {
   const dateStr = fmtDateFr(r.date);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
   const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
   const depEnc = encodeURIComponent(dep);
   const arrEnc = encodeURIComponent(arr);
-  const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref||r.id}|${r.trajet||''}|${dateStr}|${r.time||''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
   const driverName = r.assignedDriverName || 'ISMA';
@@ -396,9 +397,9 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
     </div>
   </div>
   <div class="qr-block">
-    <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}" width="130" height="130" alt="QR code mission">
-    <div style="font-size:.65rem;color:#ccc;margin-top:8px">Scanner pour valider la prise en charge</div>
+    <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code client — scanner pour valider</div>
+    ${qrDataUrl ? `<img src="${qrDataUrl}" width="130" height="130" alt="QR code validation client">` : ''}
+    <div style="font-size:.65rem;color:#ccc;margin-top:8px">Le client présente ce même QR sur son téléphone</div>
   </div>
   <div class="print-hide" style="padding:16px 28px;text-align:center;background:#f9f9f9;border-top:1px solid #eee">
     <button onclick="window.print()" style="background:#080808;color:#c9a96e;border:none;padding:11px 28px;font-size:.82rem;letter-spacing:.08em;cursor:pointer;font-family:Arial,sans-serif;border-radius:2px">⬇ Télécharger / Imprimer le bon de commande</button>
@@ -614,7 +615,7 @@ async function sendClientConfirmationEmail(r) {
     ? `IsmaDrive — Booking confirmed · Ref. ${r.ref || r.id}`
     : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
 
-  const payload = { from: RESEND_FROM_EMAIL, to: email, subject, html };
+  const payload = { from: RESEND_FROM, to: email, subject, html };
   if (RESEND_BCC_EMAIL && RESEND_BCC_EMAIL.toLowerCase() !== email.toLowerCase()) {
     payload.bcc = [RESEND_BCC_EMAIL];
   }
@@ -717,7 +718,7 @@ async function sendReviewEmail(r) {
   const reviewSubject = r.lang === 'en'
     ? `IsmaDrive — Thank you for your trust · Ref. ${r.ref || r.id}`
     : `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`;
-  const { error } = await resendEmailsSend({ from: RESEND_FROM_EMAIL, to: email, subject: reviewSubject, html });
+  const { error } = await resendEmailsSend({ from: RESEND_FROM, to: email, subject: reviewSubject, html });
   if (error) console.error('[Resend] Email avis:', error.message || error);
 }
 
@@ -966,11 +967,15 @@ app.post('/api/send-driver-email', async (req, res) => {
 
   const token      = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
-  const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice);
+  const qrDataUrl  = await QRCode.toDataURL(missionUrl, {
+    width: 200, margin: 2, errorCorrectionLevel: 'M',
+    type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+  });
+  const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl);
   const subject    = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
 
   try {
-    const { error } = await resendEmailsSend({ from: RESEND_FROM_EMAIL, to: driverEmail, subject, html });
+    const { error } = await resendEmailsSend({ from: RESEND_FROM, to: driverEmail, subject, html });
     if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
     if (driverName) {
       await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '', immatriculation: driverPlate || '' });
@@ -988,7 +993,11 @@ app.get('/mission-order/:id', async (req, res) => {
   const expected = missionToken(req.params.id);
   if (req.query.token !== expected && req.query.pwd !== ADMIN_PWD)
     return res.status(403).send('Accès refusé');
-  res.send(buildMissionOrderHtml(r));
+  const qrDataUrl = await QRCode.toDataURL(`${APP_URL}/reservation/${r.id}`, {
+    width: 260, margin: 2, errorCorrectionLevel: 'M',
+    type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+  });
+  res.send(buildMissionOrderHtml(r, qrDataUrl));
 });
 
 /* ── PAGES ── */

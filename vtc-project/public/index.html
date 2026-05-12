@@ -152,6 +152,7 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .v-dot{width:8px;height:8px;background:var(--black);border-radius:50%;display:none}
 .v-card.on .v-dot{display:block}
 .v-ico{font-size:2rem;line-height:1;margin-bottom:.5rem}
+.v-ico img{height:60px;width:auto;object-fit:contain;display:block}
 .v-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:500;margin-bottom:3px}
 .v-model{font-size:.75rem;color:var(--muted);letter-spacing:.05em;margin-bottom:.6rem}
 .v-specs{display:flex;gap:.5rem;font-size:.72rem;color:var(--faint);flex-wrap:wrap}
@@ -726,13 +727,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="v-grid">
         <div class="v-card on" id="pvc-v" onclick="selPV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
+          <div class="v-ico"><img src="/dessin_van_noir.png" alt="Van Premium" loading="lazy"></div><div class="v-name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
         <div class="v-card" id="pvc-b" onclick="selPV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚗</div><div class="v-name">Business</div>
+          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name">Business</div>
           <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
         </div>
@@ -866,14 +867,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="v-grid">
         <div class="v-card on" id="vc-v" onclick="selV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚐</div><div class="v-name">Van Premium</div>
+          <div class="v-ico"><img src="/dessin_van_noir.png" alt="Van Premium" loading="lazy"></div><div class="v-name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>📶 Wi-Fi</span><span>👶 Famille ✓</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
         <div class="v-card" id="vc-b" onclick="selV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚗</div><div class="v-name">Business</div>
+          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name">Business</div>
           <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>📶 Wi-Fi</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
@@ -997,14 +998,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="v-grid" style="margin-top:1rem">
         <div class="v-card on" id="vc-mv" onclick="selVM('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚐</div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
+          <div class="v-ico"><img src="/dessin_van_noir.png" alt="Van Premium" loading="lazy"></div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span>👤 7 pax</span></div>
           <div class="v-rate" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
         </div>
         <div class="v-card" id="vc-mb" onclick="selVM('business')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico">🚗</div><div class="v-name" data-i18n="airport.business_name">Business</div>
+          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name" data-i18n="airport.business_name">Business</div>
           <div class="v-model" data-i18n="airport.business_model">Berline</div>
           <div class="v-specs"><span>👤 3 pax</span></div>
           <div class="v-rate" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
