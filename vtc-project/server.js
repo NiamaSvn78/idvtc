@@ -314,8 +314,8 @@ function buildMissionOrderHtml(r) {
   const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref||r.id}|${r.trajet||''}|${dateStr}|${r.time||''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
-  const driverName = 'ISMA';
-  const plate = r.vehicle === 'van' ? 'FT-365-XH' : '';
+  const driverName = r.assignedDriverName || 'ISMA';
+  const plate = r.assignedDriverPlate || (r.vehicle === 'van' ? 'FT-365-XH' : '');
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -338,7 +338,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 .nav-links a{color:#c9a96e;text-decoration:none;margin-right:14px}
 .qr-block{padding:20px 28px;background:#fafafa;text-align:center}
 @media(max-width:480px){.grid2{grid-template-columns:1fr}.card-head{flex-direction:column;align-items:flex-start}}
-@media print{body{background:#fff;padding:0}.card{box-shadow:none}a{color:#333!important}}
+@media print{body{background:#fff;padding:0}.card{box-shadow:none}a{color:#333!important}.print-hide{display:none}}
 </style>
 </head>
 <body>
@@ -399,6 +399,9 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
     <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
     <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}" width="130" height="130" alt="QR code mission">
     <div style="font-size:.65rem;color:#ccc;margin-top:8px">Scanner pour valider la prise en charge</div>
+  </div>
+  <div class="print-hide" style="padding:16px 28px;text-align:center;background:#f9f9f9;border-top:1px solid #eee">
+    <button onclick="window.print()" style="background:#080808;color:#c9a96e;border:none;padding:11px 28px;font-size:.82rem;letter-spacing:.08em;cursor:pointer;font-family:Arial,sans-serif;border-radius:2px">⬇ Télécharger / Imprimer le bon de commande</button>
   </div>
 </div>
 </body></html>`;
@@ -923,19 +926,19 @@ app.get('/api/drivers', async (req, res) => {
 
 /* ── CONDUCTEURS : ajouter ── */
 app.post('/api/drivers', async (req, res) => {
-  const { pwd, name, phone, email, carCategory } = req.body;
+  const { pwd, name, phone, email, carCategory, immatriculation } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
-  await dbInsertDriver({ id: Date.now().toString(36), name, phone: phone || '', email, carCategory: carCategory || '' });
+  await dbInsertDriver({ id: Date.now().toString(36), name, phone: phone || '', email, carCategory: carCategory || '', immatriculation: immatriculation || '' });
   res.json({ ok: true });
 });
 
 /* ── CONDUCTEURS : modifier ── */
 app.put('/api/drivers/:id', async (req, res) => {
-  const { pwd, name, phone, email, carCategory } = req.body;
+  const { pwd, name, phone, email, carCategory, immatriculation } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
-  await dbUpdateDriver(req.params.id, { name, phone: phone || '', email, carCategory: carCategory || '' });
+  await dbUpdateDriver(req.params.id, { name, phone: phone || '', email, carCategory: carCategory || '', immatriculation: immatriculation || '' });
   res.json({ ok: true });
 });
 
@@ -949,11 +952,17 @@ app.delete('/api/drivers/:id', async (req, res) => {
 
 /* ── ENVOI EMAIL CONDUCTEUR ── */
 app.post('/api/send-driver-email', async (req, res) => {
-  const { pwd, tripId, driverEmail, driverName, driverPrice } = req.body;
+  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!RESEND_API_KEY) return res.status(503).json({ error: 'RESEND_API_KEY manquant.' });
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
+
+  /* Enregistrer le nom et l'immatriculation du conducteur assigné dans la réservation */
+  const assignedUpdates = {};
+  if (driverName) assignedUpdates.assignedDriverName = driverName;
+  if (driverPlate) assignedUpdates.assignedDriverPlate = driverPlate;
+  if (Object.keys(assignedUpdates).length) await dbUpdateRes(tripId, assignedUpdates);
 
   const token      = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
@@ -964,7 +973,7 @@ app.post('/api/send-driver-email', async (req, res) => {
     const { error } = await resendEmailsSend({ from: RESEND_FROM_EMAIL, to: driverEmail, subject, html });
     if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
     if (driverName) {
-      await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '' });
+      await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '', immatriculation: driverPlate || '' });
     }
     res.json({ ok: true });
   } catch (e) {
@@ -1074,8 +1083,13 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f0f0f0;color:#111;min-he
     <div class="row"><span class="k">Exploitant</span><span class="v">${escHtml(EXPLOITANT.raisonSociale)}</span></div>
     <div class="row"><span class="k">N° REVTC</span><span class="v">${escHtml(EXPLOITANT.numeroREVTC)}</span></div>
   </div>
+  <div class="sec" style="text-align:center;background:#fafafa">
+    <button onclick="window.print()" style="background:#1a7a3c;color:#fff;border:none;padding:11px 28px;font-size:.85rem;font-weight:bold;cursor:pointer;border-radius:6px;width:100%;font-family:Arial,sans-serif">⬇ Télécharger / Imprimer ce bon de commande</button>
+    <div style="font-size:.68rem;color:#aaa;margin-top:8px">Sauvegarde en PDF via Imprimer → Enregistrer en PDF</div>
+  </div>
   <div class="footer">Conforme arrêté du 6 août 2025 &nbsp;·&nbsp; IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France</div>
 </div>
+<style>@media print{button{display:none}}</style>
 </body></html>`;
 }
 
@@ -1299,6 +1313,10 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
       <input class="sp-input" id="sp-name" type="text" placeholder="Prénom">
     </div>
     <div class="sp-field">
+      <label class="sp-label">Immatriculation du véhicule</label>
+      <input class="sp-input" id="sp-plate" type="text" placeholder="AA-123-BB" style="font-family:monospace;letter-spacing:.06em">
+    </div>
+    <div class="sp-field">
       <label class="sp-label">Prix à lui verser (€) *</label>
       <input class="sp-input sp-price" id="sp-price" type="number" min="0" placeholder="Ex : 60">
     </div>
@@ -1335,8 +1353,8 @@ async function loadDrivers() {
     }
     drivers.forEach(d => {
       const opt = document.createElement('option');
-      opt.value = JSON.stringify({ email: d.email, name: d.name || '' });
-      opt.textContent = d.name + (d.carCategory ? ' · ' + d.carCategory : '') + (d.phone ? '  ' + d.phone : '');
+      opt.value = JSON.stringify({ email: d.email, name: d.name || '', plate: d.immatriculation || '' });
+      opt.textContent = d.name + (d.carCategory ? ' · ' + d.carCategory : '') + (d.immatriculation ? ' · ' + d.immatriculation : '') + (d.phone ? '  ' + d.phone : '');
       sel.appendChild(opt);
     });
   } catch(e) {
@@ -1351,6 +1369,7 @@ function onAnnuaireChange() {
     const d = JSON.parse(val);
     document.getElementById('sp-email').value = d.email || '';
     document.getElementById('sp-name').value  = d.name  || '';
+    document.getElementById('sp-plate').value = d.plate || '';
   } catch(e) {}
 }
 
@@ -1358,6 +1377,7 @@ async function sendToColleague() {
   const email = document.getElementById('sp-email').value.trim();
   const name  = document.getElementById('sp-name').value.trim();
   const price = document.getElementById('sp-price').value.trim();
+  const plate = document.getElementById('sp-plate').value.trim();
   const btn   = document.getElementById('sp-send');
 
   if (!email)                       { showStatus('err', 'Email du collègue requis'); return; }
@@ -1371,7 +1391,7 @@ async function sendToColleague() {
     const res  = await fetch('/api/send-driver-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pwd: _PWD, tripId: _ID, driverEmail: email, driverName: name, driverPrice: Number(price) })
+      body: JSON.stringify({ pwd: _PWD, tripId: _ID, driverEmail: email, driverName: name, driverPrice: Number(price), driverPlate: plate })
     });
     const data = await res.json();
     if (data.ok) {

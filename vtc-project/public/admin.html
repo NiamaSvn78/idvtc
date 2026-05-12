@@ -411,6 +411,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
           <input class="add-input" id="new-driver-name"     type="text"  placeholder="Prénom Nom *">
           <input class="add-input" id="new-driver-phone"    type="tel"   placeholder="06 XX XX XX XX">
           <input class="add-input" id="new-driver-email"    type="email" placeholder="email@exemple.com *">
+          <input class="add-input" id="new-driver-plate"    type="text"  placeholder="Immatriculation (AA-123-BB)" style="font-family:monospace;letter-spacing:.05em">
           <select class="add-input add-select" id="new-driver-cat">
             <option value="">— Véhicule —</option>
             <option value="Van Premium">Van Premium</option>
@@ -424,7 +425,8 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
         <div style="grid-column:1/-1">
           <label class="add-label">Envoyer à</label>
           <input class="add-input" id="send-driver-email" type="email" placeholder="conducteur@exemple.com" style="margin-bottom:.4rem">
-          <input class="add-input" id="send-driver-name"  type="text"  placeholder="Prénom conducteur (optionnel)">
+          <input class="add-input" id="send-driver-name"  type="text"  placeholder="Prénom conducteur (optionnel)" style="margin-bottom:.4rem">
+          <input class="add-input" id="send-driver-plate" type="text"  placeholder="Immatriculation du véhicule (AA-123-BB)" style="font-family:monospace;letter-spacing:.05em">
         </div>
         <div style="grid-column:1/-1">
           <label class="add-label" style="margin-top:.6rem;display:block">Prix à verser au conducteur (€) <span style="color:var(--red)">*</span></label>
@@ -462,6 +464,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
           <input class="add-input" id="dir-new-name"  type="text"  placeholder="Prénom Nom *">
           <input class="add-input" id="dir-new-phone" type="tel"   placeholder="06 XX XX XX XX">
           <input class="add-input" id="dir-new-email" type="email" placeholder="email@exemple.com *">
+          <input class="add-input" id="dir-new-plate" type="text"  placeholder="Immatriculation (AA-123-BB)" style="font-family:monospace;letter-spacing:.05em">
           <select class="add-input add-select" id="dir-new-cat">
             <option value="">— Véhicule —</option>
             <option value="Van Premium">Van Premium</option>
@@ -834,11 +837,12 @@ function renderDriverList(){
   }
   const sel = document.getElementById('send-driver-email').value;
   list.innerHTML = savedDrivers.map(d => `
-    <div class="driver-item${sel===d.email?' selected':''}" onclick="selectDriver('${escHtml(d.email)}','${escHtml(d.name)}')">
+    <div class="driver-item${sel===d.email?' selected':''}" onclick="selectDriver('${escHtml(d.email)}','${escHtml(d.name)}','${escHtml(d.immatriculation||'')}')">
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:.4rem">
           <div class="driver-name">${escHtml(d.name)}</div>
           ${d.carCategory ? `<span class="driver-cat ${catClass(d.carCategory)}">${escHtml(d.carCategory)}</span>` : ''}
+          ${d.immatriculation ? `<span style="font-family:monospace;font-size:.68rem;color:var(--gold);letter-spacing:.06em">${escHtml(d.immatriculation)}</span>` : ''}
         </div>
         <div class="driver-meta">
           ${d.phone ? `<span class="driver-phone">📞 ${escHtml(d.phone)}</span>` : ''}
@@ -849,22 +853,25 @@ function renderDriverList(){
     </div>
   `).join('');
 }
-function selectDriver(email, name){
+function selectDriver(email, name, plate){
   document.getElementById('send-driver-email').value = email;
   document.getElementById('send-driver-name').value  = name;
+  document.getElementById('send-driver-plate').value = plate || '';
   renderDriverList();
 }
 async function addDriver(){
-  const name        = document.getElementById('new-driver-name').value.trim();
-  const phone       = document.getElementById('new-driver-phone').value.trim();
-  const email       = document.getElementById('new-driver-email').value.trim();
-  const carCategory = document.getElementById('new-driver-cat').value;
+  const name           = document.getElementById('new-driver-name').value.trim();
+  const phone          = document.getElementById('new-driver-phone').value.trim();
+  const email          = document.getElementById('new-driver-email').value.trim();
+  const plate          = document.getElementById('new-driver-plate').value.trim();
+  const carCategory    = document.getElementById('new-driver-cat').value;
   if(!name || !email){ alert('Nom et email obligatoires'); return; }
   await fetch('/api/drivers',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
   document.getElementById('new-driver-name').value  = '';
   document.getElementById('new-driver-phone').value = '';
   document.getElementById('new-driver-email').value = '';
+  document.getElementById('new-driver-plate').value = '';
   document.getElementById('new-driver-cat').value   = '';
   await loadDrivers();
 }
@@ -876,6 +883,7 @@ async function deleteDriver(id){
 async function sendDriverEmail(){
   const email  = document.getElementById('send-driver-email').value.trim();
   const name   = document.getElementById('send-driver-name').value.trim();
+  const plate  = document.getElementById('send-driver-plate').value.trim();
   const price  = document.getElementById('send-driver-price').value.trim();
   const status = document.getElementById('send-status');
   if(!email){ status.textContent='Email du conducteur requis'; status.className='send-status err'; return; }
@@ -885,7 +893,7 @@ async function sendDriverEmail(){
   try{
     const r = await fetch('/api/send-driver-email',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price)})});
+      body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price), driverPlate:plate})});
     const d = await r.json();
     if(d.ok){
       status.textContent = `✅ Email envoyé avec succès à ${email}`;
@@ -929,9 +937,10 @@ function renderDirectory(){
 function renderDirRow(d){
   return `<div class="dir-row" id="dir-row-${d.id}">
     <div class="dir-info">
-      <div style="display:flex;align-items:center;gap:.4rem">
+      <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
         <span class="dir-row-name">${escHtml(d.name)}</span>
         ${d.carCategory?`<span class="driver-cat ${catClass(d.carCategory)}">${escHtml(d.carCategory)}</span>`:''}
+        ${d.immatriculation?`<span style="font-family:monospace;font-size:.7rem;color:var(--gold);letter-spacing:.06em">${escHtml(d.immatriculation)}</span>`:''}
       </div>
       <div class="dir-row-sub">
         ${d.phone?`<span class="driver-phone">📞 ${escHtml(d.phone)}</span>`:''}
@@ -949,9 +958,10 @@ function renderDirRow(d){
 
 function renderEditRow(d){
   return `<div class="dir-edit-row" id="dir-row-${d.id}">
-    <input class="add-input" id="edit-name-${d.id}"  type="text"  value="${escHtml(d.name)}"        placeholder="Prénom Nom *">
-    <input class="add-input" id="edit-phone-${d.id}" type="tel"   value="${escHtml(d.phone||'')}"   placeholder="Téléphone">
-    <input class="add-input" id="edit-email-${d.id}" type="email" value="${escHtml(d.email)}"       placeholder="Email *">
+    <input class="add-input" id="edit-name-${d.id}"  type="text"  value="${escHtml(d.name)}"                   placeholder="Prénom Nom *">
+    <input class="add-input" id="edit-phone-${d.id}" type="tel"   value="${escHtml(d.phone||'')}"              placeholder="Téléphone">
+    <input class="add-input" id="edit-email-${d.id}" type="email" value="${escHtml(d.email)}"                  placeholder="Email *">
+    <input class="add-input" id="edit-plate-${d.id}" type="text"  value="${escHtml(d.immatriculation||'')}"    placeholder="Immatriculation" style="font-family:monospace;letter-spacing:.05em">
     <select class="add-input add-select" id="edit-cat-${d.id}">
       <option value="">— Véhicule —</option>
       <option value="Van Premium"${d.carCategory==='Van Premium'?' selected':''}>Van Premium</option>
@@ -968,13 +978,14 @@ function startEdit(id){ editingDriverId = id; renderDirectory(); }
 function cancelEdit(){ editingDriverId = null; renderDirectory(); }
 
 async function saveEdit(id){
-  const name        = document.getElementById('edit-name-'+id).value.trim();
-  const phone       = document.getElementById('edit-phone-'+id).value.trim();
-  const email       = document.getElementById('edit-email-'+id).value.trim();
-  const carCategory = document.getElementById('edit-cat-'+id).value;
+  const name           = document.getElementById('edit-name-'+id).value.trim();
+  const phone          = document.getElementById('edit-phone-'+id).value.trim();
+  const email          = document.getElementById('edit-email-'+id).value.trim();
+  const plate          = document.getElementById('edit-plate-'+id).value.trim();
+  const carCategory    = document.getElementById('edit-cat-'+id).value;
   if(!name||!email){ alert('Nom et email obligatoires'); return; }
   await fetch('/api/drivers/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
   editingDriverId = null;
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
   if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
@@ -991,14 +1002,15 @@ async function dirDeleteDriver(id){
 }
 
 async function dirAddDriver(){
-  const name        = document.getElementById('dir-new-name').value.trim();
-  const phone       = document.getElementById('dir-new-phone').value.trim();
-  const email       = document.getElementById('dir-new-email').value.trim();
-  const carCategory = document.getElementById('dir-new-cat').value;
+  const name           = document.getElementById('dir-new-name').value.trim();
+  const phone          = document.getElementById('dir-new-phone').value.trim();
+  const email          = document.getElementById('dir-new-email').value.trim();
+  const plate          = document.getElementById('dir-new-plate').value.trim();
+  const carCategory    = document.getElementById('dir-new-cat').value;
   if(!name||!email){ alert('Nom et email obligatoires'); return; }
   await fetch('/api/drivers',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory})});
-  ['dir-new-name','dir-new-phone','dir-new-email'].forEach(id => document.getElementById(id).value='');
+    body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
+  ['dir-new-name','dir-new-phone','dir-new-email','dir-new-plate'].forEach(id => document.getElementById(id).value='');
   document.getElementById('dir-new-cat').value = '';
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
   if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
