@@ -19,7 +19,12 @@ const supabase = createClient(
 /* ── CONFIG ── */
 const ADMIN_PWD          = process.env.ADMIN_PWD || 'idvtc2024';
 const BUFFER_MIN         = 0;
-const APP_URL            = (process.env.APP_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
+const APP_URL            = (
+  process.env.APP_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+  `http://localhost:${PORT}`
+).replace(/\/$/, '');
 const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review';
 const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
@@ -643,6 +648,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
   try {
     await dbInsertRes(newRes);
+  } catch (err) {
+    console.error('Supabase insert error:', err.message);
+    return res.status(500).json({ error: 'Erreur base de données : ' + err.message });
+  }
+
+  try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{

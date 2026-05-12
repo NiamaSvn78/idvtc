@@ -101,11 +101,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 @media(max-width:800px){
   .lang-toggle{min-height:44px;min-width:60px;padding:.5rem 1rem;font-size:.8rem;justify-content:center;margin-left:.4rem;-webkit-tap-highlight-color:transparent}
 }
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 5vw 60px;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,169,110,.07) 0%,transparent 70%)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 5vw 80px;background:linear-gradient(to bottom,rgba(8,8,8,.5) 0%,rgba(8,8,8,.78) 55%,rgba(8,8,8,1) 100%),url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed}
 .hero-tag{font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:1.4rem}
 .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,6vw,5.2rem);font-weight:300;line-height:1.08;text-align:center;max-width:780px;margin-bottom:.8rem}
 .hero-title em{font-style:italic;color:var(--gold)}
-.hero-sub{color:var(--muted);font-size:.92rem;text-align:center;margin-bottom:3.5rem;max-width:440px;line-height:1.7}
+.hero-sub{color:var(--muted);font-size:.95rem;text-align:center;margin-bottom:4.5rem;max-width:480px;line-height:1.8}
 .booking-card{width:100%;max-width:1100px;background:var(--dark2);border:1px solid var(--border)}
 .b-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .b-tabs::-webkit-scrollbar{display:none}
@@ -186,9 +186,9 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .secure-line{text-align:center;font-size:.68rem;color:var(--faint);margin-top:.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:15px;height:15px;border:1.5px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
-section{padding:5.5rem 5vw}
+section{padding:7.5rem 5vw}
 .section-tag{font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem}
-.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.15;max-width:540px;margin-bottom:2.8rem}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.15;max-width:540px;margin-bottom:3.5rem}
 .inner{max-width:1100px;margin:0 auto}
 #fleet{background:var(--dark)}
 .fleet-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
@@ -289,7 +289,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .dispo-legend{display:flex;justify-content:space-between;font-size:.62rem;color:var(--faint);margin-top:2px}
 
 /* ── CTA Hero ── */
-.hero-cta{display:inline-block;background:var(--gold);color:var(--black);padding:.85rem 2.4rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;margin-bottom:2.5rem;transition:background .2s}
+.hero-cta{display:inline-block;background:var(--gold);color:var(--black);padding:1rem 2.8rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;margin-bottom:3.5rem;transition:background .2s;box-shadow:0 4px 32px rgba(201,169,110,.25)}
 .hero-cta:hover{background:var(--gold2)}
 
 /* ── Tab select mobile dropdown ── */
@@ -587,23 +587,25 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .cgv-link:hover{color:var(--gold2)}
 
 /* ── TRUST BAR ── */
-#trust-bar{width:100%;background:#111;padding:14px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:2rem}
+#trust-bar{width:100%;background:#111;padding:16px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:3rem}
 .trust-bar-inner{display:flex;gap:12px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
 .trust-bar-inner::-webkit-scrollbar{display:none}
 .trust-badge{flex-shrink:0;background:#1a1a1a;border:1px solid rgba(201,169,110,0.25);border-radius:8px;padding:10px 16px;color:#fff;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:8px}
 .trust-badge .badge-icon{font-size:16px}
 @media(min-width:768px){.trust-bar-inner{flex-wrap:wrap;justify-content:center}}
 /* ── PARIS EXPERIENCE ── */
-#paris-experience{padding:60px 20px;background:#0d0d0d}
-.experience-header{text-align:center;margin-bottom:36px}
-.experience-header h2{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:1px;font-weight:400}
-.experience-header p{color:#aaa;font-size:1rem;margin-top:8px}
-.experience-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;margin:0 auto}
-.exp-card{background:linear-gradient(145deg,#1a1a1a,#111);border:1px solid var(--border);border-radius:12px;padding:28px 20px;text-align:center;transition:transform 0.2s}
-.exp-card:hover{transform:translateY(-4px);border-color:rgba(201,169,110,0.5)}
-.exp-card .exp-icon{font-size:2.4rem;display:block;margin-bottom:12px}
+#paris-experience{padding:7.5rem 5vw;background:#0d0d0d}
+.experience-header{text-align:center;margin-bottom:4rem}
+.experience-header h2{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:1px;font-weight:400}
+.experience-header p{color:#aaa;font-size:1rem;margin-top:12px}
+.experience-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto}
+.exp-card{background:linear-gradient(145deg,#1a1a1a,#111);border:1px solid var(--border);border-radius:12px;padding:0;text-align:center;transition:transform 0.2s;overflow:hidden}
+.exp-card:hover{transform:translateY(-5px);border-color:rgba(201,169,110,0.5)}
+.exp-card-img{width:100%;height:160px;object-fit:cover;display:block}
+.exp-card-body{padding:22px 20px 24px}
+.exp-card .exp-icon{font-size:2rem;display:block;margin-bottom:10px}
 .exp-card h3{color:#fff;font-size:0.95rem;font-weight:600;margin-bottom:6px}
-.exp-card p{color:#888;font-size:0.82rem;line-height:1.4}
+.exp-card p{color:#888;font-size:0.82rem;line-height:1.45}
 @media(max-width:600px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── STORYTELLING ── */
 #storytelling{padding:60px 20px;background:#f9f7f2}
