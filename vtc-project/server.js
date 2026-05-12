@@ -10,11 +10,22 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || '');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-/* ── SUPABASE ── */
-const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+/* ── SUPABASE (même projet par défaut que index.js à la racine du repo) ── */
+const DEFAULT_SUPABASE_URL = 'https://hawwbdpixtmdgnftklsd.supabase.co';
+const supabaseUrl = (process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, '');
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+if (supabaseServiceKey) {
+  try {
+    console.log('[Supabase]', new URL(supabaseUrl).hostname);
+  } catch (_) {
+    console.warn('[Supabase] SUPABASE_URL invalide');
+  }
+} else {
+  console.warn('[Supabase] SUPABASE_SERVICE_ROLE_KEY manquant — les écritures en base échoueront.');
+}
 
 /* ── CONFIG ── */
 const ADMIN_PWD          = process.env.ADMIN_PWD || 'idvtc2024';
@@ -30,14 +41,25 @@ const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
 
 /* ── DB HELPERS ── */
+function wrapSupabaseErr(error) {
+  const msg = error?.message || String(error);
+  if (/schema cache|could not find the table/i.test(msg)) {
+    return new Error(
+      msg +
+        ' Vérifiez que SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sur Vercel sont ceux du même projet Supabase où la table public.reservations existe (SQL / migrations).'
+    );
+  }
+  return new Error(msg);
+}
+
 async function dbInsertRes(r) {
   const { error } = await supabase.from('reservations').insert(r);
-  if (error) throw new Error(error.message);
+  if (error) throw wrapSupabaseErr(error);
 }
 
 async function dbListRes() {
   const { data, error } = await supabase.from('reservations').select('*').order('createdAt', { ascending: false });
-  if (error) throw new Error(error.message);
+  if (error) throw wrapSupabaseErr(error);
   return data || [];
 }
 
@@ -48,7 +70,7 @@ async function dbGetRes(id) {
 
 async function dbUpdateRes(id, updates) {
   const { error } = await supabase.from('reservations').update(updates).eq('id', id);
-  if (error) throw new Error(error.message);
+  if (error) throw wrapSupabaseErr(error);
 }
 
 async function dbListResByDate(date) {
