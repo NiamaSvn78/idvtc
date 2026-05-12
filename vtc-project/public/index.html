@@ -627,6 +627,71 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .story-card h3{color:var(--text);font-size:1rem;font-weight:500;margin-bottom:.7rem;letter-spacing:.03em}
 .story-card p{color:var(--muted);font-size:.88rem;line-height:1.78}
 @media(max-width:700px){.story-grid{grid-template-columns:1fr;background:transparent;gap:1rem}}
+
+/* ══════════════════════════════
+   WIZARD RÉSERVATION
+   ══════════════════════════════ */
+.wizard-wrap{width:100%;max-width:1100px;background:var(--dark2);border:1px solid var(--border)}
+.wiz-progress{display:flex;align-items:center;padding:1.4rem 2rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);gap:0}
+.wp-step{display:flex;flex-direction:column;align-items:center;gap:.35rem;flex-shrink:0}
+.wp-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--faint);background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--faint);font-weight:500;transition:all .3s}
+.wp-lbl{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);transition:color .3s;white-space:nowrap}
+.wp-bar{flex:1;height:1px;background:var(--faint);opacity:.3;transition:all .3s;margin-bottom:1.2rem;min-width:8px}
+.wp-step.active .wp-dot{border-color:var(--gold);background:var(--gold);color:var(--black)}
+.wp-step.active .wp-lbl{color:var(--gold)}
+.wp-step.done .wp-dot{border-color:var(--gold);background:var(--gold-dim);color:var(--gold)}
+.wp-step.done .wp-lbl{color:var(--muted)}
+.wp-bar.done{background:var(--gold);opacity:.5}
+.wiz-pane{display:none;padding:2rem}
+.wiz-pane.active{display:block}
+
+/* Trip type selector */
+.trip-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.6rem}
+.trip-type-btn{border:1px solid var(--subtle);padding:1.2rem 1rem;cursor:pointer;transition:all .25s;text-align:center;background:var(--dark3);-webkit-tap-highlight-color:transparent}
+.trip-type-btn:hover{border-color:var(--gold-border);transform:translateY(-1px)}
+.trip-type-btn.on{border-color:var(--gold);background:var(--gold-dim)}
+.ttb-ico{font-size:1.5rem;line-height:1;margin-bottom:.4rem}
+.ttb-name{font-size:.85rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
+.ttb-sub{font-size:.68rem;color:var(--muted);letter-spacing:.03em}
+.trip-fields{display:none}
+.trip-fields.active{display:block}
+
+/* Wizard vehicle price */
+.wiz-veh-price{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold);margin-top:.6rem;font-weight:400;line-height:1}
+.wiz-step-sub{font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.5}
+
+/* Wizard footer nav */
+.wiz-footer{margin-top:1.4rem;display:flex;gap:.7rem}
+.wiz-footer .btn-pay,.wiz-footer .btn-calc,.wiz-footer .btn-ok{margin-top:0;flex:1}
+.wiz-back-btn{flex:0 0 auto!important;min-width:110px}
+
+/* ── TÉLÉPHONE NAV ── */
+.nav-phone{display:flex;align-items:center;gap:.4rem;color:var(--gold);text-decoration:none;font-size:.76rem;font-weight:500;letter-spacing:.06em;white-space:nowrap;padding:.35rem .7rem;border:1px solid var(--gold-border);transition:all .2s;margin-right:.4rem}
+.nav-phone:hover{background:var(--gold-dim)}
+.nav-phone svg{flex-shrink:0;width:13px;height:13px}
+@media(max-width:1050px){.nav-phone .nav-phone-label{display:none}}
+@media(max-width:800px){.nav-phone{display:none}}
+
+/* ── BOUTON FLOTTANT APPELER ── */
+.call-btn{position:fixed;bottom:calc(1.8rem + 46px + .8rem);right:1.8rem;z-index:999;display:flex;align-items:center;gap:.5rem;background:#0a0a0a;border:1px solid var(--gold-border);color:var(--gold);text-decoration:none;padding:.65rem 1.1rem .65rem .85rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(0,0,0,.6);transition:all .25s}
+.call-btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
+.call-btn svg{width:17px;height:17px;flex-shrink:0}
+@media(max-width:768px){
+  .call-btn{bottom:calc(1rem + 42px + .6rem);right:1rem;padding:.6rem .95rem .6rem .75rem;font-size:.78rem}
+  .wiz-progress{padding:1rem 1.2rem}
+  .wp-lbl{display:none}
+  .wp-dot{width:26px;height:26px;font-size:.68rem}
+  .trip-type-grid{grid-template-columns:1fr;gap:.55rem;margin-bottom:1.2rem}
+  .wiz-pane{padding:1.5rem}
+  .wiz-back-btn{min-width:90px}
+  .wiz-footer{flex-wrap:wrap}
+  .wiz-footer .btn-ok,.wiz-footer .btn-pay{flex:1 1 100%}
+  .wiz-back-btn{flex:0 0 auto!important}
+}
+@media(max-width:400px){
+  .trip-type-btn{padding:.9rem .7rem}
+  .ttb-ico{font-size:1.3rem}
+}
 </style>
 </head>
 <body>
@@ -636,11 +701,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
+    <li><a href="#reservation" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" style="color:var(--gold)" data-i18n="nav.book">Réserver</a></li>
     <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="#tarifs">Tarifs</a></li>
     <li><a href="/a-propos" data-i18n="nav.about">À propos</a></li>
     <li><a href="/faq" data-i18n="nav.faq">FAQ</a></li>
   </ul>
-  <button class="nav-btn" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400)" data-i18n="nav.book">Réserver</button>
+  <a class="nav-phone" href="tel:+33623889717" aria-label="Appeler IsmaDrive">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    <span class="nav-phone-label">06 23 88 97 17</span>
+  </a>
+  <button class="nav-btn" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'})" data-i18n="nav.book">Réserver</button>
   <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
     <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
   </button>
@@ -653,10 +724,15 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 <div class="nav-drawer" id="nav-drawer" role="navigation" aria-label="Menu mobile">
   <ul>
     <li><a href="/#reservation" onclick="toggleNav()"><span class="nd-num">01</span><span data-i18n="nav.home">Accueil</span></a></li>
-    <li><a href="/a-propos"><span class="nd-num">02</span><span data-i18n="nav.about">À propos</span></a></li>
-    <li><a href="/faq"><span class="nd-num">03</span><span data-i18n="nav.faq">FAQ</span></a></li>
+    <li><a href="#tarifs" onclick="toggleNav()"><span class="nd-num">02</span><span>Tarifs</span></a></li>
+    <li><a href="/a-propos"><span class="nd-num">03</span><span data-i18n="nav.about">À propos</span></a></li>
+    <li><a href="/faq"><span class="nd-num">04</span><span data-i18n="nav.faq">FAQ</span></a></li>
   </ul>
-  <a class="nav-drawer-cta" href="#" onclick="navTab('p');toggleNav();document.getElementById('reservation').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('i-pdate')?.focus(),400);return false" data-i18n="nav.book_now">Réserver maintenant</a>
+  <a class="nav-drawer-cta" href="#" onclick="navTab('p');toggleNav();document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" data-i18n="nav.book_now">Réserver maintenant</a>
+  <a href="tel:+33623889717" style="display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:.8rem;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:1.1rem;text-decoration:none;font-size:.88rem;font-weight:500;letter-spacing:.06em;-webkit-tap-highlight-color:transparent">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    06 23 88 97 17
+  </a>
   <a class="nav-drawer-wa" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer">
     <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
     Nous contacter via WhatsApp
@@ -682,7 +758,185 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     </div>
   </section>
 
-  <div class="booking-card">
+  <div class="wizard-wrap" id="booking-wizard">
+    <!-- Barre de progression -->
+    <div class="wiz-progress">
+      <div class="wp-step active" id="wps-1"><div class="wp-dot">1</div><div class="wp-lbl">Trajet</div></div>
+      <div class="wp-bar" id="wpb-1"></div>
+      <div class="wp-step" id="wps-2"><div class="wp-dot">2</div><div class="wp-lbl">Véhicule</div></div>
+      <div class="wp-bar" id="wpb-2"></div>
+      <div class="wp-step" id="wps-3"><div class="wp-dot">3</div><div class="wp-lbl">Coordonnées</div></div>
+      <div class="wp-bar" id="wpb-3"></div>
+      <div class="wp-step" id="wps-4"><div class="wp-dot">4</div><div class="wp-lbl">Paiement</div></div>
+    </div>
+
+    <!-- ── STEP 1 : TRAJET ── -->
+    <div class="wiz-pane active" id="wpane-1">
+      <p class="section-tag" style="margin-bottom:1rem">Quel type de trajet ?</p>
+      <div class="trip-type-grid">
+        <div class="trip-type-btn on" id="ttb-p" onclick="selTripType('p',this)">
+          <div class="ttb-ico">✈</div>
+          <div class="ttb-name">Forfait Aéroport</div>
+          <div class="ttb-sub">CDG · Orly · Prix fixe</div>
+        </div>
+        <div class="trip-type-btn" id="ttb-t" onclick="selTripType('t',this)">
+          <div class="ttb-ico">🚗</div>
+          <div class="ttb-name">Transfert</div>
+          <div class="ttb-sub">Hors Paris · Prix au km</div>
+        </div>
+        <div class="trip-type-btn" id="ttb-m" onclick="selTripType('m',this)">
+          <div class="ttb-ico">⏱</div>
+          <div class="ttb-name">Mise à disposition</div>
+          <div class="ttb-sub">Chauffeur dédié · À l'heure</div>
+        </div>
+      </div>
+
+      <!-- Champs Forfait Aéroport -->
+      <div class="trip-fields active" id="tf-p">
+        <label class="fl" style="margin-bottom:.55rem" data-i18n="airport.route_label">Votre trajet</label>
+        <div class="pack-grid">
+          <div class="pack-card on" id="pk-cdg" onclick="selPack('cdg',this)">
+            <div class="pack-ico">✈</div>
+            <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
+            <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
+            <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
+          </div>
+          <div class="pack-card" id="pk-orly" onclick="selPack('orly',this)">
+            <div class="pack-ico">✈</div>
+            <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
+            <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
+            <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
+          </div>
+        </div>
+        <div class="family-bar">
+          <div class="family-bar-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="airport.family_label">Équipement famille</span></div>
+          <div class="fam-opt"><input type="checkbox" id="f-rehausseur"><label for="f-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label></div>
+          <div class="fam-opt"><input type="checkbox" id="f-siege"><label for="f-siege" data-i18n="airport.seat">Siège bébé (0–3 ans)</label></div>
+          <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
+        </div>
+        <div class="fg2 fg-dt">
+          <div><label class="fl">Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
+          <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
+        </div>
+        <div class="avail" id="avail-p"><div class="avail-dot"></div><span id="avail-p-txt"></span></div>
+        <div class="dispo-timeline" id="dt-p" style="display:none"><div class="dispo-now" id="dtn-p"></div></div>
+        <div class="dispo-legend" id="dl-p" style="display:none"><span>05:00</span><span>12:00</span><span>23:00</span></div>
+      </div>
+
+      <!-- Champs Transfert -->
+      <div class="trip-fields" id="tf-t">
+        <div class="fg1">
+          <label class="fl" data-i18n="transfer.dep_label">Adresse de départ</label>
+          <div class="ac-wrap"><input class="fi" id="i-dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" data-i18n-ph="transfer.dep_ph" autocomplete="off" oninput="acSearch(this,'ac-dep')" onfocus="acSearch(this,'ac-dep')" onblur="acBlur('ac-dep')"><div class="ac-list" id="ac-dep"></div></div>
+        </div>
+        <div class="route-vis"><div class="rv-dot"></div><div class="rv-line"><div class="rv-bar" id="rv-bar"></div><div class="rv-tag" id="rv-tag"></div></div><div class="rv-dot full"></div></div>
+        <div class="fg1">
+          <label class="fl" data-i18n="transfer.arr_label">Adresse d'arrivée</label>
+          <div class="ac-wrap"><input class="fi" id="i-arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" data-i18n-ph="transfer.arr_ph" autocomplete="off" oninput="acSearch(this,'ac-arr')" onfocus="acSearch(this,'ac-arr')" onblur="acBlur('ac-arr')"><div class="ac-list" id="ac-arr"></div></div>
+        </div>
+        <div class="fg2 fg-dt">
+          <div><label class="fl">Date</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
+          <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
+        </div>
+        <div class="avail" id="avail-t"><div class="avail-dot"></div><span id="avail-t-txt"></span></div>
+        <div class="dispo-timeline" id="dt-t" style="display:none"><div class="dispo-now" id="dtn-t"></div></div>
+        <div class="dispo-legend" id="dl-t" style="display:none"><span>05:00</span><span>12:00</span><span>23:00</span></div>
+        <div class="fg2">
+          <div><label class="fl" data-i18n="transfer.pax">Passagers</label><select class="fs" id="i-pax" data-i18n-opts="transfer.pax_opts"><option>1 passager</option><option>2 passagers</option><option>3 passagers</option><option>4 passagers</option><option selected>5 passagers</option><option>6 passagers</option><option>7 passagers</option></select></div>
+          <div><label class="fl" data-i18n="transfer.bags">Bagages</label><select class="fs" id="i-bag" data-i18n-opts="transfer.bag_opts"><option>0 bagage</option><option>1 bagage</option><option>2 bagages</option><option>3 bagages</option><option>4 bagages</option><option>5 bagages</option><option>6 bagages</option><option selected>7 bagages</option><option>8 bagages</option></select></div>
+        </div>
+        <div class="family-bar">
+          <div class="family-bar-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="airport.family_label">Équipement famille</span></div>
+          <div class="fam-opt"><input type="checkbox" id="t-rehausseur"><label for="t-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label></div>
+          <div class="fam-opt"><input type="checkbox" id="t-siege"><label for="t-siege" data-i18n="airport.seat">Siège bébé (0–3 ans)</label></div>
+          <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
+        </div>
+        <div class="status" id="status-t"></div>
+      </div>
+
+      <!-- Champs Mise à disposition -->
+      <div class="trip-fields" id="tf-m">
+        <div class="fg1">
+          <label class="fl" data-i18n="mad.dep_label">Adresse de prise en charge</label>
+          <div class="ac-wrap"><input class="fi" id="i-mdep" type="text" placeholder="Adresse de départ" data-i18n-ph="mad.dep_ph" autocomplete="off" oninput="acSearch(this,'ac-mdep')" onfocus="acSearch(this,'ac-mdep')" onblur="acBlur('ac-mdep')"><div class="ac-list" id="ac-mdep"></div></div>
+        </div>
+        <div class="fg2 fg-dt">
+          <div><label class="fl" data-i18n="mad.date">Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
+          <div><label class="fl" data-i18n="mad.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-mtime-h" onchange="syncTimeVal('i-mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-mtime-m" onchange="syncTimeVal('i-mtime')"></select><input type="hidden" id="i-mtime"></div></div>
+        </div>
+        <label class="fl" style="margin-bottom:.6rem" data-i18n="mad.duration_label">Durée souhaitée</label>
+        <div class="d-grid">
+          <div class="d-btn on" onclick="selD(2,this)"><div class="d-h">2h</div><div class="d-l" data-i18n="d.min">Min.</div></div>
+          <div class="d-btn" onclick="selD(3,this)"><div class="d-h">3h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(4,this)"><div class="d-h">4h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(5,this)"><div class="d-h">5h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(6,this)"><div class="d-h">6h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(8,this)"><div class="d-h">8h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(10,this)"><div class="d-h">10h</div><div class="d-l"></div></div>
+          <div class="d-btn" onclick="selD(12,this)"><div class="d-h">12h</div><div class="d-l" data-i18n="d.day">Jour</div></div>
+        </div>
+      </div>
+
+      <div class="wiz-footer">
+        <button class="btn-pay" onclick="wizardNext()">Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 : VÉHICULE ── -->
+    <div class="wiz-pane" id="wpane-2">
+      <p class="section-tag" style="margin-bottom:.4rem">Choisissez votre véhicule</p>
+      <p class="wiz-step-sub" id="wiz-price-hint">Les tarifs varient selon le véhicule choisi.</p>
+      <div class="v-grid" style="margin:1rem 0">
+        <div class="v-card on" id="wvc-van" onclick="selWizVehicle('van')">
+          <div class="v-check"><div class="v-dot"></div></div>
+          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
+          <div class="v-name">Van Premium</div>
+          <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
+          <div class="v-specs"><span data-i18n="spec.van_pax">7 places</span><span data-i18n="spec.van_bags">8 bagages</span><span data-i18n="spec.baby_seat">Famille ✓</span></div>
+          <div class="wiz-veh-price" id="w-price-van">—</div>
+        </div>
+        <div class="v-card" id="wvc-bus" onclick="selWizVehicle('business')">
+          <div class="v-check"><div class="v-dot"></div></div>
+          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
+          <div class="v-name">Business</div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
+          <div class="v-specs"><span data-i18n="spec.bus_pax">3 places</span><span data-i18n="spec.bus_bags">3 bagages</span><span>Wi-Fi</span></div>
+          <div class="wiz-veh-price" id="w-price-bus">—</div>
+        </div>
+      </div>
+      <div class="wiz-footer">
+        <button class="btn-calc wiz-back-btn" onclick="wizardBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</button>
+        <button class="btn-pay" onclick="wizardNext()">Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 : COORDONNÉES ── -->
+    <div class="wiz-pane" id="wpane-3">
+      <div class="m-recap" id="wiz-recap"></div>
+      <div class="m-total" style="margin-bottom:1.2rem"><div><div class="mt-lbl" data-i18n="modal.total">Total à régler</div></div><div class="mt-price" id="wiz-total">—</div></div>
+      <div class="mgrid">
+        <div class="mf"><label data-i18n="modal.name">Prénom &amp; Nom *</label><input id="mn" type="text" placeholder="Jean Dupont" data-i18n-ph="modal.name_ph"></div>
+        <div class="mf"><label data-i18n="modal.phone">Téléphone *</label><input id="mt-tel" type="tel" placeholder="+33 6 …" data-i18n-ph="modal.phone_ph"></div>
+        <div class="mf full"><label data-i18n="modal.email">Email *</label><input id="me" type="email" placeholder="jean@exemple.fr" data-i18n-ph="modal.email_ph"></div>
+        <div class="mf full"><label data-i18n="modal.comments">Commentaires</label><input id="mc" type="text" placeholder="N° de vol, instructions spéciales…" data-i18n-ph="modal.comments_ph"></div>
+      </div>
+      <div class="cgv-wrap">
+        <label class="cgv-lbl">
+          <input type="checkbox" id="cgv-ok">
+          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
+        </label>
+      </div>
+      <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
+      <div class="wiz-footer" style="margin-top:.9rem">
+        <button class="btn-calc wiz-back-btn" onclick="wizardBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</button>
+        <button class="btn-ok" id="btn-ok" onclick="doPay()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 7l3.5 3.5L12 2"/></svg> <span data-i18n="modal.confirm">Confirmer et payer</span></button>
+      </div>
+      <div class="secure-line">Paiement sécurisé · Stripe · Confirmation par email</div>
+    </div>
+  </div>
+
+  <!-- ANCIEN CONTENU CONSERVÉ POUR LE SEO (caché visuellement) -->
+  <div style="display:none" aria-hidden="true">
     <div class="tab-select-wrap">
       <select class="tab-select" id="tab-select" onchange="goTabSel(this.value)" aria-label="Sélectionner un service" data-i18n-opts="tabsel.airport,tabsel.transfer,tabsel.mad,tabsel.fleet,tabsel.services,tabsel.guarantees">
         <option value="p">✈ Forfaits Aéroports</option>
@@ -729,13 +983,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
-          <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>👶 Siège bébé ✓</span></div>
+          <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span data-i18n="spec.baby_seat">👶 Siège bébé ✓</span></div>
         </div>
         <div class="v-card" id="pvc-b" onclick="selPV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Berline</div>
-          <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>👶 Siège bébé ✓</span></div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E et équivalent</div>
+          <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span data-i18n="spec.baby_seat">👶 Siège bébé ✓</span></div>
         </div>
       </div>
 
@@ -791,10 +1045,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <span data-i18n="airport.pay">Réserver</span>
       </button>
       <div class="secure-line" data-i18n="airport.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
-      <div class="qr-notice">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
-      </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
         <p class="section-tag" style="margin-bottom:1rem">Tableau des forfaits aéroport</p>
@@ -869,14 +1119,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
-          <div class="v-specs"><span>👤 7 pax</span><span>🧳 8 bags</span><span>📶 Wi-Fi</span><span>👶 Famille ✓</span></div>
+          <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span>📶 Wi-Fi</span><span data-i18n="spec.family">👶 Famille ✓</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
         <div class="v-card" id="vc-b" onclick="selV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Berline</div>
-          <div class="v-specs"><span>👤 3 pax</span><span>🧳 3 bags</span><span>📶 Wi-Fi</span></div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E et équivalent</div>
+          <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
           <div class="v-rate">2,50 €/km (hors Paris)</div>
         </div>
       </div>
@@ -916,10 +1166,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </button>
       </div>
       <div class="secure-line" data-i18n="transfer.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
-      <div class="qr-notice">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
-      </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
         <p class="section-tag" style="margin-bottom:1rem" data-i18n="transfer.incl_tag">Inclus dans chaque transfert</p>
@@ -1000,14 +1246,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
-          <div class="v-specs"><span>👤 7 pax</span></div>
+          <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span></div>
           <div class="v-rate" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
         </div>
         <div class="v-card" id="vc-mb" onclick="selVM('business')">
           <div class="v-check"><div class="v-dot"></div></div>
           <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name" data-i18n="airport.business_name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Berline</div>
-          <div class="v-specs"><span>👤 3 pax</span></div>
+          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E et équivalent</div>
+          <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span></div>
           <div class="v-rate" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
         </div>
       </div>
@@ -1040,10 +1286,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <span data-i18n="mad.pay">Réserver</span>
       </button>
       <div class="secure-line" data-i18n="mad.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
-      <div class="qr-notice">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h1v1h-1zM17 14h3M14 17h1M17 17h3M14 20h3v1M20 17v4"/></svg>
-        <span data-i18n-html="airport.qr_notice_html">Un <strong>QR code obligatoire</strong> vous sera remis après paiement — à présenter au conducteur sans exception.</span>
-      </div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
         <p class="section-tag" style="margin-bottom:1rem" data-i18n="mad.usage_tag">Pour quels besoins ?</p>
@@ -1271,26 +1513,77 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   </div>
 </section>
 
-<section id="storytelling">
-  <div class="story-header">
-    <h2 data-i18n="story.title">Une expérience, pas juste un trajet</h2>
-    <p data-i18n="story.sub">Ce qui nous distingue des autres VTC parisiens</p>
+<!-- ── GARANTIES (4 items, 2×2) ── -->
+<section id="garanties" style="padding:6rem 5vw;background:var(--dark)">
+  <div class="inner">
+    <p class="section-tag">Nos engagements</p>
+    <h2 class="section-title">Pourquoi choisir IsmaDrive ?</h2>
+    <div class="why-grid" style="grid-template-columns:repeat(2,1fr);gap:2.5rem;margin-top:0">
+      <div class="why-card">
+        <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M10 16l4 4 8-8"/></svg>
+        <div class="why-title">Tarif fixe garanti</div>
+        <div class="why-desc">Le prix annoncé est celui que vous payez. Aucune mauvaise surprise, aucun supplément — même en cas de trafic dense.</div>
+      </div>
+      <div class="why-card">
+        <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 8v8.5l5 3"/></svg>
+        <div class="why-title">Ponctualité absolue</div>
+        <div class="why-desc">Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, suivi de vol activé pour tous les transferts aéroport.</div>
+      </div>
+      <div class="why-card">
+        <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12C6 26 2 22 2 16V8z"/></svg>
+        <div class="why-title">Discrétion &amp; Sécurité</div>
+        <div class="why-desc">Chauffeurs formés pour une clientèle exigeante : VIP, délégations, familles, mariages. Confidentialité absolue garantie.</div>
+      </div>
+      <div class="why-card">
+        <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="10" r="5"/><path d="M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10"/></svg>
+        <div class="why-title">Chauffeurs bilingues</div>
+        <div class="why-desc">Francophones et anglophones, en tenue soignée, disponibles 7j/7 · 24h/24. Accueil avec pancarte nominative à chaque arrivée aéroport.</div>
+      </div>
+    </div>
   </div>
-  <div class="story-grid">
-    <div class="story-card">
-      <span class="story-icon">🛡️</span>
-      <h3 data-i18n="story.c1_title">Sérénité totale</h3>
-      <p data-i18n="story.c1_text">Vous arrivez à Paris ? Votre chauffeur est déjà là, pancarte à votre nom, suivi de vol activé. Vous n'avez rien à gérer — absolument rien.</p>
+</section>
+
+<!-- ── TARIFS ── -->
+<section id="tarifs" style="padding:6rem 5vw;background:var(--black)">
+  <div class="inner">
+    <p class="section-tag">Tarifs</p>
+    <h2 class="section-title">Prix fixes &amp; transparents</h2>
+    <div class="airport-wrap" style="margin-top:0">
+      <table class="airport-table" role="table" aria-label="Tableau des tarifs IsmaDrive">
+        <thead>
+          <tr>
+            <th scope="col">Trajet / Service</th>
+            <th scope="col">Van Premium (7 pl.)</th>
+            <th scope="col">Business (3 pl.)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="airport-sub">Forfait fixe · Aller ou retour</div><span class="airport-dest">Aéroport CDG ↔ Paris</span></td>
+            <td><span class="airport-wait">100 €</span></td>
+            <td><span class="airport-wait">100 €</span></td>
+          </tr>
+          <tr>
+            <td><div class="airport-sub">Forfait fixe · Aller ou retour</div><span class="airport-dest">Aéroport Orly ↔ Paris</span></td>
+            <td><span class="airport-wait">90 €</span></td>
+            <td><span class="airport-wait">90 €</span></td>
+          </tr>
+          <tr>
+            <td><div class="airport-sub">Prix au kilomètre · min. garanti</div><span class="airport-dest">Transfert hors Paris</span></td>
+            <td><span class="airport-wait">2,50 €/km</span><span style="display:block;font-size:.72rem;color:var(--muted)">Min. 40 €</span></td>
+            <td><span class="airport-wait">2,50 €/km</span><span style="display:block;font-size:.72rem;color:var(--muted)">Min. 30 €</span></td>
+          </tr>
+          <tr>
+            <td><div class="airport-sub">Tarif horaire · min. 2h · km illimités</div><span class="airport-dest">Mise à disposition</span></td>
+            <td><span class="airport-wait">95 €/h</span></td>
+            <td><span class="airport-wait">75 €/h</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="story-card">
-      <span class="story-icon">✨</span>
-      <h3 data-i18n="story.c2_title">Standing discret</h3>
-      <p data-i18n="story.c2_text">Nos Mercedes sont entretenues à la perfection. Pas d'odeur, pas de bruit parasite, eau minérale à bord. Le détail qui change tout.</p>
-    </div>
-    <div class="story-card">
-      <span class="story-icon">🌍</span>
-      <h3 data-i18n="story.c3_title">Faits pour les exigeants</h3>
-      <p data-i18n="story.c3_text">Cadres en déplacement, familles en vacances, couples en week-end. Nous adaptons chaque trajet à votre rythme, pas au nôtre.</p>
+    <p style="font-size:.78rem;color:var(--faint);margin-top:1.2rem;line-height:1.6">Tous les tarifs sont TTC, fixes et confirmés à la réservation. Aucun supplément pour bagages, retards de vol ou temps d'attente. Réhausseur enfant et siège bébé inclus sur demande.</p>
+    <div style="margin-top:1.8rem;text-align:center">
+      <a href="#reservation" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" class="hero-cta" style="display:inline-block;margin-bottom:0">Réserver maintenant</a>
     </div>
   </div>
 </section>
@@ -1307,7 +1600,11 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
             <span itemprop="addressLocality">Paris</span>, <span itemprop="postalCode">75000</span> — <span itemprop="addressCountry">France</span>
           </span><br>
-          <a href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" itemprop="telephone" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--muted);text-decoration:none;font-size:.82rem">
+          <a href="tel:+33623889717" itemprop="telephone" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--gold);text-decoration:none;font-size:.82rem;font-weight:500;margin-bottom:.3rem">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            06 23 88 97 17
+          </a><br>
+          <a href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:.35rem;color:var(--muted);text-decoration:none;font-size:.82rem">
             <svg width="13" height="13" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.34 19.38c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/></svg>
             Nous contacter via WhatsApp
           </a><br>
@@ -1384,23 +1681,18 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <div class="suc" id="modal-suc">
       <div class="suc-ring"><svg viewBox="0 0 26 26"><path d="M5 13l5 5 11-11"/></svg></div>
       <h3 data-i18n="modal.suc_title">Réservation confirmée !</h3>
-      <p class="suc-email-note" style="font-size:.82rem;color:var(--muted);text-align:center;margin:-0.2rem 0 1rem;line-height:1.55;max-width:26rem;margin-left:auto;margin-right:auto" data-i18n-html="modal.email_sent_html">Un <strong>email de confirmation</strong> avec votre QR code vient d’être envoyé à l’adresse indiquée.</p>
-
-      <div class="qr-alert">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span data-i18n-html="modal.qr_warning_html">Ce QR code est <strong>indispensable</strong> : votre chauffeur ne peut démarrer la course sans l'avoir scanné. Sans présentation du QR code, la prise en charge ne pourra pas avoir lieu.</span>
-      </div>
+      <p class="suc-email-note" style="font-size:.82rem;color:var(--muted);text-align:center;margin:-0.2rem 0 1rem;line-height:1.55;max-width:26rem;margin-left:auto;margin-right:auto">Un <strong>email de confirmation</strong> vous a été envoyé à l’adresse indiquée.</p>
 
       <div class="qr-section" id="qr-section">
-        <div class="qr-label" data-i18n="modal.qr_label">QR Code conducteur — à présenter obligatoirement</div>
+        <div class="qr-label" data-i18n="modal.qr_label">QR Code de réservation</div>
         <div id="qr-canvas"></div>
         <div class="qr-ref" id="qr-ref"></div>
       </div>
       <a class="btn-dl-qr" id="btn-dl-qr" onclick="downloadQR();return false" href="#">
         <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 17h14"/></svg>
-        <span data-i18n="modal.qr_download">Télécharger et sauvegarder le QR code</span>
+        <span>Télécharger le QR code</span>
       </a>
-      <p class="qr-save-note" data-i18n-html="modal.qr_save_html">Conservez ce QR code sur votre téléphone ou imprimez-le.<br>Il sera demandé par votre conducteur au moment du départ.</p>
+      <p class="qr-save-note">Votre chauffeur recevra automatiquement les détails de votre course.<br>Pour faciliter votre prise en charge, un QR code vous sera envoyé par email — pratique à avoir sur votre téléphone le jour J.</p>
 
       <button class="btn-cls" style="margin-top:.9rem" onclick="closeModal()" data-i18n="modal.close">Fermer</button>
     </div>
@@ -1444,7 +1736,7 @@ function scrollPickerIntoView(el){
 window.addEventListener('DOMContentLoaded', ()=>{
   const now=new Date(), pad=n=>String(n).padStart(2,'0');
   const ds=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`, ts=`${pad(now.getHours())}:00`;
-  ['i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
+  ['i-pdate','i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   const hOpts=Array.from({length:24},(_,i)=>{const v=pad(i);return `<option value="${v}">${v}</option>`;}).join('');
   const mOpts=[0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad(m);return `<option value="${v}">${v}</option>`;}).join('');
   ['i-ptime','i-time','i-mtime'].forEach(id=>{
@@ -1488,9 +1780,11 @@ function goTab(t,btn){
 }
 function goTabSel(v){const m={p:0,t:1,m:2,f:3,s:4,g:5};goTab(v,document.querySelectorAll('.b-tab')[m[v]]);}
 function navTab(id){
-  const tabs=document.querySelectorAll('.b-tab');
-  const map={p:0,t:1,m:2,f:3,s:4,g:5};
-  goTab(id,tabs[map[id]]);
+  /* Sélectionne le type de trajet dans le wizard si applicable */
+  if (['p','t','m'].includes(id)) {
+    selTripType(id, document.getElementById('ttb-' + id));
+  }
+  showWizardStep(1);
   document.getElementById('reservation').scrollIntoView({behavior:'smooth'});
 }
 function toggleNav(){
@@ -1855,6 +2149,138 @@ function downloadQR(){
     .catch(()=>window.open(img.src,'_blank'));
 }
 
+/* ══════════════════════════════════
+   WIZARD NAVIGATION
+   ══════════════════════════════════ */
+let wStep = 1;
+
+function selTripType(type, el) {
+  S.tab = type;
+  document.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  document.querySelectorAll('.trip-fields').forEach(f => f.classList.remove('active'));
+  const tf = document.getElementById('tf-' + type);
+  if (tf) tf.classList.add('active');
+  /* Sync avec l'ancien S.veh selon le contexte */
+}
+
+function updateWizardVehiclePrices() {
+  let vanPrice, busPrice;
+  if (S.tab === 'p') {
+    const f = CFG.forfaits[S.fpack];
+    vanPrice = f.van;
+    busPrice = f.business;
+  } else if (S.tab === 'm') {
+    vanPrice = S.mdur * CFG.tarifs.van.h;
+    busPrice = S.mdur * CFG.tarifs.business.h;
+  } else if (S.tab === 't') {
+    if (S.km !== null) {
+      vanPrice = Math.ceil(Math.max(S.km * CFG.tarifs.van.km, CFG.tarifs.van.min));
+      busPrice = Math.ceil(Math.max(S.km * CFG.tarifs.business.km, CFG.tarifs.business.min));
+    } else {
+      vanPrice = busPrice = null;
+    }
+  }
+  const vEl = document.getElementById('w-price-van');
+  const bEl = document.getElementById('w-price-bus');
+  if (vEl) vEl.textContent = vanPrice !== null ? vanPrice + ' €' : '—';
+  if (bEl) bEl.textContent = busPrice !== null ? busPrice + ' €' : '—';
+  /* Met à jour S.price selon le véhicule actuellement sélectionné */
+  const curVeh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
+  if (curVeh === 'van' && vanPrice !== null) S.price = vanPrice;
+  if (curVeh === 'business' && busPrice !== null) S.price = busPrice;
+}
+
+function selWizVehicle(v) {
+  if (S.tab === 'p') { S.fveh = v; updatePackPrice(); }
+  else if (S.tab === 't') { selV(v); }
+  else if (S.tab === 'm') { selVM(v); }
+  document.getElementById('wvc-van').classList.toggle('on', v === 'van');
+  document.getElementById('wvc-bus').classList.toggle('on', v === 'business');
+  updateWizardVehiclePrices();
+}
+
+function showWizardStep(step) {
+  wStep = step;
+  const steps = ['wps-1','wps-2','wps-3','wps-4'];
+  const bars  = ['wpb-1','wpb-2','wpb-3'];
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('done',   i + 1 < step);
+    el.classList.toggle('active', i + 1 === step);
+    if (i + 1 > step) el.classList.remove('done','active');
+  });
+  bars.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('done', i + 1 < step);
+  });
+  document.querySelectorAll('.wiz-pane').forEach((el, i) => {
+    el.classList.toggle('active', i + 1 === step);
+  });
+  const wiz = document.getElementById('booking-wizard');
+  if (wiz) wiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function validateWizardStep1() {
+  if (S.tab === 'p') {
+    if (!document.getElementById('i-pdate').value) { toast('Veuillez sélectionner une date.'); return false; }
+  } else if (S.tab === 't') {
+    if (!S.dep) { toast('Veuillez sélectionner une adresse de départ dans les suggestions.'); return false; }
+    if (!S.arr) { toast('Veuillez sélectionner une adresse d\'arrivée dans les suggestions.'); return false; }
+    if (!document.getElementById('i-date').value) { toast('Veuillez sélectionner une date.'); return false; }
+  } else if (S.tab === 'm') {
+    if (!document.getElementById('i-mdep').value.trim()) { toast('Veuillez indiquer une adresse de prise en charge.'); return false; }
+    if (!document.getElementById('i-mdate').value) { toast('Veuillez sélectionner une date.'); return false; }
+  }
+  return true;
+}
+
+function fillWizardRecap() {
+  const type = S.tab;
+  let rows = '';
+  if (type === 'p') {
+    const f = CFG.forfaits[S.fpack];
+    const reh = document.getElementById('f-rehausseur')?.checked;
+    const sieg = document.getElementById('f-siege')?.checked;
+    const extras = (reh ? 'Réhausseur enfant' : '') + (reh && sieg ? ' · ' : '') + (sieg ? 'Siège bébé' : '');
+    rows = `<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${f.label}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras ? `<div class="mr"><span class="mrk">Équipement</span><span class="mrv">${extras}</span></div>` : ''}`;
+  } else if (type === 't') {
+    rows = `<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;
+  } else {
+    rows = `<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heure${S.mdur > 1 ? 's' : ''}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;
+  }
+  const recap = document.getElementById('wiz-recap');
+  const total = document.getElementById('wiz-total');
+  if (recap) recap.innerHTML = rows;
+  if (total) total.textContent = (S.price || 0) + ' €';
+}
+
+async function wizardNext() {
+  if (wStep === 1) {
+    if (!validateWizardStep1()) return;
+    /* Pour Transfert : calcul auto du prix avant step 2 */
+    if (S.tab === 't' && S.km === null && S.dep && S.arr) {
+      const btn = document.querySelector('#wpane-1 .btn-pay');
+      if (btn) { btn.disabled = true; btn.textContent = 'Calcul…'; }
+      await doCalc();
+      if (btn) { btn.disabled = false; btn.innerHTML = 'Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
+    }
+    updateWizardVehiclePrices();
+    const curVeh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
+    document.getElementById('wvc-van').classList.toggle('on', curVeh === 'van');
+    document.getElementById('wvc-bus').classList.toggle('on', curVeh !== 'van');
+    showWizardStep(2);
+  } else if (wStep === 2) {
+    fillWizardRecap();
+    showWizardStep(3);
+  }
+}
+
+function wizardBack() {
+  if (wStep > 1) showWizardStep(wStep - 1);
+}
+
 /* ── FAQ accordéon ── */
 function toggleFaq(btn){
   const isOpen=btn.getAttribute('aria-expanded')==='true';
@@ -1866,6 +2292,11 @@ function toggleFaq(btn){
   btn.nextElementSibling.classList.toggle('open',!isOpen);
 }
 </script>
+
+<a class="call-btn" href="tel:+33623889717" aria-label="Appeler IsmaDrive">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+  <span>Appeler</span>
+</a>
 
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
   <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1879,6 +2310,6 @@ function toggleFaq(btn){
 .wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}
 .wa-btn svg{width:22px;height:22px;flex-shrink:0}
 </style>
-<script src="/js/i18n.js"></script>
+<script src="/js/i18n.js?v=2"></script>
 </body>
 </html>
