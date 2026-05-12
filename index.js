@@ -7,6 +7,7 @@ const path = require('path');
 const QRCode = require('qrcode');
 const { Resend } = require('resend');
 const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hawwbdpixtmdgnftklsd.s
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const ADMIN_PWD = process.env.ADMIN_PWD || 'idvtc2024';
 
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
@@ -72,6 +74,46 @@ async function dbUpdate(id, updates) {
   return _mem[idx];
 }
 
+/* ── DB helpers conducteurs ── */
+let _drivers = [];
+
+async function dbListDrivers() {
+  if (supabase) {
+    const { data } = await supabase.from('drivers').select('*').order('createdAt', { ascending: false });
+    return data || [];
+  }
+  return _drivers;
+}
+
+async function dbInsertDriver(d) {
+  if (supabase) {
+    const { error } = await supabase.from('drivers').upsert(d, { onConflict: 'email', ignoreDuplicates: true });
+    if (error) throw new Error(error.message);
+  } else {
+    const idx = _drivers.findIndex(x => x.email === d.email);
+    if (idx === -1) _drivers.push(d);
+  }
+}
+
+async function dbUpdateDriver(id, updates) {
+  if (supabase) {
+    const { error } = await supabase.from('drivers').update(updates).eq('id', id);
+    if (error) throw new Error(error.message);
+  } else {
+    const idx = _drivers.findIndex(x => x.id === id);
+    if (idx !== -1) _drivers[idx] = { ..._drivers[idx], ...updates };
+  }
+}
+
+async function dbDeleteDriver(id) {
+  if (supabase) {
+    const { error } = await supabase.from('drivers').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  } else {
+    _drivers = _drivers.filter(x => x.id !== id);
+  }
+}
+
 /* ── Helpers disponibilité ── */
 function timeToMin(t) {
   const [h, m] = (t || '00:00').split(':').map(Number);
@@ -95,6 +137,189 @@ async function checkConflict(date, time, durationMin, excludeId = null) {
     if (newStart < rEnd && newEnd > rStart) return r;
   }
   return null;
+}
+
+function fmtDateFr(iso) {
+  if (!iso) return '—';
+  const [y, mo, d] = iso.split('-');
+  return `${d}/${mo}/${y}`;
+}
+
+function addMinToTime(time, min) {
+  const total = timeToMin(time) + Number(min);
+  return String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+
+function missionToken(id) {
+  return crypto.createHmac('sha256', ADMIN_PWD).update(id).digest('hex').slice(0, 20);
+}
+
+function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
+  const dateStr = fmtDateFr(r.date);
+  const endTime = addMinToTime(r.time, r.durationMin || 60);
+  const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
+  const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
+  const depEnc = encodeURIComponent(dep);
+  const arrEnc = encodeURIComponent(arr);
+  const calDate = (r.date || '').replace(/-/g, '');
+  const calStart = `${calDate}T${(r.time || '0000').replace(':', '')}00`;
+  const calEnd = `${calDate}T${endTime.replace(':', '')}00`;
+  const calTitle = encodeURIComponent(`Course IsmaDrive — ${r.trajet || ''}`);
+  const calDesc = encodeURIComponent(`Client: ${r.client || ''}\nTél: ${r.tel || ''}`);
+  const calLoc = encodeURIComponent(dep);
+  const googleCal = `https://www.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&dates=${calStart}%2F${calEnd}&details=${calDesc}&location=${calLoc}`;
+  const outlookCal = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${calTitle}&startdt=${r.date}T${r.time}:00&enddt=${r.date}T${endTime}:00&body=${calDesc}&location=${calLoc}`;
+  const greeting = driverName ? `Bonjour ${driverName},` : 'Bonjour,';
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:4px;overflow:hidden">
+  <tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
+    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">IsmaDrive</div>
+    <div style="font-size:.7rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-top:3px">Espace conducteur</div>
+  </td></tr>
+  <tr><td style="padding:32px">
+    <p style="margin:0 0 12px;font-size:1rem">${greeting}</p>
+    <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>.</p>
+    <p style="margin:0 0 24px;font-size:.85rem;color:#666">Ajouter au calendrier :
+      <a href="${googleCal}" style="color:#c9a96e;text-decoration:none">Google Agenda</a> &nbsp;—&nbsp;
+      <a href="${outlookCal}" style="color:#c9a96e;text-decoration:none">Outlook</a>
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px">
+    <tr><td style="border-left:2px solid #c9a96e;padding:12px 16px;background:#fafafa">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Départ</div>
+      <div style="font-size:.95rem;font-weight:bold;color:#333;margin-bottom:6px">${dep}</div>
+      <div style="font-size:.82rem">Naviguer :
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${depEnc}" style="color:#c9a96e;text-decoration:none">Google Maps</a> &nbsp;—&nbsp;
+        <a href="https://waze.com/ul?q=${depEnc}&navigate=yes" style="color:#c9a96e;text-decoration:none">Waze</a>
+      </div>
+    </td></tr></table>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+    <tr><td style="border-left:2px solid #6e9ac9;padding:12px 16px;background:#fafafa">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Destination</div>
+      <div style="font-size:.95rem;font-weight:bold;color:#333;margin-bottom:6px">${arr}</div>
+      <div style="font-size:.82rem">Naviguer :
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${arrEnc}" style="color:#c9a96e;text-decoration:none">Google Maps</a> &nbsp;—&nbsp;
+        <a href="https://waze.com/ul?q=${arrEnc}&navigate=yes" style="color:#c9a96e;text-decoration:none">Waze</a>
+      </div>
+    </td></tr></table>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;border:1px solid #eee">
+    <tr><td style="padding:14px 16px">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Informations client</div>
+      <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${r.client || '—'}</div>
+      <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel || ''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div>
+      ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${r.equipment}</div>` : ''}
+    </td></tr></table>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
+    <tr><td style="background:#080808;border:1px solid #c9a96e;padding:14px 18px;border-radius:2px">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Votre rémunération</div>
+      <div style="font-family:Georgia,serif;font-size:1.8rem;color:#c9a96e;font-weight:bold;letter-spacing:.04em">${driverPrice} €</div>
+    </td></tr></table>
+    <div style="background:#080808;border:1px solid #c9a96e;padding:18px 20px;margin-bottom:28px;border-radius:2px">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Ordre de mission</div>
+      <a href="${missionUrl}" style="display:inline-block;background:#c9a96e;color:#080808;padding:9px 22px;text-decoration:none;font-size:.8rem;font-weight:bold;letter-spacing:.1em;border-radius:2px">Voir l'ordre de mission →</a>
+    </div>
+    <p style="font-size:.85rem;color:#666;margin:0">Nous vous remercions pour votre collaboration.</p>
+  </td></tr>
+  <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:14px 32px">
+    <div style="font-size:.72rem;color:#aaa">IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France &nbsp;·&nbsp; <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
+function buildMissionOrderHtml(r) {
+  const dateStr = fmtDateFr(r.date);
+  const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
+  const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
+  const depEnc = encodeURIComponent(dep);
+  const arrEnc = encodeURIComponent(arr);
+  const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref || r.id}|${r.trajet || ''}|${dateStr}|${r.time || ''}`);
+  const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
+  const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
+  const plate = r.vehicle === 'van' ? 'FT-365-XH' : '';
+
+  return `<!DOCTYPE html><html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ordre de mission ${r.ref || r.id} — IsmaDrive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min-height:100vh}
+.card{max-width:600px;margin:0 auto;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.card-head{background:#080808;padding:22px 28px;border-bottom:2px solid #c9a96e;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.logo{font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em}
+.ref-block{text-align:right}
+.ref{font-size:.68rem;color:#9a9185;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.badge{display:inline-block;padding:3px 10px;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;border-radius:2px}
+.section{padding:18px 28px;border-bottom:1px solid #eee}
+.lbl{font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:3px}
+.val{font-size:.92rem;color:#333}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.nav-links{margin-top:7px;font-size:.8rem}
+.nav-links a{color:#c9a96e;text-decoration:none;margin-right:14px}
+.qr-block{padding:20px 28px;background:#fafafa;text-align:center}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.card-head{flex-direction:column;align-items:flex-start}}
+@media print{body{background:#fff;padding:0}.card{box-shadow:none}a{color:#333!important}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-head">
+    <div class="logo">IsmaDrive</div>
+    <div class="ref-block">
+      <div class="ref">Réf. ${r.ref || r.id}</div>
+      <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
+    </div>
+  </div>
+  <div class="section">
+    <div class="grid2">
+      <div><div class="lbl">Date</div><div class="val">${dateStr}</div></div>
+      <div><div class="lbl">Heure</div><div class="val">${r.time || '—'}</div></div>
+      <div><div class="lbl">Durée estimée</div><div class="val">${r.durationMin || 60} min</div></div>
+      <div><div class="lbl">Véhicule</div><div class="val">${r.vehicleName || r.vehicle || '—'}</div></div>
+    </div>
+    ${r.equipment ? `<div style="margin-top:12px"><div class="lbl">Équipement</div><div class="val" style="font-size:.85rem">${r.equipment}</div></div>` : ''}
+  </div>
+  <div class="section" style="border-left:3px solid #c9a96e">
+    <div class="lbl">Départ</div>
+    <div class="val" style="font-weight:bold;font-size:1rem;margin:4px 0">${dep}</div>
+    <div class="nav-links">
+      <a href="https://www.google.com/maps/dir/?api=1&destination=${depEnc}" target="_blank">📍 Google Maps</a>
+      <a href="https://waze.com/ul?q=${depEnc}&navigate=yes" target="_blank">🚗 Waze</a>
+    </div>
+  </div>
+  <div class="section" style="border-left:3px solid #6e9ac9">
+    <div class="lbl">Destination</div>
+    <div class="val" style="font-weight:bold;font-size:1rem;margin:4px 0">${arr}</div>
+    <div class="nav-links">
+      <a href="https://www.google.com/maps/dir/?api=1&destination=${arrEnc}" target="_blank">📍 Google Maps</a>
+      <a href="https://waze.com/ul?q=${arrEnc}&navigate=yes" target="_blank">🚗 Waze</a>
+    </div>
+  </div>
+  <div class="section">
+    <div class="grid2">
+      <div><div class="lbl">Client</div><div class="val">${r.client || '—'}</div></div>
+      <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${r.tel || ''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div></div>
+    </div>
+    ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
+  </div>
+  <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Votre chauffeur</div>
+    <div class="grid2">
+      <div><div class="lbl">Prénom</div><div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">ISMA</div></div>
+      ${plate ? `<div><div class="lbl">Immatriculation</div><div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${plate}</div></div>` : ''}
+    </div>
+  </div>
+  <div class="qr-block">
+    <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}" width="130" height="130" alt="QR code mission">
+  </div>
+</div>
+</body></html>`;
 }
 
 /* ── Stripe webhook — doit être AVANT express.json() ── */
@@ -251,6 +476,73 @@ function buildReviewEmailHtml(r, qrDataUrl) {
 }
 
 /* ── API ── */
+
+/* Réservation manuelle (admin) — doit être AVANT /api/reservations/:id */
+app.post('/api/reservations/manual', async (req, res) => {
+  const { pwd, ...data } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  const conflict = await checkConflict(data.date, data.time, data.durationMin || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+  const id = Date.now().toString(36).toUpperCase().slice(-8);
+  const ref = `RES-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${id.slice(-4)}`;
+  const newRes = { ...data, id, ref, status: 'confirmed', source: 'manual', createdAt: new Date().toISOString() };
+  await dbInsert(newRes);
+  res.json({ ok: true, id, ref });
+});
+
+/* Conducteurs */
+app.get('/api/drivers', async (req, res) => {
+  if (req.query.pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  try { res.json(await dbListDrivers()); } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/drivers', async (req, res) => {
+  const { pwd, name, phone, email, carCategory, immatriculation } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
+  await dbInsertDriver({ id: Date.now().toString(36), name, phone: phone || '', email, carCategory: carCategory || '', immatriculation: immatriculation || '', createdAt: new Date().toISOString() });
+  res.json({ ok: true });
+});
+
+app.put('/api/drivers/:id', async (req, res) => {
+  const { pwd, name, phone, email, carCategory, immatriculation } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
+  await dbUpdateDriver(req.params.id, { name, phone: phone || '', email, carCategory: carCategory || '', immatriculation: immatriculation || '' });
+  res.json({ ok: true });
+});
+
+app.delete('/api/drivers/:id', async (req, res) => {
+  const { pwd } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  await dbDeleteDriver(req.params.id);
+  res.json({ ok: true });
+});
+
+/* Email conducteur */
+app.post('/api/send-driver-email', async (req, res) => {
+  const { pwd, tripId, driverEmail, driverName, driverPrice } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  if (!RESEND_API_KEY) return res.status(503).json({ error: 'RESEND_API_KEY manquant.' });
+  const r = await dbGetById(tripId);
+  if (!r) return res.status(404).json({ error: 'Course introuvable' });
+  const token = missionToken(tripId);
+  const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
+  const html = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice);
+  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
+  try {
+    const resend = new Resend(RESEND_API_KEY);
+    const { error } = await resend.emails.send({ from: RESEND_FROM, to: driverEmail, subject, html });
+    if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
+    if (driverName) {
+      await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '', createdAt: new Date().toISOString() });
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur envoi : ' + e.message });
+  }
+});
+
 app.post('/api/reservations', async (req, res) => {
   try {
     const body = req.body || {};
@@ -411,6 +703,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
     console.error('Checkout error:', err.message);
     res.status(500).json({ error: 'Erreur lors du paiement : ' + err.message });
   }
+});
+
+app.get('/mission-order/:id', async (req, res) => {
+  const r = await dbGetById(req.params.id).catch(() => null);
+  if (!r) return res.status(404).send('Course introuvable');
+  const expected = missionToken(req.params.id);
+  if (req.query.token !== expected && req.query.pwd !== ADMIN_PWD)
+    return res.status(403).send('Accès refusé');
+  res.send(buildMissionOrderHtml(r));
+});
+
+app.get('/admin', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'vtc-project', 'public', 'admin.html'));
 });
 
 app.get('/payment-success', (_req, res) => {
