@@ -192,8 +192,11 @@ section{padding:7.5rem 5vw}
 .inner{max-width:1100px;margin:0 auto}
 #fleet{background:var(--dark)}
 .fleet-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.fleet-item{background:var(--dark2);padding:2.5rem;position:relative}
-.fleet-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.fleet-item{background:var(--dark2);padding:2.5rem;position:relative;overflow:hidden}
+.fleet-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:1}
+.fleet-photo{display:block;width:calc(100% + 5rem);height:240px;object-fit:cover;margin:-2.5rem -2.5rem 2rem;}
+.fleet-photo-pair{display:grid;grid-template-columns:3fr 2fr;gap:2px;width:calc(100% + 5rem);margin:-2.5rem -2.5rem 2rem;}
+.fleet-photo-pair img{width:100%;height:240px;object-fit:cover;display:block}
 .fleet-gamme{font-size:.67rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
 .fleet-name{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:400;margin-bottom:.3rem}
 .fleet-desc{font-size:.84rem;color:var(--muted);margin-bottom:1.4rem;line-height:1.65;max-width:380px}
@@ -475,9 +478,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .price-num{font-size:2.4rem}
 
   /* Sections générales */
-  section{padding:3.5rem 4.5vw}
+  section{padding:4.5rem 4.5vw}
+  #paris-experience,#storytelling{padding:4.5rem 4.5vw}
   .section-title{font-size:clamp(1.5rem,5.5vw,2rem);margin-bottom:2rem;max-width:none}
   .seo-section{padding:3.5rem 4.5vw}
+  .exp-card-img{height:130px}
+  .fleet-photo{height:190px}
+  .fleet-photo-pair img{height:180px}
+  .fleet-photo-pair{grid-template-columns:1fr 1fr}
   .seo-section .section-title{margin-bottom:1.4rem}
 
   /* Onglets — contenu */
@@ -608,16 +616,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .exp-card p{color:#888;font-size:0.82rem;line-height:1.45}
 @media(max-width:600px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── STORYTELLING ── */
-#storytelling{padding:60px 20px;background:#f9f7f2}
-.story-header{text-align:center;margin-bottom:36px}
-.story-header h2{color:#111;font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,3vw,2rem);font-weight:400}
-.story-header p{color:#666;font-size:1rem;margin-top:8px}
-.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto}
-.story-card{background:#fff;border-radius:12px;padding:32px 24px;box-shadow:0 2px 20px rgba(0,0,0,0.07);border-top:3px solid var(--gold)}
-.story-card .story-icon{font-size:2rem;display:block;margin-bottom:16px}
-.story-card h3{color:#111;font-size:1.05rem;font-weight:700;margin-bottom:10px}
-.story-card p{color:#555;font-size:0.9rem;line-height:1.7}
-@media(max-width:700px){.story-grid{grid-template-columns:1fr}}
+#storytelling{padding:7.5rem 5vw;background:var(--dark)}
+.story-header{text-align:center;margin-bottom:4rem}
+.story-header h2{color:var(--text);font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:300}
+.story-header p{color:var(--muted);font-size:1rem;margin-top:12px}
+.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--subtle);max-width:1100px;margin:0 auto}
+.story-card{background:var(--dark2);padding:2.8rem 2.2rem;border-top:3px solid var(--gold);position:relative}
+.story-card .story-icon{font-size:2.4rem;display:block;margin-bottom:1.2rem}
+.story-card h3{color:var(--text);font-size:1rem;font-weight:500;margin-bottom:.7rem;letter-spacing:.03em}
+.story-card p{color:var(--muted);font-size:.88rem;line-height:1.78}
+@media(max-width:700px){.story-grid{grid-template-columns:1fr;background:transparent;gap:1rem}}
 </style>
 </head>
 <body>
@@ -1063,6 +1071,10 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <h2 class="section-title" style="font-size:clamp(1.5rem,2.5vw,2rem);margin-bottom:1.8rem" data-i18n="fleet.title">Deux véhicules, un niveau d'exigence</h2>
       <div class="fleet-grid" style="grid-template-columns:1fr">
         <div class="fleet-item">
+          <div class="fleet-photo-pair">
+            <img src="/van-exterieur.jpg" alt="Mercedes V-Class Van Premium IsmaDrive — Place Vendôme" loading="lazy">
+            <img src="/van-interieur.jpg" alt="Habitacle cuir Mercedes V-Class IsmaDrive" loading="lazy">
+          </div>
           <div class="fleet-gamme" data-i18n="fleet.van_gamme">Véhicule principal · Van Premium</div>
           <h3 class="fleet-name">Mercedes V-Class</h3>
           <div class="family-badge" data-i18n-html="fleet.van_family_html">👶 Famille — Réhausseur &amp; siège bébé disponibles</div>
@@ -1078,6 +1090,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <div class="fleet-grid" style="margin-top:2px">
         <div class="fleet-item">
+          <img class="fleet-photo" src="/berline.jpg" alt="Berline Business Mercedes chauffeur privé IsmaDrive" loading="lazy">
           <div class="fleet-gamme" data-i18n="fleet.bus_gamme">Option Business</div>
           <h3 class="fleet-name">Berline</h3>
           <p class="fleet-desc" data-i18n="fleet.bus_desc">La berline executive pour les déplacements seul ou en duo. Discrétion absolue, performance et confort à chaque trajet professionnel.</p>
@@ -1199,39 +1212,60 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   </div>
   <div class="experience-grid">
     <div class="exp-card">
-      <span class="exp-icon">🛬</span>
-      <h3 data-i18n="paris.c1_title">Accueil CDG &amp; Orly</h3>
-      <p data-i18n="paris.c1_desc">Prise en charge dès votre atterrissage</p>
+      <img class="exp-card-img" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=600&q=80" alt="Aéroport CDG transfert VTC" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">🛬</span>
+        <h3 data-i18n="paris.c1_title">Accueil CDG &amp; Orly</h3>
+        <p data-i18n="paris.c1_desc">Prise en charge dès votre atterrissage</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">🪧</span>
-      <h3 data-i18n="paris.c2_title">Meet &amp; Greet</h3>
-      <p data-i18n="paris.c2_desc">Votre chauffeur vous attend, pancarte à votre nom</p>
+      <img class="exp-card-img" src="/photo_pro.png" alt="Chauffeur privé IsmaDrive avec pancarte" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">🪧</span>
+        <h3 data-i18n="paris.c2_title">Meet &amp; Greet</h3>
+        <p data-i18n="paris.c2_desc">Votre chauffeur vous attend, pancarte à votre nom</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">🗼</span>
-      <h3 data-i18n="paris.c3_title">Visites de Paris</h3>
-      <p data-i18n="paris.c3_desc">Découvrez les monuments à votre rythme</p>
+      <img class="exp-card-img" src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80" alt="Tour Eiffel Paris visite chauffeur privé" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">🗼</span>
+        <h3 data-i18n="paris.c3_title">Visites de Paris</h3>
+        <p data-i18n="paris.c3_desc">Découvrez les monuments à votre rythme</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">👨‍👩‍👧</span>
-      <h3 data-i18n="paris.c4_title">Van Familial 7 places</h3>
-      <p data-i18n="paris.c4_desc">Mercedes Classe V, siège bébé inclus</p>
+      <img class="exp-card-img" src="/van-exterieur.jpg" alt="Van Mercedes 7 places famille IsmaDrive" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">👨‍👩‍👧</span>
+        <h3 data-i18n="paris.c4_title">Van Familial 7 places</h3>
+        <p data-i18n="paris.c4_desc">Mercedes Classe V, siège bébé inclus</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">💑</span>
-      <h3 data-i18n="paris.c5_title">Escapade en couple</h3>
-      <p data-i18n="paris.c5_desc">Élégance et confort pour deux</p>
+      <img class="exp-card-img" src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=600&q=80" alt="Paris romantique escapade en couple" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">💑</span>
+        <h3 data-i18n="paris.c5_title">Escapade en couple</h3>
+        <p data-i18n="paris.c5_desc">Élégance et confort pour deux</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">🏰</span>
-      <h3 data-i18n="paris.c6_title">Excursion Versailles</h3>
-      <p data-i18n="paris.c6_desc">Château, jardins, retour — tout géré</p>
+      <img class="exp-card-img" src="/versailles.jpg" alt="Château de Versailles excursion VTC IsmaDrive" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">🏰</span>
+        <h3 data-i18n="paris.c6_title">Excursion Versailles</h3>
+        <p data-i18n="paris.c6_desc">Château, jardins, retour — tout géré</p>
+      </div>
     </div>
     <div class="exp-card">
-      <span class="exp-icon">🎡</span>
-      <h3 data-i18n="paris.c7_title">Navette Disneyland</h3>
-      <p data-i18n="paris.c7_desc">Transfert direct, enfants à bord, zéro stress</p>
+      <img class="exp-card-img" src="/disneyland.jpg" alt="Navette Disneyland Paris famille IsmaDrive" loading="lazy">
+      <div class="exp-card-body">
+        <span class="exp-icon">🎡</span>
+        <h3 data-i18n="paris.c7_title">Navette Disneyland</h3>
+        <p data-i18n="paris.c7_desc">Transfert direct, enfants à bord, zéro stress</p>
+      </div>
     </div>
   </div>
 </section>

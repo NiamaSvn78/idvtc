@@ -182,6 +182,14 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .dir-add-section{border-top:1px solid var(--subtle);padding-top:.9rem;margin-top:.4rem}
 .dir-add-title{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
 
+/* ── RECHERCHE RES ── */
+.res-search{display:flex;align-items:center;gap:0;border:1px solid var(--subtle);transition:border-color .2s}
+.res-search:focus-within{border-color:var(--gold-border)}
+.res-input{background:var(--dark3);border:none;color:var(--text);padding:.35rem .7rem;font-family:'DM Sans',sans-serif;font-size:.78rem;width:130px;outline:none;letter-spacing:.04em}
+.res-input::placeholder{color:var(--faint)}
+.res-btn{background:none;border:none;border-left:1px solid var(--subtle);color:var(--muted);padding:.35rem .55rem;cursor:pointer;display:flex;align-items:center;transition:color .18s}
+.res-btn:hover{color:var(--gold)}
+
 /* ── MOBILE ── */
 @media(max-width:768px){
   .adm-stats{display:none}
@@ -192,6 +200,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
   .adm-logo{font-size:1.1rem}
   .week-label{min-width:80px;font-size:.72rem}
   .adm-header{padding:0 .7rem;gap:.5rem}
+  .res-input{width:90px}
 }
 @media(max-width:600px){
   .adm-header{flex-wrap:wrap;height:auto;padding:.5rem .7rem;row-gap:0}
@@ -245,6 +254,15 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
       <span class="stat-pill">CA semaine : <strong id="stat-week">0 €</strong></span>
     </div>
     <div class="adm-actions">
+      <!-- Recherche par numéro RES -->
+      <div class="res-search">
+        <input class="res-input" id="res-search-input" type="text" placeholder="N° RES…" maxlength="20"
+          onkeydown="if(event.key==='Enter')searchRes()"
+          oninput="this.value=this.value.toUpperCase()">
+        <button class="res-btn" onclick="searchRes()" title="Rechercher une réservation">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M15 15l-3.5-3.5"/></svg>
+        </button>
+      </div>
       <a href="/" class="btn-logout" style="text-decoration:none;display:flex;align-items:center;gap:.35rem">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
         Site
@@ -988,6 +1006,13 @@ async function dirAddDriver(){
 }
 
 function escHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ── RECHERCHE RES ── */
+function searchRes(){
+  const q = document.getElementById('res-search-input').value.trim();
+  if(!q) return;
+  window.open('/admin/reservations?q='+encodeURIComponent(q)+'&pwd='+encodeURIComponent(PWD), '_blank');
+}
 </script>
 </body>
 </html>

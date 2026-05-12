@@ -40,6 +40,52 @@ const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/C
 const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
 
+/* ── EXPLOITANT ── */
+const EXPLOITANT = {
+  raisonSociale: 'ISMA TRANS',
+  exploitant:    'DIABY ISMAILA',
+  siret:        process.env.SIRET         || '849 624 374 00013',
+  numeroREVTC:  process.env.NUMERO_REVTC  || '— À renseigner —',
+  telephone:    '+33 6 23 88 97 17',
+  email:        'contact@ismadrive.fr',
+  adresse:      '2 rue du Colonel Domine, 75013 Paris'
+};
+
+function vehicleDisplayName(r) {
+  const v = String(r.vehicle || '').toLowerCase();
+  return v === 'van' ? 'Mercedes Classe V et équivalent' : 'Mercedes Classe E et équivalent';
+}
+
+function generateResRef() {
+  const now = new Date();
+  const d = now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 4; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  return `RES-${d}-${rand}`;
+}
+
+function checkAdminAuth(req) {
+  if (req.body?.pwd  === ADMIN_PWD) return true;
+  if (req.query?.pwd === ADMIN_PWD) return true;
+  const auth = req.headers.authorization || '';
+  if (auth.startsWith('Basic ')) {
+    const decoded = Buffer.from(auth.slice(6), 'base64').toString();
+    const colon   = decoded.indexOf(':');
+    const pass    = colon >= 0 ? decoded.slice(colon + 1) : decoded;
+    if (pass === ADMIN_PWD) return true;
+  }
+  return false;
+}
+
+function requireBasicAuth(req, res, next) {
+  if (checkAdminAuth(req)) return next();
+  res.setHeader('WWW-Authenticate', 'Basic realm="IsmaDrive Admin"');
+  return res.status(401).send('Accès refusé');
+}
+
 /* ── DB HELPERS ── */
 function wrapSupabaseErr(error) {
   const msg = error?.message || String(error);
@@ -346,18 +392,9 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 
 /* ── EMAIL CONFIRMATION CLIENT (après paiement Stripe) ── */
 async function buildConfirmationQrDataUrl(r) {
-  const ref = r.ref || r.id || '';
-  const dateStr = fmtDateFr(r.date);
-  const qrText = [
-    'IsmaDrive',
-    'Ref:' + ref,
-    'Trajet:' + (r.trajet || ''),
-    'Date:' + dateStr + ' ' + (r.time || ''),
-    'Client:' + (r.client || ''),
-    'Vehicule:' + (r.vehicleName || r.vehicle || ''),
-    'Statut:CONFIRME'
-  ].join('|');
-  return QRCode.toDataURL(qrText, {
+  const id  = r.id || '';
+  const url = `${APP_URL}/reservation/${id}`;
+  return QRCode.toDataURL(url, {
     width: 260, margin: 2, errorCorrectionLevel: 'M',
     type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
   });
@@ -372,7 +409,8 @@ function buildClientConfirmationHtml(r, qrDataUrl) {
   const time    = escHtml(r.time || '—');
   const veh     = escHtml(r.vehicleName || r.vehicle || '—');
   const price   = escHtml(String(r.price || '—'));
-  const equip   = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Équipement</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const equip          = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Équipement</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const reservationUrl = `${APP_URL}/reservation/${r.id || ''}`;
 
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
@@ -412,16 +450,30 @@ function buildClientConfirmationHtml(r, qrDataUrl) {
       </table>
     </div>
 
+    <!-- Numéro de réservation -->
+    <div style="text-align:center;margin-bottom:18px;padding:16px 20px;background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px">
+      <div style="font-size:.65rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Votre numéro de réservation</div>
+      <div style="font-size:1.5rem;font-weight:bold;font-family:monospace;color:#080808;letter-spacing:.06em">${ref}</div>
+      <div style="font-size:.75rem;color:#999;margin-top:4px">À dicter à votre chauffeur si besoin</div>
+    </div>
+
     <!-- QR code block -->
-    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:22px">
+    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:16px">
       <div style="font-size:.63rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">QR code obligatoire</div>
       <div style="font-family:Georgia,serif;font-size:1rem;color:#c9a96e;margin-bottom:16px">À présenter au conducteur avant le départ</div>
       <img src="${qrDataUrl}" width="200" height="200" alt="QR code réservation IsmaDrive" style="display:block;margin:0 auto;border:4px solid #fff;border-radius:2px"/>
-      <div style="margin-top:14px;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.35);border-radius:2px;padding:10px 14px;font-size:.78rem;color:#f0e68c;line-height:1.5">
-        ⚠️ Ce QR code est <strong>indispensable</strong>. Sans présentation au conducteur, la course ne peut pas démarrer.
-      </div>
-      <div style="margin-top:10px;font-size:.72rem;color:#555">Sauvegardez ce mail ou faites une capture d'écran.</div>
+      <div style="margin-top:10px;font-size:.72rem;color:#777">Sauvegardez ce mail ou faites une capture d'écran.</div>
     </div>
+
+    <!-- Bouton + URL en clair -->
+    <div style="text-align:center;margin-bottom:12px">
+      <a href="${reservationUrl}" style="display:inline-block;background:#080808;color:#fff;padding:12px 28px;text-decoration:none;font-size:.85rem;font-weight:bold;border-radius:4px;letter-spacing:.04em">📋 Accéder à ma réservation</a>
+    </div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:.75rem;color:#888;margin-bottom:6px">Ou copiez ce lien dans votre navigateur :</div>
+      <div style="background:#f5f5f5;color:#333;padding:10px;font-size:.78rem;word-break:break-all;border-radius:3px;border:1px solid #eee;font-family:monospace;text-align:left">${reservationUrl}</div>
+    </div>
+    <p style="text-align:center;font-size:.8rem;color:#666;margin:0 0 22px;line-height:1.5">Présentez l'un de ces éléments à votre chauffeur.</p>
 
     <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">Une question ou un changement de dernière minute ?</p>
     <p style="margin:0 0 0;font-size:.85rem">
@@ -448,7 +500,8 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
   const time    = escHtml(r.time || '—');
   const veh     = escHtml(r.vehicleName || r.vehicle || '—');
   const price   = escHtml(String(r.price || '—'));
-  const equip   = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Equipment</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const equip          = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Equipment</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const reservationUrl = `${APP_URL}/reservation/${r.id || ''}`;
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
@@ -488,16 +541,30 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
       </table>
     </div>
 
+    <!-- Booking reference -->
+    <div style="text-align:center;margin-bottom:18px;padding:16px 20px;background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px">
+      <div style="font-size:.65rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Your booking reference</div>
+      <div style="font-size:1.5rem;font-weight:bold;font-family:monospace;color:#080808;letter-spacing:.06em">${ref}</div>
+      <div style="font-size:.75rem;color:#999;margin-top:4px">You can also give this number to your driver</div>
+    </div>
+
     <!-- QR code block -->
-    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:22px">
+    <div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:22px;text-align:center;margin-bottom:16px">
       <div style="font-size:.63rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px">Mandatory QR code</div>
       <div style="font-family:Georgia,serif;font-size:1rem;color:#c9a96e;margin-bottom:16px">Show to your driver before departure</div>
       <img src="${qrDataUrl}" width="200" height="200" alt="IsmaDrive booking QR code" style="display:block;margin:0 auto;border:4px solid #fff;border-radius:2px"/>
-      <div style="margin-top:14px;background:rgba(255,200,0,.1);border:1px solid rgba(255,200,0,.35);border-radius:2px;padding:10px 14px;font-size:.78rem;color:#f0e68c;line-height:1.5">
-        ⚠️ This QR code is <strong>mandatory</strong>. Your ride cannot start without presenting it to the driver.
-      </div>
-      <div style="margin-top:10px;font-size:.72rem;color:#555">Save this email or take a screenshot.</div>
+      <div style="margin-top:10px;font-size:.72rem;color:#777">Save this email or take a screenshot.</div>
     </div>
+
+    <!-- Button + plain URL -->
+    <div style="text-align:center;margin-bottom:12px">
+      <a href="${reservationUrl}" style="display:inline-block;background:#080808;color:#fff;padding:12px 28px;text-decoration:none;font-size:.85rem;font-weight:bold;border-radius:4px;letter-spacing:.04em">📋 Access my booking</a>
+    </div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:.75rem;color:#888;margin-bottom:6px">Or copy this link in your browser:</div>
+      <div style="background:#f5f5f5;color:#333;padding:10px;font-size:.78rem;word-break:break-all;border-radius:3px;border:1px solid #eee;font-family:monospace;text-align:left">${reservationUrl}</div>
+    </div>
+    <p style="text-align:center;font-size:.8rem;color:#666;margin:0 0 22px;line-height:1.5">Present any of these to your driver.</p>
 
     <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">A question or last-minute change?</p>
     <p style="margin:0 0 0;font-size:.85rem">
@@ -665,8 +732,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
   const conflict = await checkConflict(date, time, durationMin || 60);
   if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
 
-  const id = Date.now().toString(36).toUpperCase().slice(-8);
-  const newRes = { ...req.body, id, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString() };
+  const id     = Date.now().toString(36).toUpperCase().slice(-8);
+  const ref    = generateResRef();
+  const newRes = { ...req.body, id, ref, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString() };
 
   try {
     await dbInsertRes(newRes);
@@ -688,7 +756,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email || undefined,
-      success_url: `${APP_URL}/payment-success?ref=${newRes.ref || id}&lang=${newRes.lang || 'fr'}`,
+      success_url: `${APP_URL}/payment-success?ref=${ref}&lang=${newRes.lang || 'fr'}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
       metadata: { reservationId: id },
     });
@@ -734,9 +802,10 @@ app.post('/api/reservations', async (req, res) => {
   const conflict = await checkConflict(date, time, durationMin || 60);
   if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
   const id     = Date.now().toString(36).toUpperCase().slice(-8);
-  const newRes = { ...req.body, id, createdAt: new Date().toISOString() };
+  const ref    = generateResRef();
+  const newRes = { ...req.body, id, ref, createdAt: new Date().toISOString() };
   await dbInsertRes(newRes);
-  res.json({ ok: true, id });
+  res.json({ ok: true, id, ref, urlValidation: `${APP_URL}/reservation/${id}` });
 });
 
 /* ── ADMIN : lire réservations ── */
@@ -853,6 +922,477 @@ const pages = [
 ];
 pages.forEach(slug => {
   app.get(`/${slug}`, (_req, res) => res.sendFile(path.join(__dirname, 'public', `${slug}.html`)));
+});
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE PUBLIQUE — VALIDATION QR CLIENT
+   ══════════════════════════════════════════════════════════════ */
+function buildReservationValidationHtml(r) {
+  const isValid = r && (r.status === 'confirmed' || r.paymentStatus === 'paid');
+  if (!isValid) {
+    return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Réservation invalide — IsmaDrive</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f0f0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}.card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.12);width:100%;max-width:420px}.banner{background:#c0392b;color:#fff;padding:28px 24px;text-align:center}.icon{font-size:2.8rem;display:block;margin-bottom:10px}.title{font-size:1.3rem;font-weight:bold}.body{padding:24px;text-align:center;color:#555;line-height:1.6;font-size:.95rem}</style>
+</head><body><div class="card"><div class="banner"><span class="icon">❌</span><div class="title">RÉSERVATION NON VALIDE</div></div>
+<div class="body"><p>Ce QR code ne correspond à aucune réservation confirmée.</p>
+<p style="margin-top:12px;font-size:.82rem;color:#aaa">IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France</p></div></div></body></html>`;
+  }
+
+  const ref       = escHtml(r.ref || r.id || '');
+  const dep       = escHtml(r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—');
+  const arr       = escHtml(r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—');
+  const dateStr   = escHtml(fmtDateFr(r.date));
+  const time      = escHtml(r.time || '—');
+  const veh       = escHtml(vehicleDisplayName(r));
+  const tel       = r.tel || '';
+  const prix      = Number(r.price || 0);
+  const ht        = (prix / 1.1).toFixed(2);
+  const tva       = (prix - Number(ht)).toFixed(2);
+  const ttc       = prix.toFixed(2);
+  const nomAbrege = (r.client || '—').split(' ')
+    .map((w, i) => i === 0 ? w[0] + '.' : w).join(' ');
+
+  return `<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Réservation ${ref} — IsmaDrive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f0f0f0;color:#111;min-height:100vh;padding:12px}
+.card{max-width:480px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 20px rgba(0,0,0,.13)}
+.banner{background:#1a7a3c;color:#fff;padding:20px 22px;text-align:center}
+.b-icon{font-size:2.4rem;display:block;margin-bottom:8px}
+.b-title{font-size:1.25rem;font-weight:bold;letter-spacing:.03em}
+.b-ref{font-size:.95rem;opacity:.9;margin-top:5px;font-family:monospace;letter-spacing:.08em}
+.sec{padding:14px 20px;border-bottom:1px solid #eee}
+.sec:last-child{border:none}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:.9rem}
+.row:not(:last-child){border-bottom:1px solid #f8f8f8}
+.k{color:#777;flex-shrink:0;padding-right:12px}
+.v{font-weight:600;text-align:right;word-break:break-word}
+.v.ok{color:#1a7a3c}
+.footer{background:#fafafa;padding:10px 20px;font-size:.68rem;color:#aaa;text-align:center;border-top:1px solid #eee}
+</style></head><body>
+<div class="card">
+  <div class="banner">
+    <span class="b-icon">✅</span>
+    <div class="b-title">RÉSERVATION VALIDÉE</div>
+    <div class="b-ref">${ref}</div>
+  </div>
+  <div class="sec">
+    <div class="row"><span class="k">Client</span><span class="v">${escHtml(nomAbrege)}</span></div>
+    <div class="row"><span class="k">Téléphone</span><span class="v"><a href="tel:${escHtml(tel)}" style="color:inherit;text-decoration:none">${escHtml(tel || '—')}</a></span></div>
+  </div>
+  <div class="sec">
+    <div class="row"><span class="k">Départ</span><span class="v">${dep}</span></div>
+    <div class="row"><span class="k">Arrivée</span><span class="v">${arr}</span></div>
+    <div class="row"><span class="k">Date</span><span class="v">${dateStr}</span></div>
+    <div class="row"><span class="k">Heure</span><span class="v">${time}</span></div>
+  </div>
+  <div class="sec">
+    <div class="row"><span class="k">Véhicule</span><span class="v">${veh}</span></div>
+    <div class="row"><span class="k">Montant HT</span><span class="v">${ht} €</span></div>
+    <div class="row"><span class="k">TVA 10 %</span><span class="v">${tva} €</span></div>
+    <div class="row"><span class="k">Total TTC</span><span class="v ok">${ttc} € ✓ PAYÉ</span></div>
+  </div>
+  <div class="sec">
+    <div class="row"><span class="k">Exploitant</span><span class="v">${escHtml(EXPLOITANT.raisonSociale)}</span></div>
+    <div class="row"><span class="k">N° REVTC</span><span class="v">${escHtml(EXPLOITANT.numeroREVTC)}</span></div>
+  </div>
+  <div class="footer">Conforme arrêté du 6 août 2025 &nbsp;·&nbsp; IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France</div>
+</div>
+</body></html>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ADMIN — LISTE DES RÉSERVATIONS
+   ══════════════════════════════════════════════════════════════ */
+function buildAdminListHtml(reservations, search, pwd) {
+  const today    = new Date().toISOString().split('T')[0];
+  const q        = (search || '').toLowerCase().trim();
+  const filtered = reservations
+    .filter(r => {
+      if (q) {
+        return (r.ref || '').toLowerCase().includes(q) ||
+               (r.id  || '').toLowerCase().includes(q) ||
+               (r.client || '').toLowerCase().includes(q);
+      }
+      return r.date === today && r.status !== 'cancelled';
+    })
+    .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+  const cards = filtered.map(r => {
+    const ref         = escHtml(r.ref || r.id || '');
+    const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
+    const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
+    return `<div style="background:#fff;border-radius:6px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,.08);border-left:4px solid ${statusColor}">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+    <div style="font-family:monospace;font-size:.82rem;color:#555">${ref}</div>
+    <span style="background:${statusColor}22;color:${statusColor};padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:bold">${statusLabel}</span>
+  </div>
+  <div style="font-size:1rem;font-weight:bold;margin-bottom:4px">${escHtml(r.client || '—')}</div>
+  ${r.tel ? `<div style="margin-bottom:4px"><a href="tel:${escHtml(r.tel)}" style="color:#c9a96e;text-decoration:none;font-size:.85rem">📞 ${escHtml(r.tel)}</a></div>` : ''}
+  <div style="font-size:.83rem;color:#555;margin-bottom:2px">🕐 ${escHtml(r.time || '—')}${r.date && r.date !== today ? ' — ' + escHtml(fmtDateFr(r.date)) : ''}</div>
+  <div style="font-size:.83rem;color:#555;margin-bottom:8px">📍 ${escHtml(r.trajet || '—')}</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="font-size:.8rem;color:#888">${escHtml(vehicleDisplayName(r))}</span>
+    <span style="font-weight:bold;color:#c9a96e">${Number(r.price || 0).toFixed(2)} €</span>
+  </div>
+  <a href="/admin/reservations/${escHtml(r.id)}${pwd ? '?pwd=' + encodeURIComponent(pwd) : ''}" style="display:block;background:#080808;color:#c9a96e;text-align:center;padding:9px;text-decoration:none;font-size:.8rem;border-radius:4px;letter-spacing:.04em">Voir le bon complet →</a>
+</div>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Dashboard Chauffeur — IsmaDrive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f0f0;min-height:100vh}
+.hdr{background:#080808;padding:16px 20px;border-bottom:2px solid #c9a96e;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:Georgia,serif;color:#c9a96e;font-size:1.3rem;letter-spacing:.1em}
+.sub{font-size:.65rem;color:#9a9185;letter-spacing:.16em;text-transform:uppercase;margin-top:2px}
+.search{padding:12px 16px;background:#fff;border-bottom:1px solid #eee}
+.search input{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:6px;font-size:.9rem;outline:none}
+.search input:focus{border-color:#c9a96e}
+.date-lbl{padding:10px 16px;font-size:.7rem;color:#999;letter-spacing:.1em;text-transform:uppercase}
+.content{padding:0 12px 24px}
+.empty{text-align:center;padding:40px 20px;color:#999;font-size:.9rem}
+</style></head><body>
+<div class="hdr">
+  <div>
+    <div class="logo">IsmaDrive</div>
+    <div class="sub">Dashboard Chauffeur</div>
+  </div>
+  <a href="/admin" style="color:#9a9185;text-decoration:none;font-size:.75rem;padding:6px 12px;border:1px solid #333;border-radius:3px">← Calendrier</a>
+</div>
+<div class="search">
+  <form method="GET" action="/admin/reservations">
+    <input type="text" name="q" value="${escHtml(q)}" placeholder="Rechercher par numéro RES ou nom client…" autofocus>
+  </form>
+</div>
+<div class="date-lbl">${q ? `Résultats pour "${escHtml(q)}"` : `Courses du jour — ${fmtDateFr(today)}`} (${filtered.length})</div>
+<div class="content">${filtered.length === 0 ? '<div class="empty">Aucune course trouvée</div>' : cards}</div>
+</body></html>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ADMIN — BON DE COMMANDE CHAUFFEUR
+   ══════════════════════════════════════════════════════════════ */
+function buildAdminBonHtml(r, pwd) {
+  const ref         = escHtml(r.ref || r.id || '');
+  const dep         = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '';
+  const arr         = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '';
+  const dateStr     = escHtml(fmtDateFr(r.date));
+  const veh         = escHtml(vehicleDisplayName(r));
+  const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
+  const statusLabel = r.status === 'done' ? 'TERMINÉ' : r.status === 'cancelled' ? 'ANNULÉ' : 'CONFIRMÉ';
+  const depEnc      = encodeURIComponent(dep);
+  const arrEnc      = encodeURIComponent(arr);
+  const canAct      = r.status !== 'done' && r.status !== 'cancelled';
+  const listUrl     = `/admin/reservations${pwd ? '?pwd=' + encodeURIComponent(pwd) : ''}`;
+  const safePwd     = JSON.stringify(pwd || '');
+  const safeId      = JSON.stringify(r.id || '');
+
+  return `<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Bon ${ref} — IsmaDrive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min-height:100vh}
+.card{max-width:560px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.11)}
+.card-head{background:#080808;padding:18px 22px;border-bottom:2px solid #c9a96e;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.logo{font-family:Georgia,serif;font-size:1.4rem;color:#c9a96e;letter-spacing:.1em}
+.badge{display:inline-block;padding:3px 10px;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;border-radius:2px;font-weight:bold}
+.sec{padding:14px 20px;border-bottom:1px solid #eee}
+.lbl{font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px}
+.val{font-size:.92rem;color:#333}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.nav-links{margin-top:6px;font-size:.8rem}.nav-links a{color:#c9a96e;text-decoration:none;margin-right:14px}
+.actions{padding:14px 20px;display:flex;gap:8px;flex-wrap:wrap;background:#fafafa;border-top:1px solid #eee}
+.btn{padding:10px 18px;border:none;border-radius:4px;font-size:.82rem;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-done{background:#27ae60;color:#fff}
+.btn-cancel{background:none;border:1px solid #e05454;color:#e05454}
+.btn-back{background:none;border:1px solid #ccc;color:#555}
+.btn-share{background:#080808;color:#c9a96e;border:1px solid #c9a96e;width:100%}
+/* Panel collègue */
+.share-panel{display:none;border-top:2px solid #c9a96e;background:#fafafa;padding:16px 20px}
+.share-panel.open{display:block}
+.sp-title{font-size:.68rem;text-transform:uppercase;letter-spacing:.16em;color:#9a9185;margin-bottom:12px}
+.sp-field{margin-bottom:10px}
+.sp-label{font-size:.72rem;color:#666;margin-bottom:4px;display:block}
+.sp-input,.sp-select{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:4px;font-size:.88rem;font-family:Arial,sans-serif;background:#fff;color:#333;outline:none;transition:border-color .18s}
+.sp-input:focus,.sp-select:focus{border-color:#c9a96e}
+.sp-select{cursor:pointer}
+.sp-or{text-align:center;font-size:.72rem;color:#aaa;margin:6px 0}
+.sp-price{border-color:#c9a96e}
+.sp-status{display:none;padding:9px 12px;border-radius:4px;font-size:.82rem;margin-bottom:10px;line-height:1.4}
+.sp-status.ok{display:block;background:#e8f8ee;border:1px solid #a8ddb5;color:#1a7a3c}
+.sp-status.err{display:block;background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+.sp-send{width:100%;padding:11px;background:#c9a96e;color:#000;border:none;border-radius:4px;font-size:.85rem;font-weight:bold;cursor:pointer;transition:background .18s}
+.sp-send:hover{background:#e8c98a}
+.sp-send:disabled{opacity:.55;cursor:not-allowed}
+.footer{padding:10px 20px;font-size:.65rem;color:#bbb;text-align:center;background:#f9f9f9;border-top:1px solid #eee}
+@media(max-width:480px){.g2{grid-template-columns:1fr}.card-head{flex-direction:column;align-items:flex-start}}
+@media print{body{background:#fff;padding:0}.card{box-shadow:none}.actions,.share-panel{display:none!important}}
+</style></head><body>
+<div class="card">
+  <div class="card-head">
+    <div class="logo">IsmaDrive</div>
+    <div>
+      <div style="font-size:.7rem;color:#9a9185;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px">Bon n° ${ref}</div>
+      <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="g2">
+      <div><div class="lbl">Date</div><div class="val">${dateStr}</div></div>
+      <div><div class="lbl">Heure prise en charge</div><div class="val">${escHtml(r.time || '—')}</div></div>
+      <div><div class="lbl">Durée estimée</div><div class="val">${r.durationMin || 60} min</div></div>
+      <div><div class="lbl">Véhicule</div><div class="val">${veh}</div></div>
+    </div>
+  </div>
+
+  <div class="sec" style="border-left:3px solid #c9a96e">
+    <div class="lbl">Adresse de départ</div>
+    <div class="val" style="font-weight:bold;font-size:1rem;margin:4px 0">${escHtml(dep || '—')}</div>
+    ${dep ? `<div class="nav-links"><a href="https://www.google.com/maps/dir/?api=1&destination=${depEnc}" target="_blank">📍 Google Maps</a><a href="https://waze.com/ul?q=${depEnc}&navigate=yes" target="_blank">🚗 Waze</a></div>` : ''}
+  </div>
+
+  <div class="sec" style="border-left:3px solid #6e9ac9">
+    <div class="lbl">Adresse d'arrivée</div>
+    <div class="val" style="font-weight:bold;font-size:1rem;margin:4px 0">${escHtml(arr || '—')}</div>
+    ${arr ? `<div class="nav-links"><a href="https://www.google.com/maps/dir/?api=1&destination=${arrEnc}" target="_blank">📍 Google Maps</a><a href="https://waze.com/ul?q=${arrEnc}&navigate=yes" target="_blank">🚗 Waze</a></div>` : ''}
+  </div>
+
+  <div class="sec">
+    <div class="g2">
+      <div><div class="lbl">Client</div><div class="val">${escHtml(r.client || '—')}</div></div>
+      <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${escHtml(r.tel || '')}" style="color:#c9a96e;text-decoration:none">${escHtml(r.tel || '—')}</a></div></div>
+    </div>
+    ${r.email ? `<div style="margin-top:10px"><div class="lbl">Email</div><div class="val" style="font-size:.85rem">${escHtml(r.email)}</div></div>` : ''}
+    ${r.notes ? `<div style="margin-top:10px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${escHtml(r.notes)}</div></div>` : ''}
+  </div>
+
+  <div class="sec">
+    <div class="g2">
+      <div><div class="lbl">Exploitant</div><div class="val">${escHtml(EXPLOITANT.raisonSociale)}</div></div>
+      <div><div class="lbl">N° REVTC</div><div class="val">${escHtml(EXPLOITANT.numeroREVTC)}</div></div>
+      <div><div class="lbl">SIRET</div><div class="val">${escHtml(EXPLOITANT.siret)}</div></div>
+      <div><div class="lbl">Téléphone</div><div class="val">${escHtml(EXPLOITANT.telephone)}</div></div>
+    </div>
+  </div>
+
+  <div class="actions" style="flex-direction:column">
+    ${canAct ? `
+    <div style="display:flex;gap:8px;width:100%;flex-wrap:wrap">
+      <form method="POST" action="/admin/reservations/${escHtml(r.id)}/done" style="margin:0;flex:1">
+        <button type="submit" class="btn btn-done" style="width:100%">✓ Marquer comme terminée</button>
+      </form>
+      <form method="POST" action="/admin/reservations/${escHtml(r.id)}/cancel" style="margin:0" onsubmit="return confirm('Annuler cette réservation ?')">
+        <button type="submit" class="btn btn-cancel">✕ Annuler</button>
+      </form>
+    </div>` : ''}
+    <button class="btn btn-share" onclick="toggleShare()">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg>
+      Envoyer à un collègue
+    </button>
+    <a href="${listUrl}" class="btn btn-back" style="justify-content:center">← Retour à la liste</a>
+  </div>
+
+  <!-- Panel envoi collègue -->
+  <div class="share-panel" id="share-panel">
+    <div class="sp-title">Envoyer ce bon à un collègue</div>
+
+    <div class="sp-field">
+      <label class="sp-label">Choisir dans l'annuaire</label>
+      <select class="sp-select" id="sp-annuaire" onchange="onAnnuaireChange()">
+        <option value="">— Chargement de l'annuaire… —</option>
+      </select>
+    </div>
+
+    <div class="sp-or">ou saisir directement</div>
+
+    <div class="sp-field">
+      <label class="sp-label">Email du collègue *</label>
+      <input class="sp-input" id="sp-email" type="email" placeholder="conducteur@exemple.com">
+    </div>
+    <div class="sp-field">
+      <label class="sp-label">Prénom (optionnel)</label>
+      <input class="sp-input" id="sp-name" type="text" placeholder="Prénom">
+    </div>
+    <div class="sp-field">
+      <label class="sp-label">Prix à lui verser (€) *</label>
+      <input class="sp-input sp-price" id="sp-price" type="number" min="0" placeholder="Ex : 60">
+    </div>
+
+    <div class="sp-status" id="sp-status"></div>
+    <button class="sp-send" id="sp-send" onclick="sendToColleague()">✉ Envoyer le bon de commande</button>
+  </div>
+
+  <div class="footer">Conforme arrêté du 6 août 2025 &nbsp;·&nbsp; IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France</div>
+</div>
+
+<script>
+const _PWD = ${safePwd};
+const _ID  = ${safeId};
+let _driversLoaded = false;
+
+function toggleShare() {
+  const panel = document.getElementById('share-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open') && !_driversLoaded) loadDrivers();
+}
+
+async function loadDrivers() {
+  _driversLoaded = true;
+  try {
+    const r = await fetch('/api/drivers?pwd=' + encodeURIComponent(_PWD));
+    if (!r.ok) return;
+    const drivers = await r.json();
+    const sel = document.getElementById('sp-annuaire');
+    sel.innerHTML = '<option value="">— Annuaire conducteurs —</option>';
+    if (!drivers.length) {
+      sel.innerHTML += '<option disabled>Aucun conducteur enregistré</option>';
+      return;
+    }
+    drivers.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = JSON.stringify({ email: d.email, name: d.name || '' });
+      opt.textContent = d.name + (d.carCategory ? ' · ' + d.carCategory : '') + (d.phone ? '  ' + d.phone : '');
+      sel.appendChild(opt);
+    });
+  } catch(e) {
+    document.getElementById('sp-annuaire').innerHTML = '<option value="">Erreur de chargement</option>';
+  }
+}
+
+function onAnnuaireChange() {
+  const val = document.getElementById('sp-annuaire').value;
+  if (!val) return;
+  try {
+    const d = JSON.parse(val);
+    document.getElementById('sp-email').value = d.email || '';
+    document.getElementById('sp-name').value  = d.name  || '';
+  } catch(e) {}
+}
+
+async function sendToColleague() {
+  const email = document.getElementById('sp-email').value.trim();
+  const name  = document.getElementById('sp-name').value.trim();
+  const price = document.getElementById('sp-price').value.trim();
+  const btn   = document.getElementById('sp-send');
+
+  if (!email)                       { showStatus('err', 'Email du collègue requis'); return; }
+  if (!price || isNaN(Number(price))) { showStatus('err', 'Indiquez le prix à verser'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  hideStatus();
+
+  try {
+    const res  = await fetch('/api/send-driver-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pwd: _PWD, tripId: _ID, driverEmail: email, driverName: name, driverPrice: Number(price) })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showStatus('ok', '✅ Bon envoyé à ' + email);
+      btn.textContent = '✓ Envoyé';
+    } else {
+      showStatus('err', data.error || 'Erreur inconnue');
+      btn.disabled = false;
+      btn.textContent = '✉ Envoyer le bon de commande';
+    }
+  } catch(e) {
+    showStatus('err', 'Erreur réseau : ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '✉ Envoyer le bon de commande';
+  }
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('sp-status');
+  el.className = 'sp-status ' + type;
+  el.textContent = msg;
+}
+function hideStatus() {
+  const el = document.getElementById('sp-status');
+  el.className = 'sp-status';
+}
+</script>
+</body></html>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NOUVELLES ROUTES
+   ══════════════════════════════════════════════════════════════ */
+
+/* Page publique : scan QR client → validation */
+app.get('/reservation/:id', async (req, res) => {
+  const r = await dbGetRes(req.params.id).catch(() => null);
+  res.send(buildReservationValidationHtml(r));
+});
+
+/* QR code PNG standalone */
+app.get('/api/reservations/:id/qrcode', async (req, res) => {
+  const url = `${APP_URL}/reservation/${req.params.id}`;
+  try {
+    const png = await QRCode.toBuffer(url, { width: 300, margin: 2, errorCorrectionLevel: 'M' });
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(png);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* Mise à jour statut (accept body.pwd ou Basic Auth) */
+app.patch('/api/reservations/:id/statut', async (req, res) => {
+  if (!checkAdminAuth(req)) return res.status(401).json({ error: 'Non autorisé' });
+  const map = { 'terminé': 'done', 'annulé': 'cancelled', 'en cours': 'confirmed' };
+  const s   = req.body.statut || req.body.status || '';
+  const normalized = map[s] || s;
+  if (!['done', 'cancelled', 'confirmed', 'pending_payment'].includes(normalized))
+    return res.status(400).json({ error: 'Statut invalide' });
+  await dbUpdateRes(req.params.id, { status: normalized });
+  res.json({ ok: true });
+});
+
+/* Dashboard chauffeur — liste */
+app.get('/admin/reservations', requireBasicAuth, async (req, res) => {
+  const reservations = await dbListRes().catch(() => []);
+  const pwd = req.query.pwd || '';
+  res.send(buildAdminListHtml(reservations, req.query.q || '', pwd));
+});
+
+/* Dashboard chauffeur — bon de commande */
+app.get('/admin/reservations/:id', requireBasicAuth, async (req, res) => {
+  const r = await dbGetRes(req.params.id).catch(() => null);
+  if (!r) return res.status(404).send('Réservation introuvable');
+  const pwd = req.query.pwd || ADMIN_PWD;
+  res.send(buildAdminBonHtml(r, pwd));
+});
+
+/* Marquer comme terminée (formulaire admin) */
+app.post('/admin/reservations/:id/done', requireBasicAuth, async (req, res) => {
+  const r = await dbGetRes(req.params.id).catch(() => null);
+  if (r && r.status !== 'done') {
+    await dbUpdateRes(req.params.id, { status: 'done' });
+    sendReviewEmail({ ...r, status: 'done' }).catch(e => console.error('Review email:', e.message));
+  }
+  res.redirect('/admin/reservations/' + req.params.id);
+});
+
+/* Annuler (formulaire admin) */
+app.post('/admin/reservations/:id/cancel', requireBasicAuth, async (req, res) => {
+  await dbUpdateRes(req.params.id, { status: 'cancelled' }).catch(() => {});
+  res.redirect('/admin/reservations');
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
