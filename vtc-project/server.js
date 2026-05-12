@@ -39,6 +39,20 @@ const APP_URL            = (
 const GOOGLE_REVIEWS_URL = process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review';
 const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
+const RESEND_BCC_EMAIL   = String(process.env.RESEND_BCC_EMAIL || '').trim();
+
+/** Envoie via Resend ; renvoie { data, error } (les erreurs API ne lèvent pas toujours d’exception). */
+async function resendEmailsSend(payload) {
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    const msg = 'RESEND_API_KEY ou RESEND_FROM_EMAIL manquant';
+    console.warn('[Resend]', msg);
+    return { data: null, error: { message: msg } };
+  }
+  const resend = new Resend(RESEND_API_KEY);
+  const out = await resend.emails.send(payload);
+  if (out.error) console.error('[Resend] Erreur API:', out.error);
+  return out;
+}
 
 /* ── EXPLOITANT ── */
 const EXPLOITANT = {
@@ -585,19 +599,34 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
 
 async function sendClientConfirmationEmail(r) {
   const email = String(r.email || '').trim();
-  if (!email) return;
+  if (!email) return { ok: false, reason: 'no_email' };
+  if (r.confirmationEmailSent === true) {
+    console.log('[Resend] Confirmation déjà enregistrée, pas de renvoi —', r.ref || r.id);
+    return { ok: true, skipped: true };
+  }
+
   const qrDataUrl = await buildConfirmationQrDataUrl(r);
   const html = buildClientConfirmationHtml(r, qrDataUrl);
   const subject = r.lang === 'en'
     ? `IsmaDrive — Booking confirmed · Ref. ${r.ref || r.id}`
     : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
 
-  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
-    const resend = new Resend(RESEND_API_KEY);
-    await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject, html });
-  } else {
-    console.log(`📧 [local] Confirmation non envoyée (RESEND_API_KEY manquant) — destinataire : ${email}`);
+  const payload = { from: RESEND_FROM_EMAIL, to: email, subject, html };
+  if (RESEND_BCC_EMAIL && RESEND_BCC_EMAIL.toLowerCase() !== email.toLowerCase()) {
+    payload.bcc = [RESEND_BCC_EMAIL];
   }
+
+  const { error } = await resendEmailsSend(payload);
+  if (error) {
+    throw new Error(error.message || JSON.stringify(error));
+  }
+
+  if (r.id) {
+    await dbUpdateRes(r.id, { confirmationEmailSent: true }).catch(e =>
+      console.error('[Resend] confirmationEmailSent DB:', e.message)
+    );
+  }
+  return { ok: true };
 }
 
 /* ── EMAIL AVIS CLIENT ── */
@@ -682,13 +711,11 @@ async function sendReviewEmail(r) {
   if (!email || !GOOGLE_REVIEWS_URL) return;
   const qrDataUrl = await buildReviewQrDataUrl();
   const html = buildReviewEmailHtml(r, qrDataUrl);
-  if (RESEND_API_KEY && RESEND_FROM_EMAIL) {
-    const resend = new Resend(RESEND_API_KEY);
-    const reviewSubject = r.lang === 'en'
-      ? `IsmaDrive — Thank you for your trust · Ref. ${r.ref || r.id}`
-      : `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`;
-    await resend.emails.send({ from: RESEND_FROM_EMAIL, to: email, subject: reviewSubject, html });
-  }
+  const reviewSubject = r.lang === 'en'
+    ? `IsmaDrive — Thank you for your trust · Ref. ${r.ref || r.id}`
+    : `IsmaDrive — Merci pour votre confiance · Réf. ${r.ref || r.id}`;
+  const { error } = await resendEmailsSend({ from: RESEND_FROM_EMAIL, to: email, subject: reviewSubject, html });
+  if (error) console.error('[Resend] Email avis:', error.message || error);
 }
 
 /* ── STRIPE WEBHOOK (raw body — doit être avant express.json()) ── */
@@ -713,7 +740,11 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
       await dbUpdateRes(reservationId, updates).catch(e => console.error('DB update error:', e.message));
       const r = await dbGetRes(reservationId).catch(() => null);
       console.log(`✅ Paiement confirmé pour réservation ${reservationId}`);
-      if (r) sendClientConfirmationEmail(r).catch(e => console.error('Confirmation email error:', e.message));
+      if (r) {
+        await sendClientConfirmationEmail(r).catch(e =>
+          console.error('Confirmation email error:', e.message)
+        );
+      }
     }
   }
 
@@ -722,6 +753,48 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 
 /* ── MIDDLEWARE ── */
 app.use(express.json());
+
+/* ── Secours email : si le webhook Stripe n’a pas été reçu, la page succès envoie session_id ── */
+app.post('/api/sync-booking-after-payment', async (req, res) => {
+  const sessionId = String(req.body?.sessionId || '').trim();
+  if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId requis' });
+  if (!process.env.STRIPE_SECRET_KEY) return res.status(503).json({ ok: false, error: 'Stripe non configuré' });
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status !== 'paid') {
+      return res.json({ ok: false, reason: 'payment_not_completed' });
+    }
+
+    const reservationId = session.metadata?.reservationId;
+    if (!reservationId) return res.json({ ok: false, reason: 'no_reservation_in_session' });
+
+    let r = await dbGetRes(reservationId);
+    if (!r) return res.status(404).json({ ok: false, error: 'reservation_introuvable' });
+
+    const paidNow = new Date().toISOString();
+    if (r.paymentStatus !== 'paid') {
+      await dbUpdateRes(reservationId, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        stripeSessionId: session.id,
+        paidAt: r.paidAt || paidNow
+      });
+      r = await dbGetRes(reservationId);
+    }
+
+    const needsEmail = String(r.email || '').trim() && r.confirmationEmailSent !== true;
+    if (needsEmail) {
+      await sendClientConfirmationEmail(r);
+      return res.json({ ok: true, emailSent: true });
+    }
+
+    return res.json({ ok: true, emailSent: false, reason: 'already_sent_or_no_email' });
+  } catch (e) {
+    console.error('sync-booking-after-payment:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
 
 /* ── STRIPE CHECKOUT SESSION ── */
 app.post('/api/create-checkout-session', async (req, res) => {
@@ -756,7 +829,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email || undefined,
-      success_url: `${APP_URL}/payment-success?ref=${ref}&lang=${newRes.lang || 'fr'}`,
+      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(ref)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(newRes.lang || 'fr')}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
       metadata: { reservationId: id },
     });
@@ -888,8 +961,8 @@ app.post('/api/send-driver-email', async (req, res) => {
   const subject    = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
 
   try {
-    const resend = new Resend(RESEND_API_KEY);
-    await resend.emails.send({ from: RESEND_FROM_EMAIL, to: driverEmail, subject, html });
+    const { error } = await resendEmailsSend({ from: RESEND_FROM_EMAIL, to: driverEmail, subject, html });
+    if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
     if (driverName) {
       await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '' });
     }
@@ -1403,7 +1476,8 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`\n✅ Serveur démarré : http://localhost:${PORT}`);
     console.log(`   Admin    : http://localhost:${PORT}/admin`);
     console.log(`   Supabase : ${process.env.SUPABASE_URL ? '✅' : '❌ SUPABASE_URL manquant'}`);
-    console.log(`   Resend   : ${RESEND_API_KEY ? '✅' : '❌ RESEND_API_KEY manquant'}\n`);
+    const resendOk = !!(RESEND_API_KEY && RESEND_FROM_EMAIL);
+    console.log(`   Resend   : ${resendOk ? '✅' : '❌ RESEND_API_KEY ou RESEND_FROM_EMAIL manquant'}\n`);
   });
 }
 

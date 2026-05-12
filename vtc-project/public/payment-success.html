@@ -51,6 +51,16 @@ h1{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color
 const params = new URLSearchParams(window.location.search);
 const ref = params.get('ref');
 const lang = params.get('lang');
+const sessionId = params.get('session_id');
+
+/* Si le webhook Stripe n’a pas livré l’email, le serveur vérifie la session et renvoie la confirmation. */
+if (sessionId) {
+  fetch('/api/sync-booking-after-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId })
+  }).catch(function () {});
+}
 
 if (lang === 'en') {
   document.getElementById('html-root').lang = 'en';
