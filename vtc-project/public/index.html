@@ -825,6 +825,18 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
             <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
           </div>
         </div>
+
+        <label class="fl" style="margin-bottom:.5rem" data-i18n="airport.dir_label">Sens du trajet</label>
+        <div class="dir-toggle">
+          <button type="button" class="dir-btn on" id="dir-from" onclick="selDir('from',this)" data-i18n="airport.dir_from">✈ Depuis l'aéroport → votre adresse</button>
+          <button type="button" class="dir-btn" id="dir-to" onclick="selDir('to',this)" data-i18n="airport.dir_to">🏠 Votre adresse → aéroport</button>
+        </div>
+        <label class="fl" for="i-paddress" data-i18n="airport.addr_label">Votre adresse de prise en charge</label>
+        <div class="ac-wrap">
+          <input class="fi" id="i-paddress" type="text" data-i18n-ph="airport.addr_ph" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-paddress')" onfocus="acSearch(this,'ac-paddress')" onblur="acBlur('ac-paddress')">
+          <div class="ac-list" id="ac-paddress"></div>
+        </div>
+
         <div class="family-bar">
           <div class="family-bar-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="airport.family_label">Équipement famille</span></div>
           <div class="fam-opt"><input type="checkbox" id="f-rehausseur"><label for="f-rehausseur" data-i18n="airport.booster">Réhausseur enfant (3–12 ans)</label></div>
@@ -980,13 +992,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <!-- ── Sélecteur de route ── -->
       <label class="fl" style="margin-bottom:.55rem" data-i18n="airport.route_label">Votre trajet</label>
       <div class="pack-grid">
-        <div class="pack-card on" id="pk-cdg" onclick="selPack('cdg',this)">
+        <div class="pack-card on" onclick="void(0)">
           <div class="pack-ico">✈</div>
           <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
           <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
           <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
         </div>
-        <div class="pack-card" id="pk-orly" onclick="selPack('orly',this)">
+        <div class="pack-card" onclick="void(0)">
           <div class="pack-ico">✈</div>
           <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
           <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
@@ -994,16 +1006,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </div>
       </div>
 
-      <!-- ── Sens du trajet ── -->
-      <label class="fl" style="margin-bottom:.5rem" data-i18n="airport.dir_label">Sens du trajet</label>
-      <div class="dir-toggle">
-        <button class="dir-btn on" id="dir-from" onclick="selDir('from',this)" data-i18n="airport.dir_from">✈ Depuis l'aéroport → votre adresse</button>
-        <button class="dir-btn" id="dir-to" onclick="selDir('to',this)" data-i18n="airport.dir_to">🏠 Votre adresse → aéroport</button>
-      </div>
-
-      <!-- ── Adresse client ── -->
-      <label class="fl" for="i-paddress" data-i18n="airport.addr_label">Votre adresse de prise en charge</label>
-      <input class="fi" id="i-paddress" type="text" style="margin-bottom:1.2rem" data-i18n-ph="airport.addr_ph" placeholder="Ex : 10 rue de la Paix, Paris">
+      <!-- Adresse / sens forfait aéroport : voir wizard (booking-wizard) — évite les id dupliqués -->
 
       <!-- ── Sélecteur véhicule ── -->
       <div class="v-grid">
