@@ -213,7 +213,8 @@ section{padding:7.5rem 5vw}
 .srv-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--faint);line-height:1;margin-bottom:.8rem}
 .srv-name{font-size:.88rem;font-weight:500;margin-bottom:.4rem}
 .srv-desc{font-size:.8rem;color:var(--muted);line-height:1.65}
-#garanties{background:var(--dark)}
+#garanties{background:var(--dark);padding:6rem 5vw}
+#tarifs{background:var(--black);padding:6rem 5vw}
 .guar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
 .guar{border-top:1px solid var(--border);padding-top:1.4rem}
 .guar-ico{width:32px;height:32px;color:var(--gold);margin-bottom:.9rem}
@@ -481,6 +482,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   /* Sections générales */
   section{padding:4.5rem 4.5vw}
   #paris-experience,#storytelling{padding:4.5rem 4.5vw}
+  #garanties,#tarifs{padding:3.5rem 4.5vw}
   .section-title{font-size:clamp(1.5rem,5.5vw,2rem);margin-bottom:2rem;max-width:none}
   .seo-section{padding:3.5rem 4.5vw}
   .exp-card-img{height:130px}
@@ -661,8 +663,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .wiz-step-sub{font-size:.82rem;color:var(--muted);margin-bottom:.8rem;line-height:1.5}
 
 /* Wizard footer nav */
-.wiz-footer{margin-top:1.4rem;display:flex;gap:.7rem}
-.wiz-footer .btn-pay,.wiz-footer .btn-calc,.wiz-footer .btn-ok{margin-top:0;flex:1}
+.wiz-footer{margin-top:1.4rem;display:flex;gap:.7rem;flex-wrap:wrap}
+.wiz-footer .btn-pay,.wiz-footer .btn-calc,.wiz-footer .btn-ok{margin-top:0;flex:1;min-width:0;width:auto}
 .wiz-back-btn{flex:0 0 auto!important;min-width:110px}
 
 /* ── TÉLÉPHONE NAV ── */
@@ -684,9 +686,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .trip-type-grid{grid-template-columns:1fr;gap:.55rem;margin-bottom:1.2rem}
   .wiz-pane{padding:1.5rem}
   .wiz-back-btn{min-width:90px}
-  .wiz-footer{flex-wrap:wrap}
-  .wiz-footer .btn-ok,.wiz-footer .btn-pay{flex:1 1 100%}
-  .wiz-back-btn{flex:0 0 auto!important}
+  .wiz-footer{flex-wrap:wrap;gap:.5rem}
+  .wiz-footer .btn-ok,.wiz-footer .btn-pay{flex:1 1 100%;width:100%;min-width:0}
+  .wiz-back-btn{flex:0 0 auto!important;width:auto}
 }
 @media(max-width:400px){
   .trip-type-btn{padding:.9rem .7rem}
@@ -701,7 +703,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
-    <li><a href="#reservation" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" style="color:var(--gold)" data-i18n="nav.book">Réserver</a></li>
     <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
     <li><a href="#tarifs">Tarifs</a></li>
     <li><a href="/a-propos" data-i18n="nav.about">À propos</a></li>
@@ -1514,37 +1515,37 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 </section>
 
 <!-- ── GARANTIES (4 items, 2×2) ── -->
-<section id="garanties" style="padding:6rem 5vw;background:var(--dark)">
+<section id="garanties">
   <div class="inner">
-    <p class="section-tag">Nos engagements</p>
-    <h2 class="section-title">Pourquoi choisir IsmaDrive ?</h2>
-    <div class="why-grid" style="grid-template-columns:repeat(2,1fr);gap:2.5rem;margin-top:0">
+    <p class="section-tag" data-i18n="guar.tag">Nos engagements</p>
+    <h2 class="section-title" data-i18n="guar.title">Pourquoi choisir IsmaDrive ?</h2>
+    <div class="why-grid" style="gap:2.5rem;margin-top:0">
       <div class="why-card">
         <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M10 16l4 4 8-8"/></svg>
-        <div class="why-title">Tarif fixe garanti</div>
-        <div class="why-desc">Le prix annoncé est celui que vous payez. Aucune mauvaise surprise, aucun supplément — même en cas de trafic dense.</div>
+        <div class="why-title" data-i18n="guar.g1_title">Tarif fixe garanti</div>
+        <div class="why-desc" data-i18n="guar.g1_desc">Le prix annoncé à la réservation est celui que vous payez. Aucune mauvaise surprise, aucun supplément — même en cas de trafic dense.</div>
       </div>
       <div class="why-card">
         <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="16" r="13"/><path d="M16 8v8.5l5 3"/></svg>
-        <div class="why-title">Ponctualité absolue</div>
-        <div class="why-desc">Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, suivi de vol activé pour tous les transferts aéroport.</div>
+        <div class="why-title" data-i18n="guar.g2_title">Ponctualité absolue</div>
+        <div class="why-desc" data-i18n="guar.g2_desc">Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, zéro retard toléré.</div>
       </div>
       <div class="why-card">
         <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12C6 26 2 22 2 16V8z"/></svg>
-        <div class="why-title">Discrétion &amp; Sécurité</div>
-        <div class="why-desc">Chauffeurs formés pour une clientèle exigeante : VIP, délégations, familles, mariages. Confidentialité absolue garantie.</div>
+        <div class="why-title" data-i18n="guar.g3_title">Discrétion &amp; Sécurité</div>
+        <div class="why-desc" data-i18n="guar.g3_desc">Chauffeurs formés pour une clientèle exigeante : VIP, délégations, mariages. Confidentialité absolue garantie.</div>
       </div>
       <div class="why-card">
         <svg class="why-ico" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="10" r="5"/><path d="M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10"/></svg>
-        <div class="why-title">Chauffeurs bilingues</div>
-        <div class="why-desc">Francophones et anglophones, en tenue soignée, disponibles 7j/7 · 24h/24. Accueil avec pancarte nominative à chaque arrivée aéroport.</div>
+        <div class="why-title" data-i18n="guar.g7_title">Chauffeurs bilingues</div>
+        <div class="why-desc" data-i18n="guar.g7_desc">Francophones et anglophones, en tenue soignée, disponibles 7j/7 · 24h/24. Accueil avec pancarte nominative à chaque arrivée aéroport.</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ── TARIFS ── -->
-<section id="tarifs" style="padding:6rem 5vw;background:var(--black)">
+<section id="tarifs">
   <div class="inner">
     <p class="section-tag">Tarifs</p>
     <h2 class="section-title">Prix fixes &amp; transparents</h2>
