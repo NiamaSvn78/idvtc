@@ -894,13 +894,15 @@ async function sendDriverEmail(){
     const r = await fetch('/api/send-driver-email',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price), driverPlate:plate})});
-    const d = await r.json();
-    if(d.ok){
+    const raw = await r.text();
+    let d = {};
+    try { d = raw ? JSON.parse(raw) : {}; } catch (_) { d = { error: raw || ('HTTP ' + r.status) }; }
+    if(r.ok && d.ok){
       status.textContent = `✅ Email envoyé avec succès à ${email}`;
       status.className   = 'send-status ok';
       await loadDrivers(); /* sauvegarde auto */
     } else {
-      status.textContent = d.error || 'Erreur inconnue';
+      status.textContent = d.error || ('Erreur ' + r.status);
       status.className   = 'send-status err';
     }
   }catch(e){

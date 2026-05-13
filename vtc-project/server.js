@@ -963,35 +963,66 @@ app.delete('/api/drivers/:id', async (req, res) => {
 app.post('/api/send-driver-email', async (req, res) => {
   const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  if (!RESEND_API_KEY) return res.status(503).json({ error: 'RESEND_API_KEY manquant.' });
+  const to = String(driverEmail || '').trim();
+  if (!to) return res.status(400).json({ error: 'Email du destinataire requis.' });
+  if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
+    return res.status(503).json({ error: 'Email non configuré : ajoutez RESEND_API_KEY et RESEND_FROM_EMAIL sur le serveur (Vercel).' });
+  }
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
-  /* Enregistrer le nom et l'immatriculation du conducteur assigné dans la réservation */
+  const token      = missionToken(tripId);
+  const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
+  let qrDataUrl;
+  try {
+    qrDataUrl = await QRCode.toDataURL(missionUrl, {
+      width: 200, margin: 2, errorCorrectionLevel: 'M',
+      type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch (e) {
+    console.error('[send-driver-email] QR:', e.message);
+    qrDataUrl = '';
+  }
+  const html    = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl, driverPlate || '');
+  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
+
+  try {
+    const { error } = await resendEmailsSend({ from: RESEND_FROM, to, subject, html });
+    if (error) {
+      return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
+    }
+  } catch (e) {
+    console.error('[send-driver-email] Resend:', e);
+    return res.status(500).json({ error: 'Erreur envoi : ' + e.message });
+  }
+
+  /* Après envoi réussi : persistance (ne doit pas faire échouer la réponse si colonnes manquent encore) */
   const assignedUpdates = {};
   if (driverName) assignedUpdates.assignedDriverName = driverName;
   if (driverPlate) assignedUpdates.assignedDriverPlate = driverPlate;
-  if (Object.keys(assignedUpdates).length) await dbUpdateRes(tripId, assignedUpdates);
-
-  const token      = missionToken(tripId);
-  const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
-  const qrDataUrl  = await QRCode.toDataURL(missionUrl, {
-    width: 200, margin: 2, errorCorrectionLevel: 'M',
-    type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
-  });
-  const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl, driverPlate || '');
-  const subject    = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
-
-  try {
-    const { error } = await resendEmailsSend({ from: RESEND_FROM, to: driverEmail, subject, html });
-    if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
-    if (driverName) {
-      await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '', immatriculation: driverPlate || '' });
+  if (Object.keys(assignedUpdates).length) {
+    try {
+      await dbUpdateRes(tripId, assignedUpdates);
+    } catch (e) {
+      console.error('[send-driver-email] DB réservation (conducteur assigné):', e.message);
     }
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: 'Erreur envoi : ' + e.message });
   }
+  if (driverName) {
+    try {
+      await dbInsertDriver({
+        id: Date.now().toString(36),
+        name: driverName,
+        email: to,
+        phone: '',
+        carCategory: '',
+        immatriculation: driverPlate || ''
+      });
+    } catch (e) {
+      console.error('[send-driver-email] DB annuaire conducteur:', e.message);
+    }
+  }
+
+  res.json({ ok: true });
 });
 
 /* ── ORDRE DE MISSION ── */
@@ -1410,12 +1441,15 @@ async function sendToColleague() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pwd: _PWD, tripId: _ID, driverEmail: email, driverName: name, driverPrice: Number(price), driverPlate: plate })
     });
-    const data = await res.json();
-    if (data.ok) {
+    let data = {};
+    const raw = await res.text();
+    try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { error: raw || ('HTTP ' + res.status) }; }
+    if (res.ok && data.ok) {
       showStatus('ok', '✅ Bon envoyé à ' + email);
       btn.textContent = '✓ Envoyé';
+      btn.disabled = false;
     } else {
-      showStatus('err', data.error || 'Erreur inconnue');
+      showStatus('err', data.error || ('Erreur ' + res.status));
       btn.disabled = false;
       btn.textContent = '✉ Envoyer le bon de commande';
     }
