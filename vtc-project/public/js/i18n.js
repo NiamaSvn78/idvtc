@@ -881,6 +881,7 @@
 
   /* Global accessor for JS-generated strings */
   window.i18n = function (key) { return t(key); };
+  window.getLang = getLang;
 
   /* ── Inject toggle CSS ── */
   var css = document.createElement('style');
