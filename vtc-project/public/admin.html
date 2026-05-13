@@ -158,6 +158,10 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 .send-status.err{display:block;background:rgba(224,84,84,.08);border:1px solid rgba(224,84,84,.22);color:var(--red)}
 .driver-trip-preview{background:var(--dark3);border-left:2px solid var(--gold);padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--muted);line-height:1.55}
 .driver-trip-preview strong{color:var(--text)}
+.driver-order-notice{display:none;background:rgba(201,169,110,.1);border:1px solid var(--gold-border);padding:.65rem .85rem;margin-bottom:1rem;font-size:.78rem;color:var(--muted);line-height:1.55;border-radius:2px}
+.driver-order-notice.show{display:block}
+.driver-order-notice strong{color:var(--gold)}
+.tb-bon-sent{font-size:.58rem;color:var(--gold);margin-top:2px;letter-spacing:.04em;opacity:.9}
 
 /* ── RÉPERTOIRE CONDUCTEURS ── */
 .dir-modal{max-width:640px}
@@ -401,6 +405,7 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
     </div>
     <div class="modal-body">
       <div class="driver-trip-preview" id="driver-trip-preview"></div>
+      <div class="driver-order-notice" id="driver-order-notice"></div>
 
       <div style="margin-bottom:1rem">
         <div class="add-label" style="margin-bottom:.5rem">Conducteurs enregistrés</div>
@@ -671,6 +676,7 @@ function buildBlock(r){
     <div class="tb-time">${r.time} – ${minToTime(endMin)}</div>
     <div class="tb-route">${(r.trajet||'').substring(0,26)}</div>
     ${r.client ? `<div class="tb-client">${r.client.substring(0,18)}</div>` : ''}
+    ${r.driverOrderSentAt ? '<div class="tb-bon-sent" title="Bon collègue déjà envoyé">✉ bon envoyé</div>' : ''}
     <span class="tb-badge">${VEH_LABEL[veh]||veh}</span>
   `;
   div.onclick = () => openTrip(r.id);
@@ -716,6 +722,7 @@ function openTrip(id){
     ${row('Prix', (r.price||0)+' €')}
     ${r.notes ? row('Notes', r.notes) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
+    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')) : ''}
   `;
   const foot = document.getElementById('tm-foot');
   foot.innerHTML = '';
@@ -747,6 +754,27 @@ function openTrip(id){
   document.getElementById('trip-ov').classList.add('open');
 }
 function row(k,v){ return `<div class="detail-row"><span class="dr-k">${k}</span><span class="dr-v">${v}</span></div>`; }
+function fmtDriverOrderSent(iso){
+  if(!iso) return '';
+  try{ var d = new Date(iso); if(isNaN(d.getTime())) return String(iso).slice(0,19); return d.toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}); }catch(e){ return String(iso); }
+}
+function updateDriverOrderNoticeInModal(){
+  var el = document.getElementById('driver-order-notice');
+  var btn = document.getElementById('btn-send-email');
+  if(!el) return;
+  var id = currentDriverTripId;
+  if(!id){ el.classList.remove('show'); el.innerHTML=''; if(btn) btn.textContent='✉ Envoyer le trajet par email'; return; }
+  var r = reservations.find(function(x){ return x.id === id; });
+  if(r && r.driverOrderSentAt){
+    el.classList.add('show');
+    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>';
+    if(btn) btn.textContent = '✉ Renvoyer le trajet par email';
+  } else {
+    el.classList.remove('show');
+    el.innerHTML = '';
+    if(btn) btn.textContent = '✉ Envoyer le trajet par email';
+  }
+}
 function closeTripModal(){ document.getElementById('trip-ov').classList.remove('open'); }
 
 async function updateStatus(id, status){
@@ -837,8 +865,8 @@ async function openDriverModal(id){
   document.getElementById('send-driver-price').value = '';
   document.getElementById('send-status').className   = 'send-status';
   document.getElementById('btn-send-email').disabled = false;
-  document.getElementById('btn-send-email').textContent = '✉ Envoyer le trajet par email';
   await loadDrivers();
+  updateDriverOrderNoticeInModal();
   document.getElementById('driver-ov').classList.add('open');
 }
 function closeDriverModal(){ document.getElementById('driver-ov').classList.remove('open'); }
@@ -918,6 +946,10 @@ async function sendDriverEmail(){
   const status = document.getElementById('send-status');
   if(!email){ status.textContent='Email du conducteur requis'; status.className='send-status err'; return; }
   if(!price || isNaN(Number(price))){ status.textContent='Indiquez le prix à verser au conducteur'; status.className='send-status err'; return; }
+  var trip = reservations.find(function(x){ return x.id === currentDriverTripId; });
+  if(trip && trip.driverOrderSentAt){
+    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+'.\n\nRenvoyer quand même ?')) return;
+  }
   const btn = document.getElementById('btn-send-email');
   btn.disabled = true; btn.textContent = 'Envoi en cours…';
   try{
@@ -930,6 +962,8 @@ async function sendDriverEmail(){
       status.textContent = `✅ Email envoyé avec succès à ${email}`;
       status.className   = 'send-status ok';
       try { await loadDrivers(); } catch (_) {}
+      try { await reloadRes(); } catch (_) {}
+      updateDriverOrderNoticeInModal();
     } else {
       status.textContent = d.error || ('Erreur ' + r.status);
       status.className   = 'send-status err';
@@ -938,7 +972,8 @@ async function sendDriverEmail(){
     status.textContent = 'Erreur réseau : '+e.message;
     status.className   = 'send-status err';
   }
-  btn.disabled = false; btn.textContent = '✉ Envoyer le trajet par email';
+  btn.disabled = false;
+  updateDriverOrderNoticeInModal();
 }
 /* ── RÉPERTOIRE CONDUCTEURS ── */
 let dirDrivers = [];

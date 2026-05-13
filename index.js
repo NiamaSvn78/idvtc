@@ -322,6 +322,62 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 </body></html>`;
 }
 
+/* ── Telegram admin : paiement confirmé (TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID) ── */
+function tgPlain(s, maxLen) {
+  return String(s == null ? '' : s)
+    .replace(/\r?\n/g, ' ')
+    .slice(0, maxLen || 200);
+}
+
+async function notifyAdminTelegramPayment(r, sourceTag) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+
+  const ref = tgPlain(r.ref || r.id, 48);
+  const price = r.price != null && r.price !== '' ? String(r.price) : '—';
+  const lines = [
+    '✅ Paiement reçu — IsmaDrive',
+    '',
+    'Réf: ' + ref,
+    'Montant: ' + price + ' €',
+    'Client: ' + tgPlain(r.client, 80),
+    'Trajet: ' + tgPlain(r.trajet, 150),
+    'Quand: ' + tgPlain(r.date, 14) + ' · ' + tgPlain(r.time, 8),
+    'Véhicule: ' + tgPlain(r.vehicleName || r.vehicle, 40),
+  ];
+  const tel = String(r.tel || '').trim();
+  if (tel) lines.push('Tél: ' + tgPlain(tel, 24));
+  lines.push('', '(' + String(sourceTag || '—') + ')');
+
+  let text = lines.join('\n');
+  if (text.length > 3900) text = text.slice(0, 3890) + '…';
+
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 12000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        disable_web_page_preview: true,
+      }),
+      signal: ac.signal,
+    });
+    const raw = await res.text();
+    if (!res.ok) {
+      console.error('[Telegram] sendMessage HTTP', res.status, raw.slice(0, 500));
+    }
+  } catch (e) {
+    console.error('[Telegram] sendMessage:', e.message || e);
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /* ── Stripe webhook — doit être AVANT express.json() ── */
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(500).json({ error: 'Stripe non configuré' });
@@ -337,12 +393,24 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
     const session = event.data.object;
     const reservationId = session.metadata?.reservationId;
     if (reservationId) {
+      const before = await dbGetById(reservationId).catch(() => null);
+      const alreadyPaidThisSession =
+        before &&
+        before.paymentStatus === 'paid' &&
+        before.stripeSessionId === session.id;
       await dbUpdate(reservationId, {
         status: 'confirmed',
         paymentStatus: 'paid',
         stripeSessionId: session.id,
         paidAt: new Date().toISOString()
       }).catch(e => console.error('DB update webhook error:', e.message));
+      const r = await dbGetById(reservationId).catch(() => null);
+      console.log('[Stripe] Paiement confirmé réservation', reservationId);
+      if (r && !alreadyPaidThisSession) {
+        await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
+          console.error('[Telegram] admin notify:', e.message)
+        );
+      }
     }
   }
   res.json({ received: true });
@@ -694,7 +762,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email || undefined,
-      success_url: `${APP_URL}/payment-success?ref=${newRes.ref || id}&lang=${newRes.lang || 'fr'}`,
+      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(newRes.ref || id)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(newRes.lang || 'fr')}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
       metadata: { reservationId: id },
     });
@@ -702,6 +770,45 @@ app.post('/api/create-checkout-session', async (req, res) => {
   } catch (err) {
     console.error('Checkout error:', err.message);
     res.status(500).json({ error: 'Erreur lors du paiement : ' + err.message });
+  }
+});
+
+/* Secours si le webhook Stripe est en retard : page paiement envoie session_id */
+app.post('/api/sync-booking-after-payment', async (req, res) => {
+  const sessionId = String(req.body?.sessionId || '').trim();
+  if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId requis' });
+  if (!stripe) return res.status(503).json({ ok: false, error: 'Stripe non configuré' });
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.payment_status !== 'paid') {
+      return res.json({ ok: false, reason: 'payment_not_completed' });
+    }
+    const reservationId = session.metadata?.reservationId;
+    if (!reservationId) return res.json({ ok: false, reason: 'no_reservation_in_session' });
+    let r = await dbGetById(reservationId);
+    if (!r) return res.status(404).json({ ok: false, error: 'reservation_introuvable' });
+    r = (await dbGetById(reservationId)) || r;
+    const paidNow = new Date().toISOString();
+    let transitionedToPaid = false;
+    if (r.paymentStatus !== 'paid') {
+      transitionedToPaid = true;
+      await dbUpdate(reservationId, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        stripeSessionId: session.id,
+        paidAt: r.paidAt || paidNow
+      });
+      r = await dbGetById(reservationId);
+    }
+    if (transitionedToPaid && r) {
+      await notifyAdminTelegramPayment(r, 'sync_apres_paiement').catch(e =>
+        console.error('[Telegram] admin notify:', e.message)
+      );
+    }
+    return res.json({ ok: true, emailSent: false });
+  } catch (e) {
+    console.error('sync-booking-after-payment:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 

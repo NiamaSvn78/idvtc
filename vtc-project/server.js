@@ -171,6 +171,16 @@ function fmtDateFr(iso) {
   const [y, mo, d] = iso.split('-');
   return `${d}/${mo}/${y}`;
 }
+function fmtDateTimeFr(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso).slice(0, 19);
+    return d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+  } catch (_) {
+    return String(iso);
+  }
+}
 function addMinToTime(time, min) {
   const total = timeToMin(time) + Number(min);
   return String(Math.floor(total / 60) % 24).padStart(2,'0') + ':' + String(total % 60).padStart(2,'0');
@@ -723,6 +733,62 @@ async function sendReviewEmail(r) {
   if (error) console.error('[Resend] Email avis:', error.message || error);
 }
 
+/* ── Telegram admin : paiement confirmé (TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID) ── */
+function tgPlain(s, maxLen) {
+  return String(s == null ? '' : s)
+    .replace(/\r?\n/g, ' ')
+    .slice(0, maxLen || 200);
+}
+
+async function notifyAdminTelegramPayment(r, sourceTag) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+
+  const ref = tgPlain(r.ref || r.id, 48);
+  const price = r.price != null && r.price !== '' ? String(r.price) : '—';
+  const lines = [
+    '✅ Paiement reçu — IsmaDrive',
+    '',
+    'Réf: ' + ref,
+    'Montant: ' + price + ' €',
+    'Client: ' + tgPlain(r.client, 80),
+    'Trajet: ' + tgPlain(r.trajet, 150),
+    'Quand: ' + tgPlain(r.date, 14) + ' · ' + tgPlain(r.time, 8),
+    'Véhicule: ' + tgPlain(r.vehicleName || r.vehicle, 40),
+  ];
+  const tel = String(r.tel || '').trim();
+  if (tel) lines.push('Tél: ' + tgPlain(tel, 24));
+  lines.push('', '(' + String(sourceTag || '—') + ')');
+
+  let text = lines.join('\n');
+  if (text.length > 3900) text = text.slice(0, 3890) + '…';
+
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 12000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        disable_web_page_preview: true,
+      }),
+      signal: ac.signal,
+    });
+    const raw = await res.text();
+    if (!res.ok) {
+      console.error('[Telegram] sendMessage HTTP', res.status, raw.slice(0, 500));
+    }
+  } catch (e) {
+    console.error('[Telegram] sendMessage:', e.message || e);
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /* ── STRIPE WEBHOOK (raw body — doit être avant express.json()) ── */
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -741,11 +807,21 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
     const session = event.data.object;
     const reservationId = session.metadata?.reservationId;
     if (reservationId) {
+      const before = await dbGetRes(reservationId).catch(() => null);
+      const alreadyPaidThisSession =
+        before &&
+        before.paymentStatus === 'paid' &&
+        before.stripeSessionId === session.id;
       const updates = { status: 'confirmed', paymentStatus: 'paid', stripeSessionId: session.id, paidAt: new Date().toISOString() };
       await dbUpdateRes(reservationId, updates).catch(e => console.error('DB update error:', e.message));
       const r = await dbGetRes(reservationId).catch(() => null);
       console.log(`✅ Paiement confirmé pour réservation ${reservationId}`);
       if (r) {
+        if (!alreadyPaidThisSession) {
+          await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
+            console.error('[Telegram] admin notify:', e.message)
+          );
+        }
         await sendClientConfirmationEmail(r).catch(e =>
           console.error('Confirmation email error:', e.message)
         );
@@ -776,9 +852,13 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
 
     let r = await dbGetRes(reservationId);
     if (!r) return res.status(404).json({ ok: false, error: 'reservation_introuvable' });
+    /* Relecture : le webhook Stripe peut avoir confirmé entre-temps → évite un 2e Telegram */
+    r = (await dbGetRes(reservationId)) || r;
 
     const paidNow = new Date().toISOString();
+    let transitionedToPaid = false;
     if (r.paymentStatus !== 'paid') {
+      transitionedToPaid = true;
       await dbUpdateRes(reservationId, {
         status: 'confirmed',
         paymentStatus: 'paid',
@@ -786,6 +866,12 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
         paidAt: r.paidAt || paidNow
       });
       r = await dbGetRes(reservationId);
+    }
+
+    if (transitionedToPaid && r) {
+      await notifyAdminTelegramPayment(r, 'sync_apres_paiement').catch(e =>
+        console.error('[Telegram] admin notify:', e.message)
+      );
     }
 
     /* Fallback : si r.email absent en DB, utilise customer_email du session Stripe */
@@ -996,16 +1082,17 @@ app.post('/api/send-driver-email', async (req, res) => {
     return res.status(500).json({ error: 'Erreur envoi : ' + e.message });
   }
 
-  /* Après envoi réussi : persistance (ne doit pas faire échouer la réponse si colonnes manquent encore) */
-  const assignedUpdates = {};
-  if (driverName) assignedUpdates.assignedDriverName = driverName;
-  if (driverPlate) assignedUpdates.assignedDriverPlate = driverPlate;
-  if (Object.keys(assignedUpdates).length) {
-    try {
-      await dbUpdateRes(tripId, assignedUpdates);
-    } catch (e) {
-      console.error('[send-driver-email] DB réservation (conducteur assigné):', e.message);
-    }
+  /* Après envoi réussi : horodatage + destinataire (fiche admin) + conducteur assigné si fourni */
+  const postEmail = {
+    driverOrderSentAt: new Date().toISOString(),
+    driverOrderSentTo: to,
+  };
+  if (driverName) postEmail.assignedDriverName = driverName;
+  if (driverPlate) postEmail.assignedDriverPlate = driverPlate;
+  try {
+    await dbUpdateRes(tripId, postEmail);
+  } catch (e) {
+    console.error('[send-driver-email] DB réservation (bon / conducteur assigné):', e.message);
   }
   if (driverName) {
     try {
@@ -1270,6 +1357,8 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
 .sp-send{width:100%;padding:11px;background:#c9a96e;color:#000;border:none;border-radius:4px;font-size:.85rem;font-weight:bold;cursor:pointer;transition:background .18s}
 .sp-send:hover{background:#e8c98a}
 .sp-send:disabled{opacity:.55;cursor:not-allowed}
+.bon-sent-notice{background:#fff8e6;border-bottom:1px solid #e8d39a;padding:12px 18px;font-size:.84rem;color:#4a3f12;line-height:1.55}
+.bon-sent-notice strong{color:#2a2408}
 .footer{padding:10px 20px;font-size:.65rem;color:#bbb;text-align:center;background:#f9f9f9;border-top:1px solid #eee}
 @media(max-width:480px){.g2{grid-template-columns:1fr}.card-head{flex-direction:column;align-items:flex-start}}
 @media print{body{background:#fff;padding:0}.card{box-shadow:none}.actions,.share-panel{display:none!important}}
@@ -1282,6 +1371,8 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
       <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
     </div>
   </div>
+
+  ${r.driverOrderSentAt ? `<div class="bon-sent-notice" id="bon-sent-banner" role="status">✉ <strong>Bon de commande déjà envoyé</strong> à <strong>${escHtml(r.driverOrderSentTo || '—')}</strong> — <strong>${escHtml(fmtDateTimeFr(r.driverOrderSentAt))}</strong><br><span style="font-size:.76rem;color:#6a5f4a;font-weight:normal">Un nouvel envoi mettra à jour cette date (ex. autre collègue).</span></div>` : ''}
 
   <div class="sec">
     <div class="g2">
@@ -1334,7 +1425,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
     </div>` : ''}
     <button class="btn btn-share" onclick="toggleShare()">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg>
-      Envoyer à un collègue
+      ${r.driverOrderSentAt ? 'Renvoyer à un collègue' : 'Envoyer à un collègue'}
     </button>
     <a href="${listUrl}" class="btn btn-back" style="justify-content:center">← Retour à la liste</a>
   </div>
@@ -1380,6 +1471,16 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
 const _PWD = ${safePwd};
 const _ID  = ${safeId};
 let _driversLoaded = false;
+const _ORDER_SENT_AT = ${JSON.stringify(r.driverOrderSentAt || null)};
+const _ORDER_SENT_TO = ${JSON.stringify(r.driverOrderSentTo || null)};
+function fmtOrderSentLabel() {
+  if (!_ORDER_SENT_AT) return '';
+  try {
+    var d = new Date(_ORDER_SENT_AT);
+    var when = isNaN(d.getTime()) ? String(_ORDER_SENT_AT) : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+    return when + ' à ' + (_ORDER_SENT_TO || '?');
+  } catch (e) { return String(_ORDER_SENT_AT); }
+}
 
 function parseJsonSafe(raw, httpStatus) {
   const t = String(raw == null ? '' : raw).trim();
@@ -1446,6 +1547,14 @@ async function sendToColleague() {
   if (!email)                       { showStatus('err', 'Email du collègue requis'); return; }
   if (!price || isNaN(Number(price))) { showStatus('err', 'Indiquez le prix à verser'); return; }
 
+  if (_ORDER_SENT_AT) {
+    if (!confirm('Un bon de commande a déjà été envoyé le ' + fmtOrderSentLabel() + '.\n\nVoulez-vous vraiment renvoyer un email ?')) {
+      btn.disabled = false;
+      btn.textContent = '✉ Envoyer le bon de commande';
+      return;
+    }
+  }
+
   btn.disabled = true;
   btn.textContent = 'Envoi en cours…';
   hideStatus();
@@ -1462,6 +1571,7 @@ async function sendToColleague() {
       showStatus('ok', '✅ Bon envoyé à ' + email);
       btn.textContent = '✓ Envoyé';
       btn.disabled = false;
+      setTimeout(function () { window.location.reload(); }, 800);
     } else {
       showStatus('err', data.error || ('Erreur ' + res.status));
       btn.disabled = false;
