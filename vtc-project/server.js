@@ -1381,6 +1381,19 @@ const _PWD = ${safePwd};
 const _ID  = ${safeId};
 let _driversLoaded = false;
 
+function parseJsonSafe(raw, httpStatus) {
+  const t = String(raw == null ? '' : raw).trim();
+  if (!t) return {};
+  try { return JSON.parse(t); }
+  catch (e) {
+    const html = /^[\\s]*<(!DOCTYPE|html)/i.test(t);
+    if (html) return { error: 'Réponse HTML (erreur serveur / Vercel). Consultez les logs. [HTTP ' + (httpStatus || '?') + ']' };
+    if (/^An error occurred/i.test(t) || /^Application error/i.test(t))
+      return { error: 'Erreur d’exécution serveur (Vercel). [HTTP ' + (httpStatus || '?') + ']' };
+    return { error: 'Réponse non-JSON [HTTP ' + (httpStatus || '?') + ']' };
+  }
+}
+
 function toggleShare() {
   const panel = document.getElementById('share-panel');
   panel.classList.toggle('open');
@@ -1391,8 +1404,10 @@ async function loadDrivers() {
   _driversLoaded = true;
   try {
     const r = await fetch('/api/drivers?pwd=' + encodeURIComponent(_PWD));
+    const raw = await r.text();
     if (!r.ok) return;
-    const drivers = await r.json();
+    const drivers = parseJsonSafe(raw, r.status);
+    if (!Array.isArray(drivers)) return;
     const sel = document.getElementById('sp-annuaire');
     sel.innerHTML = '<option value="">— Annuaire conducteurs —</option>';
     if (!drivers.length) {
@@ -1441,9 +1456,8 @@ async function sendToColleague() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pwd: _PWD, tripId: _ID, driverEmail: email, driverName: name, driverPrice: Number(price), driverPlate: plate })
     });
-    let data = {};
     const raw = await res.text();
-    try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { error: raw || ('HTTP ' + res.status) }; }
+    const data = parseJsonSafe(raw, res.status);
     if (res.ok && data.ok) {
       showStatus('ok', '✅ Bon envoyé à ' + email);
       btn.textContent = '✓ Envoyé';

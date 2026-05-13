@@ -492,6 +492,23 @@ const VEH_LABEL = { van:'Van Premium', business:'Berline', eco:'Berline', manual
 const DOW = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const MONTHS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 
+/** Ne lève jamais — si le serveur renvoie du HTML (Vercel, 502…), on évite « Unexpected token ». */
+function parseJsonSafe(raw, httpStatus) {
+  const t = String(raw == null ? '' : raw).trim();
+  if (!t) return {};
+  try { return JSON.parse(t); }
+  catch (e) {
+    const html = /^[\s]*<(!DOCTYPE|html)/i.test(t);
+    if (html) {
+      return { error: 'Le serveur a renvoyé une page d’erreur (HTML) au lieu de JSON. Consultez les logs du déploiement Vercel. [HTTP ' + (httpStatus || '?') + ']' };
+    }
+    if (/^An error occurred/i.test(t) || /^Application error/i.test(t)) {
+      return { error: 'Erreur d’exécution côté serveur (Vercel). Ouvrez les logs de la fonction ou réessayez. [HTTP ' + (httpStatus || '?') + ']' };
+    }
+    return { error: 'Réponse non-JSON du serveur [HTTP ' + (httpStatus || '?') + '] : ' + t.slice(0, 160) };
+  }
+}
+
 /* ── AUTH ── */
 async function doLogin(){
   const pwd = document.getElementById('l-pwd').value.trim();
@@ -502,7 +519,9 @@ async function doLogin(){
     if(r.status === 401){ err.textContent='Mot de passe incorrect'; return; }
     PWD = pwd;
     sessionStorage.setItem('adm_pwd', pwd);
-    reservations = await r.json();
+    const raw = await r.text();
+    const data = parseJsonSafe(raw, r.status);
+    reservations = Array.isArray(data) ? data : [];
     document.getElementById('login').style.display='none';
     document.getElementById('app').classList.add('visible');
     initCalendar();
@@ -514,7 +533,11 @@ function logout(){
 }
 async function reloadRes(){
   const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
-  if(r.ok) reservations = await r.json();
+  const raw = await r.text();
+  if(r.ok) {
+    const data = parseJsonSafe(raw, r.status);
+    reservations = Array.isArray(data) ? data : [];
+  }
   renderCalendar();
   updateStats();
 }
@@ -767,7 +790,8 @@ async function saveManual(){
 
   try{
     const r = await fetch('/api/reservations/manual', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-    const data = await r.json();
+    const raw = await r.text();
+    const data = parseJsonSafe(raw, r.status);
     if(!r.ok){
       conflictEl.style.display='block';
       conflictEl.textContent = data.conflict ? `Conflit : course "${data.conflict.trajet}" à ${data.conflict.time}` : (data.error||'Erreur');
@@ -784,7 +808,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     try{
       const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
       if(r.ok){
-        reservations = await r.json();
+        const raw = await r.text();
+        const data = parseJsonSafe(raw, r.status);
+        reservations = Array.isArray(data) ? data : [];
         document.getElementById('login').style.display='none';
         document.getElementById('app').classList.add('visible');
         initCalendar();
@@ -820,7 +846,11 @@ function closeDriverModal(){ document.getElementById('driver-ov').classList.remo
 async function loadDrivers(){
   try{
     const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
-    if(r.ok){ savedDrivers = await r.json(); renderDriverList(); }
+    const raw = await r.text();
+    if(!r.ok) return;
+    const data = parseJsonSafe(raw, r.status);
+    savedDrivers = Array.isArray(data) ? data : [];
+    renderDriverList();
   }catch{}
 }
 function catClass(cat){
@@ -895,12 +925,11 @@ async function sendDriverEmail(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price), driverPlate:plate})});
     const raw = await r.text();
-    let d = {};
-    try { d = raw ? JSON.parse(raw) : {}; } catch (_) { d = { error: raw || ('HTTP ' + r.status) }; }
+    let d = parseJsonSafe(raw, r.status);
     if(r.ok && d.ok){
       status.textContent = `✅ Email envoyé avec succès à ${email}`;
       status.className   = 'send-status ok';
-      await loadDrivers(); /* sauvegarde auto */
+      try { await loadDrivers(); } catch (_) {}
     } else {
       status.textContent = d.error || ('Erreur ' + r.status);
       status.className   = 'send-status err';
@@ -917,7 +946,11 @@ let editingDriverId = null;
 
 async function openDirectory(){
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
-  if(r.ok) dirDrivers = await r.json();
+  const raw = await r.text();
+  if(r.ok){
+    const data = parseJsonSafe(raw, r.status);
+    dirDrivers = Array.isArray(data) ? data : [];
+  } else dirDrivers = [];
   editingDriverId = null;
   renderDirectory();
   document.getElementById('dir-ov').classList.add('open');
@@ -990,7 +1023,12 @@ async function saveEdit(id){
     body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
   editingDriverId = null;
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
-  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  if(r.ok){
+    const raw = await r.text();
+    const data = parseJsonSafe(raw, r.status);
+    dirDrivers = Array.isArray(data) ? data : [];
+    savedDrivers = dirDrivers;
+  }
   renderDirectory();
 }
 
@@ -999,7 +1037,12 @@ async function dirDeleteDriver(id){
   await fetch('/api/drivers/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pwd:PWD})});
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
-  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  if(r.ok){
+    const raw = await r.text();
+    const data = parseJsonSafe(raw, r.status);
+    dirDrivers = Array.isArray(data) ? data : [];
+    savedDrivers = dirDrivers;
+  }
   renderDirectory();
 }
 
@@ -1015,7 +1058,12 @@ async function dirAddDriver(){
   ['dir-new-name','dir-new-phone','dir-new-email','dir-new-plate'].forEach(id => document.getElementById(id).value='');
   document.getElementById('dir-new-cat').value = '';
   const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
-  if(r.ok){ dirDrivers = await r.json(); savedDrivers = dirDrivers; }
+  if(r.ok){
+    const raw = await r.text();
+    const data = parseJsonSafe(raw, r.status);
+    dirDrivers = Array.isArray(data) ? data : [];
+    savedDrivers = dirDrivers;
+  }
   renderDirectory();
 }
 
