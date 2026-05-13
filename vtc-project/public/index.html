@@ -582,6 +582,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .pack-price-tag{font-size:1.05rem;color:var(--gold);font-family:'Cormorant Garamond',serif;font-weight:500}
 
 /* ── OPTIONS FAMILLE ── */
+.dir-toggle{display:flex;gap:.5rem;margin-bottom:1.2rem}
+.dir-btn{flex:1;background:var(--dark3);border:1px solid var(--subtle);color:var(--muted);padding:.65rem .75rem;font-size:.78rem;cursor:pointer;transition:all .2s;letter-spacing:.04em;font-family:inherit}
+.dir-btn.on{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
 .family-bar{display:flex;gap:1.2rem;margin:1rem 0;padding:.85rem 1rem;background:var(--dark3);border:1px solid var(--border);flex-wrap:wrap;align-items:center}
 .family-bar-label{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);flex-shrink:0;display:flex;align-items:center;gap:.4rem}
 .fam-opt{display:flex;align-items:center;gap:.45rem;cursor:pointer}
@@ -990,6 +993,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
         </div>
       </div>
+
+      <!-- ── Sens du trajet ── -->
+      <label class="fl" style="margin-bottom:.5rem" data-i18n="airport.dir_label">Sens du trajet</label>
+      <div class="dir-toggle">
+        <button class="dir-btn on" id="dir-from" onclick="selDir('from',this)" data-i18n="airport.dir_from">✈ Depuis l'aéroport → votre adresse</button>
+        <button class="dir-btn" id="dir-to" onclick="selDir('to',this)" data-i18n="airport.dir_to">🏠 Votre adresse → aéroport</button>
+      </div>
+
+      <!-- ── Adresse client ── -->
+      <label class="fl" for="i-paddress" data-i18n="airport.addr_label">Votre adresse de prise en charge</label>
+      <input class="fi" id="i-paddress" type="text" style="margin-bottom:1.2rem" data-i18n-ph="airport.addr_ph" placeholder="Ex : 10 rue de la Paix, Paris">
 
       <!-- ── Sélecteur véhicule ── -->
       <div class="v-grid">
@@ -1743,7 +1757,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <div class="suc" id="modal-suc">
       <div class="suc-ring"><svg viewBox="0 0 26 26"><path d="M5 13l5 5 11-11"/></svg></div>
       <h3 data-i18n="modal.suc_title">Réservation confirmée !</h3>
-      <p class="suc-email-note" style="font-size:.82rem;color:var(--muted);text-align:center;margin:-0.2rem 0 1rem;line-height:1.55;max-width:26rem;margin-left:auto;margin-right:auto">Un <strong>email de confirmation</strong> vous a été envoyé à l’adresse indiquée.</p>
+      <p class="suc-email-note" data-i18n-html="modal.email_sent_html" style="font-size:.82rem;color:var(--muted);text-align:center;margin:-0.2rem 0 1rem;line-height:1.55;max-width:26rem;margin-left:auto;margin-right:auto">Un <strong>email de confirmation</strong> avec votre QR code vient d’être envoyé à l’adresse indiquée.</p>
 
       <div class="qr-section" id="qr-section">
         <div class="qr-label" data-i18n="modal.qr_label">QR Code de réservation</div>
@@ -1752,9 +1766,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <a class="btn-dl-qr" id="btn-dl-qr" onclick="downloadQR();return false" href="#">
         <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 17h14"/></svg>
-        <span>Télécharger le QR code</span>
+        <span data-i18n="modal.qr_download">Télécharger et sauvegarder le QR code</span>
       </a>
-      <p class="qr-save-note">Votre chauffeur recevra automatiquement les détails de votre course.<br>Pour faciliter votre prise en charge, un QR code vous sera envoyé par email — pratique à avoir sur votre téléphone le jour J.</p>
+      <p class="qr-save-note" data-i18n-html="modal.qr_save_html">Conservez ce QR code sur votre téléphone ou imprimez-le.<br>Il sera demandé par votre conducteur au moment du départ.</p>
 
       <button class="btn-cls" style="margin-top:.9rem" onclick="closeModal()" data-i18n="modal.close">Fermer</button>
     </div>
@@ -1775,7 +1789,7 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', mdur:2, dep:null, arr:null, price:null, km:null };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null };
 let _pendingModalType = null;
 const acT={}, acBT={};
 function syncTimeVal(id){const h=(document.getElementById(id+'-h')||{}).value||'00',m=(document.getElementById(id+'-m')||{}).value||'00',el=document.getElementById(id);if(el)el.value=h+':'+m;}
@@ -1967,6 +1981,11 @@ function selPV(v){
   Object.entries(PVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));
   updatePackPrice();
 }
+function selDir(dir,el){
+  S.fdir=dir;
+  document.querySelectorAll('.dir-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
 function updatePackPrice(){
   const f=CFG.forfaits[S.fpack],price=f[S.fveh];
   S.price=price;
@@ -2061,6 +2080,9 @@ function mkBR(rows,total){return rows.map(([k,v])=>`<div class="brow"><span clas
 function openModal(type){
   if(type==='p'){
     syncTimeVal('i-ptime');
+    if(!document.getElementById('i-paddress').value.trim()){
+      toast(getLang()==='en'?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.');return;
+    }
     if(!document.getElementById('i-pdate').value){
       toast('Veuillez sélectionner une date.');return;
     }
@@ -2087,7 +2109,9 @@ function fillAndShowBookingModal(type){
     const reh=document.getElementById('f-rehausseur')?.checked;
     const sieg=document.getElementById('f-siege')?.checked;
     const extras=(reh?'Réhausseur enfant':'')+(reh&&sieg?' · ':'')+(sieg?'Siège bébé':'');
-    rows=`<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${f.label}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras?`<div class="mr"><span class="mrk">Équipement famille</span><span class="mrv">${extras}</span></div>`:''}`;
+    const addr=(document.getElementById('i-paddress')?.value||'').substring(0,55);
+    const trajetLabel=S.fdir==='from'?f.label+' → '+addr:addr+' → '+f.label;
+    rows=`<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetLabel}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras?`<div class="mr"><span class="mrk">Équipement famille</span><span class="mrv">${extras}</span></div>`:''}`;
   } else if(type==='t'){rows=`<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div><div class="mr"><span class="mrk">Distance</span><span class="mrv">${S.km?S.km.toFixed(1)+' km':'—'}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;}
   else{rows=`<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heures</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;}
   document.getElementById('m-recap').innerHTML=rows;
@@ -2133,9 +2157,17 @@ function buildReservationData(paymentMethod){
   let trajet,date,time,dur,depLabel,depLat,depLon,arrLabel,arrLat,arrLon,veh;
   if(S.tab==='p'){
     const f=CFG.forfaits[S.fpack];
-    trajet=f.label; veh=S.fveh; dur=PACK_DURATION[S.fpack]||55;
+    const addr=(document.getElementById('i-paddress')?.value||'').trim();
+    veh=S.fveh; dur=PACK_DURATION[S.fpack]||55;
     date=document.getElementById('i-pdate').value;
     time=document.getElementById('i-ptime').value;
+    if(S.fdir==='from'){
+      depLabel=f.label; arrLabel=addr;
+      trajet=f.label+' → '+addr;
+    } else {
+      depLabel=addr; arrLabel=f.label;
+      trajet=addr+' → '+f.label;
+    }
   } else if(S.tab==='t'){
     trajet=(S.dep?.label||'—')+' → '+(S.arr?.label||'—');
     veh=S.veh; dur=S.durationMin||60;
@@ -2293,6 +2325,7 @@ function showWizardStep(step) {
 
 function validateWizardStep1() {
   if (S.tab === 'p') {
+    if (!document.getElementById('i-paddress').value.trim()) { toast(getLang()==='en'?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.'); return false; }
     if (!document.getElementById('i-pdate').value) { toast('Veuillez sélectionner une date.'); return false; }
   } else if (S.tab === 't') {
     if (!S.dep) { toast('Veuillez sélectionner une adresse de départ dans les suggestions.'); return false; }
@@ -2313,7 +2346,9 @@ function fillWizardRecap() {
     const reh = document.getElementById('f-rehausseur')?.checked;
     const sieg = document.getElementById('f-siege')?.checked;
     const extras = (reh ? 'Réhausseur enfant' : '') + (reh && sieg ? ' · ' : '') + (sieg ? 'Siège bébé' : '');
-    rows = `<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${f.label}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras ? `<div class="mr"><span class="mrk">Équipement</span><span class="mrv">${extras}</span></div>` : ''}`;
+    const addrW = (document.getElementById('i-paddress')?.value || '').substring(0, 55);
+    const trajetW = S.fdir === 'from' ? f.label + ' → ' + addrW : addrW + ' → ' + f.label;
+    rows = `<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetW}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras ? `<div class="mr"><span class="mrk">Équipement</span><span class="mrv">${extras}</span></div>` : ''}`;
   } else if (type === 't') {
     rows = `<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;
   } else {

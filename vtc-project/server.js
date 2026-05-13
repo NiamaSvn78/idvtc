@@ -216,7 +216,7 @@ async function nextSlot(date, durationMin, afterTime = null) {
 }
 
 /* ── EMAIL CONDUCTEUR ── */
-function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl) {
+function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl, driverPlate) {
   const dateStr = fmtDateFr(r.date);
   const endTime = addMinToTime(r.time, r.durationMin || 60);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
@@ -282,6 +282,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl)
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Informations client</div>
       <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${r.client || '—'}</div>
       <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div>
+      ${driverPlate ? `<div style="font-size:.82rem;color:#888;margin-top:5px"><strong>Immatriculation :</strong> <span style="font-family:monospace;letter-spacing:.08em">${driverPlate}</span></div>` : ''}
       ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${r.equipment}</div>` : ''}
     </td></tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
@@ -316,7 +317,7 @@ function buildMissionOrderHtml(r, qrDataUrl) {
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
   const driverName = r.assignedDriverName || 'ISMA';
-  const plate = r.assignedDriverPlate || (r.vehicle === 'van' ? 'FT-365-XH' : '');
+  const plate = r.assignedDriverPlate || '';
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -787,7 +788,14 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
       r = await dbGetRes(reservationId);
     }
 
-    const needsEmail = String(r.email || '').trim() && r.confirmationEmailSent !== true;
+    /* Fallback : si r.email absent en DB, utilise customer_email du session Stripe */
+    const resolvedEmail = String(r.email || session.customer_email || '').trim();
+    if (resolvedEmail && !r.email) {
+      await dbUpdateRes(reservationId, { email: resolvedEmail }).catch(() => {});
+      r = { ...r, email: resolvedEmail };
+    }
+
+    const needsEmail = resolvedEmail && r.confirmationEmailSent !== true;
     if (needsEmail) {
       await sendClientConfirmationEmail(r);
       return res.json({ ok: true, emailSent: true });
@@ -971,7 +979,7 @@ app.post('/api/send-driver-email', async (req, res) => {
     width: 200, margin: 2, errorCorrectionLevel: 'M',
     type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
   });
-  const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl);
+  const html       = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl, driverPlate || '');
   const subject    = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
 
   try {
