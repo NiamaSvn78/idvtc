@@ -556,6 +556,19 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .mad-items{grid-template-columns:1fr 1fr}
 }
 
+/* ── TARIFS ONGLETS ── */
+.tarif-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.8rem;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tarif-tabs::-webkit-scrollbar{display:none}
+.tarif-tab{background:none;border:none;color:var(--muted);padding:.75rem 1.4rem;font-family:'DM Sans',sans-serif;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;position:relative;transition:color .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.tarif-tab::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--gold);opacity:0;transition:opacity .2s}
+.tarif-tab.active{color:var(--gold)}
+.tarif-tab.active::after{opacity:1}
+.tarif-tab:hover:not(.active){color:var(--text)}
+.tarif-pane{display:none}
+.tarif-pane.active{display:block}
+.tarif-note-inline{font-size:.75rem;color:var(--muted);margin-top:1rem;line-height:1.7;padding:.75rem 1rem;background:var(--dark3);border-left:2px solid var(--gold-border)}
+.tarif-global-note{font-size:.78rem;color:var(--faint);margin-top:1.4rem;line-height:1.6}
+
 /* ── FORFAITS AÉROPORTS ── */
 .pack-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.4rem}
 .pack-card{border:1px solid var(--subtle);padding:1.4rem 1.2rem;cursor:pointer;transition:all .25s;text-align:center;background:var(--dark3);position:relative;overflow:hidden}
@@ -1547,44 +1560,99 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 <!-- ── TARIFS ── -->
 <section id="tarifs">
   <div class="inner">
-    <p class="section-tag">Tarifs</p>
-    <h2 class="section-title">Prix fixes &amp; transparents</h2>
-    <div class="airport-wrap" style="margin-top:0">
-      <table class="airport-table" role="table" aria-label="Tableau des tarifs IsmaDrive">
-        <thead>
-          <tr>
-            <th scope="col">Trajet / Service</th>
-            <th scope="col">Van Premium (7 pl.)</th>
-            <th scope="col">Business (3 pl.)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><div class="airport-sub">Forfait fixe · Aller ou retour</div><span class="airport-dest">Aéroport CDG ↔ Paris</span></td>
-            <td><span class="airport-wait">100 €</span></td>
-            <td><span class="airport-wait">100 €</span></td>
-          </tr>
-          <tr>
-            <td><div class="airport-sub">Forfait fixe · Aller ou retour</div><span class="airport-dest">Aéroport Orly ↔ Paris</span></td>
-            <td><span class="airport-wait">90 €</span></td>
-            <td><span class="airport-wait">90 €</span></td>
-          </tr>
-          <tr>
-            <td><div class="airport-sub">Prix au kilomètre · min. garanti</div><span class="airport-dest">Transfert hors Paris</span></td>
-            <td><span class="airport-wait">2,50 €/km</span><span style="display:block;font-size:.72rem;color:var(--muted)">Min. 40 €</span></td>
-            <td><span class="airport-wait">2,50 €/km</span><span style="display:block;font-size:.72rem;color:var(--muted)">Min. 30 €</span></td>
-          </tr>
-          <tr>
-            <td><div class="airport-sub">Tarif horaire · min. 2h · km illimités</div><span class="airport-dest">Mise à disposition</span></td>
-            <td><span class="airport-wait">95 €/h</span></td>
-            <td><span class="airport-wait">75 €/h</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <p class="section-tag" data-i18n="tarifs.tag">Tarifs</p>
+    <h2 class="section-title" data-i18n="tarifs.title">Prix fixes &amp; transparents</h2>
+
+    <!-- Onglets -->
+    <div class="tarif-tabs" role="tablist">
+      <button class="tarif-tab active" role="tab" aria-selected="true" onclick="switchTarifTab('airport',this)" data-i18n="tarifs.tab_airport">Aéroports</button>
+      <button class="tarif-tab" role="tab" aria-selected="false" onclick="switchTarifTab('transfer',this)" data-i18n="tarifs.tab_transfer">Transferts</button>
+      <button class="tarif-tab" role="tab" aria-selected="false" onclick="switchTarifTab('mad',this)" data-i18n="tarifs.tab_mad">Mise à disposition</button>
     </div>
-    <p style="font-size:.78rem;color:var(--faint);margin-top:1.2rem;line-height:1.6">Tous les tarifs sont TTC, fixes et confirmés à la réservation. Aucun supplément pour bagages, retards de vol ou temps d'attente. Réhausseur enfant et siège bébé inclus sur demande.</p>
+
+    <!-- Pane : Aéroports -->
+    <div class="tarif-pane active" id="tarif-airport" role="tabpanel">
+      <div class="airport-wrap" style="margin-top:0">
+        <table class="airport-table" role="table" aria-label="Tarifs aéroports">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="tarifs.col_route">Trajet / Service</th>
+              <th scope="col" data-i18n="tarifs.col_van">Van Premium (7 pl.)</th>
+              <th scope="col" data-i18n="tarifs.col_biz">Business (3 pl.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="airport-sub" data-i18n="tarifs.fixed_sub">Forfait fixe · Aller ou retour</div><span class="airport-dest" data-i18n="tarifs.cdg_dest">Aéroport CDG ↔ Paris</span></td>
+              <td><span class="airport-wait">100 €</span></td>
+              <td><span class="airport-wait">100 €</span></td>
+            </tr>
+            <tr>
+              <td><div class="airport-sub" data-i18n="tarifs.fixed_sub">Forfait fixe · Aller ou retour</div><span class="airport-dest" data-i18n="tarifs.orly_dest">Aéroport Orly ↔ Paris</span></td>
+              <td><span class="airport-wait">90 €</span></td>
+              <td><span class="airport-wait">90 €</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tarif-note-inline" data-i18n="tarifs.airport_note">✓ 60 min d'attente offertes · Suivi de vol en temps réel · Pancarte nominative incluse</p>
+    </div>
+
+    <!-- Pane : Transferts -->
+    <div class="tarif-pane" id="tarif-transfer" role="tabpanel">
+      <div class="airport-wrap" style="margin-top:0">
+        <table class="airport-table" role="table" aria-label="Tarifs transferts">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="tarifs.col_route">Trajet / Service</th>
+              <th scope="col" data-i18n="tarifs.col_van">Van Premium (7 pl.)</th>
+              <th scope="col" data-i18n="tarifs.col_biz">Business (3 pl.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="airport-sub" data-i18n="tarifs.km_sub">Prix au kilomètre · min. garanti</div><span class="airport-dest" data-i18n="tarifs.transfer_dest">Hors Île-de-France</span></td>
+              <td>
+                <span class="airport-wait" data-i18n="tarifs.van_km">2,50 €/km</span>
+                <span style="display:block;font-size:.72rem;color:var(--muted)" data-i18n="tarifs.van_min">Min. 40 €</span>
+              </td>
+              <td>
+                <span class="airport-wait" data-i18n="tarifs.biz_km">2,50 €/km</span>
+                <span style="display:block;font-size:.72rem;color:var(--muted)" data-i18n="tarifs.biz_min">Min. 30 €</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tarif-note-inline" data-i18n="tarifs.transfer_note">✓ Devis gratuit pour toute destination · Versailles, Deauville, Reims, Lyon et toute la France</p>
+    </div>
+
+    <!-- Pane : Mise à disposition -->
+    <div class="tarif-pane" id="tarif-mad" role="tabpanel">
+      <div class="airport-wrap" style="margin-top:0">
+        <table class="airport-table" role="table" aria-label="Tarifs mise à disposition">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="tarifs.col_route">Trajet / Service</th>
+              <th scope="col" data-i18n="tarifs.col_van">Van Premium (7 pl.)</th>
+              <th scope="col" data-i18n="tarifs.col_biz">Business (3 pl.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="airport-sub" data-i18n="tarifs.mad_sub">Tarif horaire · min. 2h · km illimités</div><span class="airport-dest" data-i18n="tarifs.mad_dest">Mise à disposition</span></td>
+              <td><span class="airport-wait">95 €/h</span></td>
+              <td><span class="airport-wait">75 €/h</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tarif-note-inline" data-i18n="tarifs.mad_note">✓ Idéal pour visites Paris, excursions Versailles, soirées, événements · Kilométrage illimité</p>
+    </div>
+
+    <p class="tarif-global-note" data-i18n="tarifs.note">Tous les tarifs sont TTC, fixes et confirmés à la réservation. Aucun supplément pour bagages, retards de vol ou temps d'attente. Réhausseur enfant et siège bébé inclus sur demande.</p>
     <div style="margin-top:1.8rem;text-align:center">
-      <a href="#reservation" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" class="hero-cta" style="display:inline-block;margin-bottom:0">Réserver maintenant</a>
+      <a href="#reservation" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'});return false" class="hero-cta" style="display:inline-block;margin-bottom:0" data-i18n="tarifs.cta">Réserver maintenant</a>
     </div>
   </div>
 </section>
@@ -1780,6 +1848,13 @@ function goTab(t,btn){
   const sel=document.getElementById('tab-select');if(sel)sel.value=t;
 }
 function goTabSel(v){const m={p:0,t:1,m:2,f:3,s:4,g:5};goTab(v,document.querySelectorAll('.b-tab')[m[v]]);}
+function switchTarifTab(id, btn){
+  document.querySelectorAll('.tarif-tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false');});
+  document.querySelectorAll('.tarif-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected','true');
+  document.getElementById('tarif-'+id).classList.add('active');
+}
 function navTab(id){
   /* Sélectionne le type de trajet dans le wizard si applicable */
   if (['p','t','m'].includes(id)) {
