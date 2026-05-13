@@ -521,8 +521,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   /* Toast — à gauche pour éviter le bouton WA */
   .toast{bottom:5.5rem;right:auto;left:1rem;max-width:calc(100vw - 2rem)}
 
-  /* WhatsApp — position ajustée mobile */
-  .wa-btn{bottom:1rem;right:1rem;padding:.65rem 1rem .65rem .8rem;font-size:.78rem;box-shadow:0 3px 16px rgba(37,211,102,.4)}
+  /* FAB contact (WhatsApp + Appeler) — mobile */
+  .fab-stack{bottom:1rem;right:1rem;gap:.75rem}
+  .wa-btn{padding:.65rem 1rem .65rem .8rem;font-size:.78rem;box-shadow:0 3px 16px rgba(37,211,102,.4)}
   .wa-btn svg{width:20px;height:20px}
 }
 
@@ -690,12 +691,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 @media(max-width:1050px){.nav-phone .nav-phone-label{display:none}}
 @media(max-width:800px){.nav-phone{display:none}}
 
-/* ── BOUTON FLOTTANT APPELER ── */
-.call-btn{position:fixed;bottom:calc(1.8rem + 46px + .8rem);right:1.8rem;z-index:999;display:flex;align-items:center;gap:.5rem;background:#0a0a0a;border:1px solid var(--gold-border);color:var(--gold);text-decoration:none;padding:.65rem 1.1rem .65rem .85rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(0,0,0,.6);transition:all .25s}
+/* ── FAB contact : Appeler + WhatsApp (espacement garanti) ── */
+.fab-stack{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:.85rem}
+.call-btn{display:flex;align-items:center;gap:.5rem;background:#0a0a0a;border:1px solid var(--gold-border);color:var(--gold);text-decoration:none;padding:.65rem 1.1rem .65rem .85rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(0,0,0,.6);transition:all .25s}
 .call-btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold)}
 .call-btn svg{width:17px;height:17px;flex-shrink:0}
+.wa-btn{display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}
+.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}
+.wa-btn svg{width:22px;height:22px;flex-shrink:0}
 @media(max-width:768px){
-  .call-btn{bottom:calc(1rem + 42px + .6rem);right:1rem;padding:.6rem .95rem .6rem .75rem;font-size:.78rem}
+  .call-btn{padding:.6rem .95rem .6rem .75rem;font-size:.78rem}
   .wiz-progress{padding:1rem 1.2rem}
   .wp-lbl{display:none}
   .wp-dot{width:26px;height:26px;font-size:.68rem}
@@ -2400,23 +2405,18 @@ function toggleFaq(btn){
 }
 </script>
 
+<div class="fab-stack">
 <a class="call-btn" href="tel:+33623889717" aria-label="Appeler IsmaDrive">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
   <span>Appeler</span>
 </a>
-
 <a class="wa-btn" href="https://wa.me/33623889717" target="_blank" rel="noopener noreferrer" aria-label="Nous contacter sur WhatsApp">
   <svg viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M16 2C8.268 2 2 8.268 2 16c0 2.49.653 4.826 1.794 6.845L2 30l7.353-1.768A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.89-1.608l-.422-.25-4.364 1.05 1.083-4.24-.276-.436A11.56 11.56 0 014.4 16C4.4 9.594 9.594 4.4 16 4.4S27.6 9.594 27.6 16 22.406 27.6 16 27.6zm6.34-8.62c-.346-.173-2.05-1.012-2.368-1.127-.317-.116-.548-.173-.78.173-.23.346-.895 1.127-1.098 1.358-.202.23-.404.26-.75.087-.347-.174-1.463-.54-2.786-1.72-1.03-.918-1.724-2.052-1.926-2.398-.202-.347-.021-.534.152-.706.156-.155.347-.404.52-.606.173-.202.23-.347.347-.578.116-.23.058-.433-.029-.606-.087-.173-.78-1.88-1.069-2.573-.281-.676-.567-.584-.78-.595l-.664-.011c-.23 0-.606.086-.924.433-.317.346-1.213 1.185-1.213 2.89 0 1.706 1.242 3.354 1.415 3.585.173.23 2.445 3.733 5.924 5.234.828.357 1.474.57 1.977.73.83.264 1.587.227 2.184.138.666-.1 2.05-.839 2.34-1.648.289-.81.289-1.504.202-1.648-.087-.144-.317-.23-.664-.404z"/>
   </svg>
   <span>WhatsApp</span>
 </a>
-
-<style>
-.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}
-.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}
-.wa-btn svg{width:22px;height:22px;flex-shrink:0}
-</style>
+</div>
 <script src="/js/i18n.js?v=3"></script>
 </body>
 </html>

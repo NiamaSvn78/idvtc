@@ -722,7 +722,7 @@ function openTrip(id){
     ${row('Prix', (r.price||0)+' €')}
     ${r.notes ? row('Notes', r.notes) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
-    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')) : ''}
+    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')+((r.assignedDriverName||'').trim() ? ' · conducteur : '+escHtml((r.assignedDriverName||'').trim()) : '')) : ''}
   `;
   const foot = document.getElementById('tm-foot');
   foot.innerHTML = '';
@@ -767,7 +767,7 @@ function updateDriverOrderNoticeInModal(){
   var r = reservations.find(function(x){ return x.id === id; });
   if(r && r.driverOrderSentAt){
     el.classList.add('show');
-    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>';
+    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>'+((r.assignedDriverName||'').trim() ? ' <span style="font-weight:600">('+escHtml((r.assignedDriverName||'').trim())+')</span>' : '');
     if(btn) btn.textContent = '✉ Renvoyer le trajet par email';
   } else {
     el.classList.remove('show');
@@ -862,6 +862,7 @@ async function openDriverModal(id){
     `<strong>${r.trajet||'Course'}</strong><br>${fmtDate(r.date)} à ${r.time} · ${VEH_LABEL[r.vehicle]||'—'}`;
   document.getElementById('send-driver-email').value = '';
   document.getElementById('send-driver-name').value  = '';
+  document.getElementById('send-driver-plate').value  = '';
   document.getElementById('send-driver-price').value = '';
   document.getElementById('send-status').className   = 'send-status';
   document.getElementById('btn-send-email').disabled = false;
@@ -948,7 +949,7 @@ async function sendDriverEmail(){
   if(!price || isNaN(Number(price))){ status.textContent='Indiquez le prix à verser au conducteur'; status.className='send-status err'; return; }
   var trip = reservations.find(function(x){ return x.id === currentDriverTripId; });
   if(trip && trip.driverOrderSentAt){
-    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+'.\n\nRenvoyer quand même ?')) return;
+    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+((trip.assignedDriverName||'').trim() ? ' ('+(trip.assignedDriverName||'').trim()+')' : '')+'.\n\nRenvoyer quand même ?')) return;
   }
   const btn = document.getElementById('btn-send-email');
   btn.disabled = true; btn.textContent = 'Envoi en cours…';

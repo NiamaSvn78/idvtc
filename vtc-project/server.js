@@ -226,7 +226,10 @@ async function nextSlot(date, durationMin, afterTime = null) {
 }
 
 /* ── EMAIL CONDUCTEUR ── */
-function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl, driverPlate) {
+function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl, driverPlate, driverEmailTo) {
+  const dn = String(driverName || '').trim();
+  const dp = String(driverPlate || '').trim();
+  const dem = String(driverEmailTo || '').trim();
   const dateStr = fmtDateFr(r.date);
   const endTime = addMinToTime(r.time, r.durationMin || 60);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
@@ -238,12 +241,24 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl,
   const calStart = `${calDate}T${(r.time||'0000').replace(':','')}00`;
   const calEnd   = `${calDate}T${endTime.replace(':','')}00`;
   const calTitle = encodeURIComponent(`Course IsmaDrive — ${r.trajet||''}`);
-  const calDesc  = encodeURIComponent(`Client: ${r.client||''}\nTél: ${r.tel||''}`);
+  const calLines = [
+    `Client : ${r.client || ''}`,
+    `Tél. : ${r.tel || ''}`,
+    '',
+    `Bon IsmaDrive — destinataire de ce bon : ${dn || '—'}${dp ? ' · Immat. ' + dp : ''}`,
+    dem ? `Email du destinataire : ${dem}` : '',
+    '',
+    'Ne pas réattribuer cette course à un autre chauffeur sans coordination avec IsmaDrive.'
+  ];
+  const calDesc  = encodeURIComponent(calLines.join('\n'));
   const calLoc   = encodeURIComponent(dep);
   const googleCal  = `https://www.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&dates=${calStart}%2F${calEnd}&details=${calDesc}&location=${calLoc}`;
   const outlookCal = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${calTitle}&startdt=${r.date}T${r.time}:00&enddt=${r.date}T${endTime}:00&body=${calDesc}&location=${calLoc}`;
 
-  const greeting = driverName ? `Bonjour ${driverName},` : 'Bonjour,';
+  const dnEsc = escHtml(dn);
+  const dpEsc = escHtml(dp);
+  const demEsc = escHtml(dem);
+  const greeting = dn ? `Bonjour ${dnEsc},` : 'Bonjour,';
 
   return `<!DOCTYPE html><html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -258,12 +273,19 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl,
   <tr><td style="padding:32px">
     <p style="margin:0 0 12px;font-size:1rem">${greeting}</p>
     <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>.</p>
+    ${dem ? `<p style="margin:0 0 10px;font-size:.82rem;color:#666">Ce message est destiné à <strong>${demEsc}</strong> — merci de vérifier qu’il s’agit bien de vous avant d’ajouter l’événement au calendrier (évite les doubles envois).</p>` : ''}
     <p style="margin:0 0 24px;font-size:.85rem;color:#666">
       Ajouter au calendrier :
       <a href="${googleCal}" style="color:#c9a96e;text-decoration:none">Google Agenda</a>
       &nbsp;—&nbsp;
       <a href="${outlookCal}" style="color:#c9a96e;text-decoration:none">Outlook</a>
     </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;border:1px solid #e8e0d0">
+    <tr><td style="padding:14px 16px;background:#fffbf2">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Vous (conducteur assigné)</div>
+      <div style="font-size:1.05rem;font-weight:bold;color:#080808">${dnEsc || '<span style="color:#888;font-weight:500">—</span>'}</div>
+      ${dp ? `<div style="font-size:.88rem;margin-top:8px;color:#333"><strong>Immatriculation :</strong> <span style="font-family:monospace;letter-spacing:.08em">${dpEsc}</span></div>` : '<div style="font-size:.82rem;margin-top:6px;color:#888">Immatriculation non renseignée</div>'}
+    </td></tr></table>
     <div style="background:#f9f6f0;border-left:3px solid #c9a96e;padding:14px 16px;margin-bottom:28px;font-size:.88rem;color:#555;line-height:1.5">
       Nous comptons sur votre ponctualité et votre professionnalisme pour assurer un service de transport de qualité à nos clients.
     </div>
@@ -290,10 +312,9 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl,
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;border:1px solid #eee">
     <tr><td style="padding:14px 16px">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Informations client</div>
-      <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${r.client || '—'}</div>
-      <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div>
-      ${driverPlate ? `<div style="font-size:.82rem;color:#888;margin-top:5px"><strong>Immatriculation :</strong> <span style="font-family:monospace;letter-spacing:.08em">${driverPlate}</span></div>` : ''}
-      ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${r.equipment}</div>` : ''}
+      <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${escHtml(r.client || '—')}</div>
+      <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${escHtml(r.tel || '—')}</a></div>
+      ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${escHtml(r.equipment)}</div>` : ''}
     </td></tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
     <tr><td style="background:#080808;border:1px solid #c9a96e;padding:14px 18px;border-radius:2px">
@@ -326,8 +347,12 @@ function buildMissionOrderHtml(r, qrDataUrl) {
   const arrEnc = encodeURIComponent(arr);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
-  const driverName = r.assignedDriverName || 'ISMA';
-  const plate = r.assignedDriverPlate || '';
+  const driverNameRaw = String(r.assignedDriverName || '').trim();
+  const plateRaw = String(r.assignedDriverPlate || '').trim();
+  const driverNameHtml = driverNameRaw ? escHtml(driverNameRaw) : '—';
+  const plateCell = plateRaw
+    ? `<div><div class="lbl">Immatriculation</div><div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${escHtml(plateRaw)}</div></div>`
+    : `<div><div class="lbl">Immatriculation</div><div class="val" style="color:#888">—</div></div>`;
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -395,17 +420,15 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
     ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
   </div>
   <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
-    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Votre chauffeur</div>
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Conducteur assigné (bon)</div>
     <div class="grid2">
       <div>
-        <div class="lbl">Prénom</div>
-        <div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">${driverName}</div>
+        <div class="lbl">Nom</div>
+        <div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">${driverNameHtml}</div>
       </div>
-      ${plate ? `<div>
-        <div class="lbl">Immatriculation</div>
-        <div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${plate}</div>
-      </div>` : ''}
+      ${plateCell}
     </div>
+    ${r.driverOrderSentTo ? `<div style="margin-top:12px;font-size:.78rem;color:#777;line-height:1.45">Bon transmis à l’adresse <strong style="color:#555">${escHtml(r.driverOrderSentTo)}</strong> (anti-doublon).</div>` : ''}
   </div>
   <div class="qr-block">
     <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code client — scanner pour valider</div>
@@ -1057,6 +1080,9 @@ app.post('/api/send-driver-email', async (req, res) => {
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
+  const nm = String(driverName || '').trim();
+  const pl = String(driverPlate || '').trim();
+
   const token      = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
   let qrDataUrl;
@@ -1069,8 +1095,9 @@ app.post('/api/send-driver-email', async (req, res) => {
     console.error('[send-driver-email] QR:', e.message);
     qrDataUrl = '';
   }
-  const html    = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice, qrDataUrl, driverPlate || '');
-  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
+  const html = buildDriverEmailHtml(r, nm, missionUrl, driverPrice, qrDataUrl, pl, to);
+  const whoLabel = (nm || (to.includes('@') ? to.split('@')[0] : to) || to).slice(0, 48);
+  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time} — ${whoLabel}`;
 
   try {
     const { error } = await resendEmailsSend({ from: RESEND_FROM, to, subject, html });
@@ -1082,27 +1109,27 @@ app.post('/api/send-driver-email', async (req, res) => {
     return res.status(500).json({ error: 'Erreur envoi : ' + e.message });
   }
 
-  /* Après envoi réussi : horodatage + destinataire (fiche admin) + conducteur assigné si fourni */
+  /* Après envoi réussi : horodatage + destinataire + conducteur assigné (écrase l’ancien pour refléter le collègue) */
   const postEmail = {
     driverOrderSentAt: new Date().toISOString(),
     driverOrderSentTo: to,
+    assignedDriverName: nm || null,
+    assignedDriverPlate: pl || null
   };
-  if (driverName) postEmail.assignedDriverName = driverName;
-  if (driverPlate) postEmail.assignedDriverPlate = driverPlate;
   try {
     await dbUpdateRes(tripId, postEmail);
   } catch (e) {
     console.error('[send-driver-email] DB réservation (bon / conducteur assigné):', e.message);
   }
-  if (driverName) {
+  if (nm) {
     try {
       await dbInsertDriver({
         id: Date.now().toString(36),
-        name: driverName,
+        name: nm,
         email: to,
         phone: '',
         carCategory: '',
-        immatriculation: driverPlate || ''
+        immatriculation: pl || ''
       });
     } catch (e) {
       console.error('[send-driver-email] DB annuaire conducteur:', e.message);
@@ -1372,7 +1399,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
     </div>
   </div>
 
-  ${r.driverOrderSentAt ? `<div class="bon-sent-notice" id="bon-sent-banner" role="status">✉ <strong>Bon de commande déjà envoyé</strong> à <strong>${escHtml(r.driverOrderSentTo || '—')}</strong> — <strong>${escHtml(fmtDateTimeFr(r.driverOrderSentAt))}</strong><br><span style="font-size:.76rem;color:#6a5f4a;font-weight:normal">Un nouvel envoi mettra à jour cette date (ex. autre collègue).</span></div>` : ''}
+  ${r.driverOrderSentAt ? `<div class="bon-sent-notice" id="bon-sent-banner" role="status">✉ <strong>Bon de commande déjà envoyé</strong> à <strong>${escHtml(r.driverOrderSentTo || '—')}</strong>${(r.assignedDriverName || '').trim() ? ' <strong>(' + escHtml((r.assignedDriverName || '').trim()) + ')</strong>' : ''} — <strong>${escHtml(fmtDateTimeFr(r.driverOrderSentAt))}</strong><br><span style="font-size:.76rem;color:#6a5f4a;font-weight:normal">Un nouvel envoi mettra à jour cette date (ex. autre collègue).</span></div>` : ''}
 
   <div class="sec">
     <div class="g2">
@@ -1473,12 +1500,13 @@ const _ID  = ${safeId};
 let _driversLoaded = false;
 const _ORDER_SENT_AT = ${JSON.stringify(r.driverOrderSentAt || null)};
 const _ORDER_SENT_TO = ${JSON.stringify(r.driverOrderSentTo || null)};
+const _ORDER_ASSIGNED_NAME = ${JSON.stringify(String(r.assignedDriverName || '').trim())};
 function fmtOrderSentLabel() {
   if (!_ORDER_SENT_AT) return '';
   try {
     var d = new Date(_ORDER_SENT_AT);
     var when = isNaN(d.getTime()) ? String(_ORDER_SENT_AT) : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-    return when + ' à ' + (_ORDER_SENT_TO || '?');
+    return when + ' à ' + (_ORDER_SENT_TO || '?') + (_ORDER_ASSIGNED_NAME ? ' (' + _ORDER_ASSIGNED_NAME + ')' : '');
   } catch (e) { return String(_ORDER_SENT_AT); }
 }
 
