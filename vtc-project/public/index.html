@@ -615,12 +615,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .cgv-link:hover{color:var(--gold2)}
 
 /* ── TRUST BAR ── */
-#trust-bar{width:100%;background:#111;padding:16px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:3rem}
-.trust-bar-inner{display:flex;gap:12px;overflow-x:auto;padding:0 20px;scrollbar-width:none}
+#trust-bar{width:calc(100% + 10vw);background:#111;padding:16px 0;border-top:1px solid rgba(201,169,110,0.19);border-bottom:1px solid rgba(201,169,110,0.19);margin-bottom:3rem}
+.trust-bar-inner{display:flex;gap:12px;overflow-x:auto;padding:0 5vw;scrollbar-width:none}
 .trust-bar-inner::-webkit-scrollbar{display:none}
 .trust-badge{flex-shrink:0;background:#1a1a1a;border:1px solid rgba(201,169,110,0.25);border-radius:8px;padding:10px 16px;color:#fff;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:8px}
 .trust-badge .badge-icon{font-size:16px}
-@media(min-width:768px){.trust-bar-inner{flex-wrap:wrap;justify-content:center}}
+@media(min-width:768px){.trust-bar-inner{flex-wrap:wrap;justify-content:center;overflow-x:visible}}
+@media(max-width:560px){
+  #trust-bar{margin-bottom:2rem}
+  .trust-bar-inner{flex-wrap:wrap;overflow-x:visible;gap:8px}
+  .trust-badge{flex:1 1 calc(50% - 4px);white-space:normal;font-size:12px;padding:8px 10px;border-radius:6px;min-width:0}
+}
 /* ── PARIS EXPERIENCE ── */
 #paris-experience{padding:7.5rem 5vw;background:#0d0d0d}
 .experience-header{text-align:center;margin-bottom:4rem}
@@ -635,6 +640,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .exp-card h3{color:#fff;font-size:0.95rem;font-weight:600;margin-bottom:6px}
 .exp-card p{color:#888;font-size:0.82rem;line-height:1.45}
 @media(max-width:600px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.experience-grid{grid-template-columns:1fr}}
 /* ── STORYTELLING ── */
 #storytelling{padding:7.5rem 5vw;background:var(--dark)}
 .story-header{text-align:center;margin-bottom:4rem}
@@ -645,7 +651,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .story-card .story-icon{font-size:2.4rem;display:block;margin-bottom:1.2rem}
 .story-card h3{color:var(--text);font-size:1rem;font-weight:500;margin-bottom:.7rem;letter-spacing:.03em}
 .story-card p{color:var(--muted);font-size:.88rem;line-height:1.78}
-@media(max-width:700px){.story-grid{grid-template-columns:1fr;background:transparent;gap:1rem}}
+@media(max-width:768px){.story-grid{grid-template-columns:1fr;background:transparent;gap:1rem}}
 
 /* ══════════════════════════════
    WIZARD RÉSERVATION

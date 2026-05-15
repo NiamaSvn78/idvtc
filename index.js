@@ -15,6 +15,9 @@ const port = process.env.PORT || 3000;
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || '';
 const RESEND_BCC_EMAIL = String(process.env.RESEND_BCC_EMAIL || '').trim();
+const ADMIN_PAYMENT_NOTIFY_EMAIL = String(
+  process.env.ADMIN_PAYMENT_NOTIFY_EMAIL || 'diabyismaila80@gmail.com'
+).trim();
 const APP_URL = (process.env.APP_URL || 'https://ismadrive.fr').replace(/\/$/, '');
 const PUBLIC_SITE_URL = APP_URL;
 const WHATSAPP_BOOKING_URL = 'https://wa.me/33623889717';
@@ -322,18 +325,14 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
 </body></html>`;
 }
 
-/* ── Telegram admin : paiement confirmé (TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID) ── */
+/* ── Telegram + email admin : paiement confirmé (même corps de message) ── */
 function tgPlain(s, maxLen) {
   return String(s == null ? '' : s)
     .replace(/\r?\n/g, ' ')
     .slice(0, maxLen || 200);
 }
 
-async function notifyAdminTelegramPayment(r, sourceTag) {
-  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
-  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
-  if (!token || !chatId) return;
-
+function buildAdminPaymentNotifyPlainText(r, sourceTag) {
   const ref = tgPlain(r.ref || r.id, 48);
   const price = r.price != null && r.price !== '' ? String(r.price) : '—';
   const lines = [
@@ -352,6 +351,15 @@ async function notifyAdminTelegramPayment(r, sourceTag) {
 
   let text = lines.join('\n');
   if (text.length > 3900) text = text.slice(0, 3890) + '…';
+  return text;
+}
+
+async function notifyAdminTelegramPayment(r, sourceTag) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+
+  const text = buildAdminPaymentNotifyPlainText(r, sourceTag);
 
   const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
   const ac = new AbortController();
@@ -410,6 +418,9 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
           console.error('[Telegram] admin notify:', e.message)
         );
+        await notifyAdminEmailPayment(r, 'stripe_webhook').catch(e =>
+          console.error('[Resend] admin paiement notify:', e.message)
+        );
       }
     }
   }
@@ -425,6 +436,40 @@ function escHtml(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+async function notifyAdminEmailPayment(r, sourceTag) {
+  const to = ADMIN_PAYMENT_NOTIFY_EMAIL;
+  if (!to || !RESEND_API_KEY || !RESEND_FROM) return;
+
+  const plain = buildAdminPaymentNotifyPlainText(r, sourceTag);
+  const refShort = tgPlain(r.ref || r.id, 48);
+  const subject = `✅ Paiement reçu — IsmaDrive · ${refShort}`;
+  const safe = escHtml(plain);
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+<tr><td style="padding:20px 26px;border-bottom:2px solid #c9a96e;background:#080808">
+  <div style="font-family:Georgia,serif;font-size:1.25rem;color:#c9a96e;letter-spacing:.08em">IsmaDrive</div>
+  <div style="font-size:.62rem;color:#9a9185;letter-spacing:.18em;text-transform:uppercase;margin-top:4px">Notification admin · Paiement reçu</div>
+</td></tr>
+<tr><td style="padding:22px 26px"><pre style="margin:0;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.55;color:#222">${safe}</pre></td></tr>
+</table></td></tr></table></body></html>`;
+
+  try {
+    const resend = new Resend(RESEND_API_KEY);
+    const { error } = await resend.emails.send({
+      from: RESEND_FROM,
+      to,
+      subject,
+      html,
+      text: plain,
+    });
+    if (error) console.error('[Resend] admin paiement:', error.message || error);
+  } catch (e) {
+    console.error('[Resend] admin paiement:', e.message || e);
+  }
 }
 
 /** Même contenu que le QR généré côté client (index.html → generateQR) */
@@ -803,6 +848,9 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
     if (transitionedToPaid && r) {
       await notifyAdminTelegramPayment(r, 'sync_apres_paiement').catch(e =>
         console.error('[Telegram] admin notify:', e.message)
+      );
+      await notifyAdminEmailPayment(r, 'sync_apres_paiement').catch(e =>
+        console.error('[Resend] admin paiement notify:', e.message)
       );
     }
     return res.json({ ok: true, emailSent: false });

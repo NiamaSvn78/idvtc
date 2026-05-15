@@ -41,6 +41,10 @@ const RESEND_API_KEY     = process.env.RESEND_API_KEY || '';
 const RESEND_FROM_EMAIL  = process.env.RESEND_FROM_EMAIL || '';
 const RESEND_FROM        = RESEND_FROM_EMAIL ? `IsmaDrive <${RESEND_FROM_EMAIL}>` : '';
 const RESEND_BCC_EMAIL   = String(process.env.RESEND_BCC_EMAIL || '').trim();
+/** Même contenu que la notif Telegram ; surcharge possible via ADMIN_PAYMENT_NOTIFY_EMAIL */
+const ADMIN_PAYMENT_NOTIFY_EMAIL = String(
+  process.env.ADMIN_PAYMENT_NOTIFY_EMAIL || 'diabyismaila80@gmail.com'
+).trim();
 
 /** Envoie via Resend ; renvoie { data, error } (les erreurs API ne lèvent pas toujours d’exception). */
 async function resendEmailsSend(payload) {
@@ -157,6 +161,33 @@ async function dbUpdateDriver(id, updates) {
 async function dbDeleteDriver(id) {
   const { error } = await supabase.from('drivers').delete().eq('id', id);
   if (error) throw new Error(error.message);
+}
+
+/** Partie affichable avant @ (secours si le nom n’a pas été saisi). */
+function emailLocalPart(email) {
+  const t = String(email || '').trim();
+  if (!t) return '';
+  const i = t.indexOf('@');
+  return i > 0 ? t.slice(0, i) : t;
+}
+
+/** Cherche un conducteur dans l’annuaire (email insensible à la casse, sans piège ILIKE sur _). */
+async function dbGetDriverByEmail(email) {
+  const raw = String(email || '').trim();
+  if (!raw) return null;
+  const lower = raw.toLowerCase();
+  const { data: exact, error: e1 } = await supabase.from('drivers').select('*').eq('email', raw).maybeSingle();
+  if (e1) console.warn('[drivers] dbGetDriverByEmail eq:', e1.message);
+  if (exact) return exact;
+  const { data: exactLower, error: e2 } = await supabase.from('drivers').select('*').eq('email', lower).maybeSingle();
+  if (e2) console.warn('[drivers] dbGetDriverByEmail eq lower:', e2.message);
+  if (exactLower) return exactLower;
+  const { data: rows, error: e3 } = await supabase.from('drivers').select('*');
+  if (e3) {
+    console.warn('[drivers] dbGetDriverByEmail scan:', e3.message);
+    return null;
+  }
+  return (rows || []).find((d) => String(d.email || '').toLowerCase() === lower) || null;
 }
 
 function timeToMin(t) {
@@ -756,18 +787,15 @@ async function sendReviewEmail(r) {
   if (error) console.error('[Resend] Email avis:', error.message || error);
 }
 
-/* ── Telegram admin : paiement confirmé (TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID) ── */
+/* ── Telegram + email admin : paiement confirmé (même corps de message) ── */
 function tgPlain(s, maxLen) {
   return String(s == null ? '' : s)
     .replace(/\r?\n/g, ' ')
     .slice(0, maxLen || 200);
 }
 
-async function notifyAdminTelegramPayment(r, sourceTag) {
-  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
-  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
-  if (!token || !chatId) return;
-
+/** Texte identique à celui envoyé sur Telegram (limite Telegram ~4k). */
+function buildAdminPaymentNotifyPlainText(r, sourceTag) {
   const ref = tgPlain(r.ref || r.id, 48);
   const price = r.price != null && r.price !== '' ? String(r.price) : '—';
   const lines = [
@@ -786,6 +814,15 @@ async function notifyAdminTelegramPayment(r, sourceTag) {
 
   let text = lines.join('\n');
   if (text.length > 3900) text = text.slice(0, 3890) + '…';
+  return text;
+}
+
+async function notifyAdminTelegramPayment(r, sourceTag) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+
+  const text = buildAdminPaymentNotifyPlainText(r, sourceTag);
 
   const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
   const ac = new AbortController();
@@ -810,6 +847,29 @@ async function notifyAdminTelegramPayment(r, sourceTag) {
   } finally {
     clearTimeout(t);
   }
+}
+
+async function notifyAdminEmailPayment(r, sourceTag) {
+  const to = ADMIN_PAYMENT_NOTIFY_EMAIL;
+  if (!to || !RESEND_API_KEY || !RESEND_FROM_EMAIL) return;
+
+  const plain = buildAdminPaymentNotifyPlainText(r, sourceTag);
+  const refShort = tgPlain(r.ref || r.id, 48);
+  const subject = `✅ Paiement reçu — IsmaDrive · ${refShort}`;
+  const safe = escHtml(plain);
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+<tr><td style="padding:20px 26px;border-bottom:2px solid #c9a96e;background:#080808">
+  <div style="font-family:Georgia,serif;font-size:1.25rem;color:#c9a96e;letter-spacing:.08em">IsmaDrive</div>
+  <div style="font-size:.62rem;color:#9a9185;letter-spacing:.18em;text-transform:uppercase;margin-top:4px">Notification admin · Paiement reçu</div>
+</td></tr>
+<tr><td style="padding:22px 26px"><pre style="margin:0;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.55;color:#222">${safe}</pre></td></tr>
+</table></td></tr></table></body></html>`;
+
+  const { error } = await resendEmailsSend({ from: RESEND_FROM, to, subject, html, text: plain });
+  if (error) console.error('[Resend] admin paiement:', error.message || error);
 }
 
 /* ── STRIPE WEBHOOK (raw body — doit être avant express.json()) ── */
@@ -843,6 +903,9 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         if (!alreadyPaidThisSession) {
           await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
             console.error('[Telegram] admin notify:', e.message)
+          );
+          await notifyAdminEmailPayment(r, 'stripe_webhook').catch(e =>
+            console.error('[Resend] admin paiement notify:', e.message)
           );
         }
         await sendClientConfirmationEmail(r).catch(e =>
@@ -894,6 +957,9 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
     if (transitionedToPaid && r) {
       await notifyAdminTelegramPayment(r, 'sync_apres_paiement').catch(e =>
         console.error('[Telegram] admin notify:', e.message)
+      );
+      await notifyAdminEmailPayment(r, 'sync_apres_paiement').catch(e =>
+        console.error('[Resend] admin paiement notify:', e.message)
       );
     }
 
@@ -1080,8 +1146,15 @@ app.post('/api/send-driver-email', async (req, res) => {
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
-  const nm = String(driverName || '').trim();
-  const pl = String(driverPlate || '').trim();
+  const formDriverName = String(driverName || '').trim();
+  const formPlate = String(driverPlate || '').trim();
+  /* Toujours croiser l’annuaire : le nom peut être saisi à la main sans la plaque, ou l’inverse. */
+  const driverDirMatch = await dbGetDriverByEmail(to);
+  const dirName = String(driverDirMatch?.name || '').trim();
+  const dirPlate = String(driverDirMatch?.immatriculation || '').trim();
+  const nm = formDriverName || dirName;
+  const pl = formPlate || dirPlate;
+  const assignedDisplay = (nm || emailLocalPart(to) || to).slice(0, 200);
 
   const token      = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
@@ -1095,8 +1168,10 @@ app.post('/api/send-driver-email', async (req, res) => {
     console.error('[send-driver-email] QR:', e.message);
     qrDataUrl = '';
   }
-  const html = buildDriverEmailHtml(r, nm, missionUrl, driverPrice, qrDataUrl, pl, to);
-  const whoLabel = (nm || (to.includes('@') ? to.split('@')[0] : to) || to).slice(0, 48);
+  /* Email : nom « humain » (pas seulement la partie locale mail si on a un vrai nom) + plaque fusionnée */
+  const nameForEmail = (nm || assignedDisplay).trim();
+  const html = buildDriverEmailHtml(r, nameForEmail, missionUrl, driverPrice, qrDataUrl, pl, to);
+  const whoLabel = assignedDisplay.slice(0, 48);
   const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time} — ${whoLabel}`;
 
   try {
@@ -1113,7 +1188,7 @@ app.post('/api/send-driver-email', async (req, res) => {
   const postEmail = {
     driverOrderSentAt: new Date().toISOString(),
     driverOrderSentTo: to,
-    assignedDriverName: nm || null,
+    assignedDriverName: assignedDisplay || null,
     assignedDriverPlate: pl || null
   };
   try {
@@ -1121,11 +1196,13 @@ app.post('/api/send-driver-email', async (req, res) => {
   } catch (e) {
     console.error('[send-driver-email] DB réservation (bon / conducteur assigné):', e.message);
   }
-  if (nm) {
+  /* N’ajoute à l’annuaire que si on a un vrai nom (formulaire ou fiche conducteur), pas le pseudo-email seul. */
+  const nameForDirectory = formDriverName || String(driverDirMatch?.name || '').trim();
+  if (nameForDirectory) {
     try {
       await dbInsertDriver({
         id: Date.now().toString(36),
-        name: nm,
+        name: nameForDirectory,
         email: to,
         phone: '',
         carCategory: '',
@@ -1276,6 +1353,11 @@ function buildAdminListHtml(reservations, search, pwd) {
     const ref         = escHtml(r.ref || r.id || '');
     const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
     const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
+    const collStrong =
+      String(r.assignedDriverName || '').trim() ||
+      emailLocalPart(r.driverOrderSentTo) ||
+      String(r.driverOrderSentTo || '').trim() ||
+      '—';
     return `<div style="background:#fff;border-radius:6px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,.08);border-left:4px solid ${statusColor}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
     <div style="font-family:monospace;font-size:.82rem;color:#555">${ref}</div>
@@ -1285,6 +1367,7 @@ function buildAdminListHtml(reservations, search, pwd) {
   ${r.tel ? `<div style="margin-bottom:4px"><a href="tel:${escHtml(r.tel)}" style="color:#c9a96e;text-decoration:none;font-size:.85rem">📞 ${escHtml(r.tel)}</a></div>` : ''}
   <div style="font-size:.83rem;color:#555;margin-bottom:2px">🕐 ${escHtml(r.time || '—')}${r.date && r.date !== today ? ' — ' + escHtml(fmtDateFr(r.date)) : ''}</div>
   <div style="font-size:.83rem;color:#555;margin-bottom:8px">📍 ${escHtml(r.trajet || '—')}</div>
+  ${r.driverOrderSentAt ? `<div style="font-size:.78rem;color:#6a5f4a;margin-bottom:6px">✉ Collègue : <strong>${escHtml(collStrong)}</strong>${r.driverOrderSentTo ? ' <span style="color:#888">· ' + escHtml(r.driverOrderSentTo) + '</span>' : ''}</div>` : ''}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <span style="font-size:.8rem;color:#888">${escHtml(vehicleDisplayName(r))}</span>
     <span style="font-weight:bold;color:#c9a96e">${Number(r.price || 0).toFixed(2)} €</span>

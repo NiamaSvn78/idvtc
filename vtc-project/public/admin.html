@@ -659,6 +659,16 @@ function renderGrid(){
   }
 }
 
+/** Libellé collègue pour l’UI (nom en base, sinon partie locale de l’email d’envoi). */
+function colleagueDisplayName(r){
+  const n = String(r.assignedDriverName||'').trim();
+  if (n) return n;
+  const em = String(r.driverOrderSentTo||'').trim();
+  const at = em.indexOf('@');
+  if (at > 0) return em.slice(0, at);
+  return '';
+}
+
 function buildBlock(r){
   const startMin = timeToMin(r.time);
   const dur = Number(r.durationMin || 60);
@@ -667,6 +677,8 @@ function buildBlock(r){
   const veh = r.vehicle || 'manual';
   const clsVeh = (veh === 'eco') ? 'business' : veh;
   const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':clsVeh);
+  const coll = r.driverOrderSentAt ? colleagueDisplayName(r) : '';
+  const bonTitle = r.driverOrderSentAt ? ('Bon collègue · ' + (r.driverOrderSentTo || '')) : '';
 
   const div = document.createElement('div');
   div.className = `tb ${cls}`;
@@ -676,7 +688,9 @@ function buildBlock(r){
     <div class="tb-time">${r.time} – ${minToTime(endMin)}</div>
     <div class="tb-route">${(r.trajet||'').substring(0,26)}</div>
     ${r.client ? `<div class="tb-client">${r.client.substring(0,18)}</div>` : ''}
-    ${r.driverOrderSentAt ? '<div class="tb-bon-sent" title="Bon collègue déjà envoyé">✉ bon envoyé</div>' : ''}
+    ${r.driverOrderSentAt ? (coll
+      ? `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ ${escHtml(coll.length > 16 ? coll.slice(0,16)+'…' : coll)}</div>`
+      : `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ bon envoyé</div>`) : ''}
     <span class="tb-badge">${VEH_LABEL[veh]||veh}</span>
   `;
   div.onclick = () => openTrip(r.id);
@@ -722,7 +736,7 @@ function openTrip(id){
     ${row('Prix', (r.price||0)+' €')}
     ${r.notes ? row('Notes', r.notes) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
-    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')+((r.assignedDriverName||'').trim() ? ' · conducteur : '+escHtml((r.assignedDriverName||'').trim()) : '')) : ''}
+    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')+(colleagueDisplayName(r) ? ' · collègue : '+escHtml(colleagueDisplayName(r)) : '')) : ''}
   `;
   const foot = document.getElementById('tm-foot');
   foot.innerHTML = '';
@@ -767,7 +781,7 @@ function updateDriverOrderNoticeInModal(){
   var r = reservations.find(function(x){ return x.id === id; });
   if(r && r.driverOrderSentAt){
     el.classList.add('show');
-    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>'+((r.assignedDriverName||'').trim() ? ' <span style="font-weight:600">('+escHtml((r.assignedDriverName||'').trim())+')</span>' : '');
+    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>'+(colleagueDisplayName(r) ? ' <span style="font-weight:600">('+escHtml(colleagueDisplayName(r))+')</span>' : '');
     if(btn) btn.textContent = '✉ Renvoyer le trajet par email';
   } else {
     el.classList.remove('show');
@@ -949,7 +963,7 @@ async function sendDriverEmail(){
   if(!price || isNaN(Number(price))){ status.textContent='Indiquez le prix à verser au conducteur'; status.className='send-status err'; return; }
   var trip = reservations.find(function(x){ return x.id === currentDriverTripId; });
   if(trip && trip.driverOrderSentAt){
-    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+((trip.assignedDriverName||'').trim() ? ' ('+(trip.assignedDriverName||'').trim()+')' : '')+'.\n\nRenvoyer quand même ?')) return;
+    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+(colleagueDisplayName(trip) ? ' ('+colleagueDisplayName(trip)+')' : '')+'.\n\nRenvoyer quand même ?')) return;
   }
   const btn = document.getElementById('btn-send-email');
   btn.disabled = true; btn.textContent = 'Envoi en cours…';
