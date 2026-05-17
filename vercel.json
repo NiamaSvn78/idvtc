@@ -5,7 +5,7 @@
       "src": "index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["vtc-project/public/**"]
+        "includeFiles": ["vtc-project/public/**", "lib/**"]
       }
     }
   ],

@@ -8,6 +8,8 @@ const QRCode = require('qrcode');
 const { Resend } = require('resend');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,17 +24,38 @@ const APP_URL = (process.env.APP_URL || 'https://ismadrive.fr').replace(/\/$/, '
 const PUBLIC_SITE_URL = APP_URL;
 const WHATSAPP_BOOKING_URL = 'https://wa.me/33623889717';
 const GOOGLE_REVIEWS_URL = String(process.env.GOOGLE_REVIEWS_URL || 'https://g.page/r/CWL4dJY-hj2oEAE/review').trim();
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hawwbdpixtmdgnftklsd.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
-const ADMIN_PWD = process.env.ADMIN_PWD || 'idvtc2024';
+const ADMIN_PWD = process.env.ADMIN_PWD || '';
+
+if (!ADMIN_PWD) {
+  console.error('[SECURITE] ADMIN_PWD manquant — toutes les routes admin seront bloquées. Configurez ADMIN_PWD dans vos variables d\'environnement.');
+}
 
 const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   : null;
 
 const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
+
+const { createClientConfirmationMailer } = require('./lib/client-confirmation-email');
+const clientConfirmationMail = createClientConfirmationMailer({
+  appUrl: APP_URL,
+  from: RESEND_FROM,
+  bccEmail: RESEND_BCC_EMAIL,
+  resendSend: async (payload) => {
+    if (!RESEND_API_KEY || !RESEND_FROM) {
+      return { data: null, error: { message: 'RESEND_API_KEY ou RESEND_FROM_EMAIL manquant' } };
+    }
+    const resend = new Resend(RESEND_API_KEY);
+    return resend.emails.send(payload);
+  },
+  markSent: (id) => dbUpdate(id, { confirmationEmailSent: true }),
+  persistEmail: (id, email) => dbUpdate(id, { email }),
+});
+const sendClientConfirmationAfterPayment = clientConfirmationMail.sendAfterPayment;
 
 /* ── DB helpers (fallback mémoire si Supabase absent) ── */
 let _mem = [];
@@ -157,7 +180,10 @@ function missionToken(id) {
   return crypto.createHmac('sha256', ADMIN_PWD).update(id).digest('hex').slice(0, 20);
 }
 
-function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
+function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, driverPlate, driverEmailTo) {
+  const dn = String(driverName || '').trim();
+  const dp = String(driverPlate || '').trim();
+  const dem = String(driverEmailTo || '').trim();
   const dateStr = fmtDateFr(r.date);
   const endTime = addMinToTime(r.time, r.durationMin || 60);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
@@ -168,11 +194,14 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
   const calStart = `${calDate}T${(r.time || '0000').replace(':', '')}00`;
   const calEnd = `${calDate}T${endTime.replace(':', '')}00`;
   const calTitle = encodeURIComponent(`Course IsmaDrive — ${r.trajet || ''}`);
-  const calDesc = encodeURIComponent(`Client: ${r.client || ''}\nTél: ${r.tel || ''}`);
+  const calDesc = encodeURIComponent(`Client: ${r.client || ''}\nTél: ${r.tel || ''}\nConducteur: ${dn || '—'}${dp ? ' · ' + dp : ''}`);
   const calLoc = encodeURIComponent(dep);
   const googleCal = `https://www.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&dates=${calStart}%2F${calEnd}&details=${calDesc}&location=${calLoc}`;
   const outlookCal = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${calTitle}&startdt=${r.date}T${r.time}:00&enddt=${r.date}T${endTime}:00&body=${calDesc}&location=${calLoc}`;
-  const greeting = driverName ? `Bonjour ${driverName},` : 'Bonjour,';
+  const dnEsc = escHtml(dn);
+  const dpEsc = escHtml(dp);
+  const demEsc = escHtml(dem);
+  const greeting = dn ? `Bonjour ${dnEsc},` : 'Bonjour,';
 
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
@@ -186,10 +215,17 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
   <tr><td style="padding:32px">
     <p style="margin:0 0 12px;font-size:1rem">${greeting}</p>
     <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>.</p>
+    ${dem ? `<p style="margin:0 0 10px;font-size:.82rem;color:#666">Ce message est destiné à <strong>${demEsc}</strong> — merci de vérifier qu'il s'agit bien de vous.</p>` : ''}
     <p style="margin:0 0 24px;font-size:.85rem;color:#666">Ajouter au calendrier :
       <a href="${googleCal}" style="color:#c9a96e;text-decoration:none">Google Agenda</a> &nbsp;—&nbsp;
       <a href="${outlookCal}" style="color:#c9a96e;text-decoration:none">Outlook</a>
     </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;border:1px solid #e8e0d0">
+    <tr><td style="padding:14px 16px;background:#fffbf2">
+      <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Vous (conducteur assigné)</div>
+      <div style="font-size:1.05rem;font-weight:bold;color:#080808">${dnEsc || '<span style="color:#888;font-weight:500">—</span>'}</div>
+      ${dp ? `<div style="font-size:.88rem;margin-top:8px;color:#333"><strong>Immatriculation :</strong> <span style="font-family:monospace;letter-spacing:.08em">${dpEsc}</span></div>` : '<div style="font-size:.82rem;margin-top:6px;color:#888">Immatriculation non renseignée</div>'}
+    </td></tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px">
     <tr><td style="border-left:2px solid #c9a96e;padding:12px 16px;background:#fafafa">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Départ</div>
@@ -211,19 +247,22 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice) {
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;border:1px solid #eee">
     <tr><td style="padding:14px 16px">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Informations client</div>
-      <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${r.client || '—'}</div>
-      <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel || ''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div>
-      ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${r.equipment}</div>` : ''}
+      <div style="font-size:.92rem;margin-bottom:5px"><strong>Client :</strong> ${escHtml(r.client || '—')}</div>
+      <div style="font-size:.92rem"><strong>Téléphone :</strong> <a href="tel:${r.tel || ''}" style="color:#c9a96e;text-decoration:none">${escHtml(r.tel || '—')}</a></div>
+      ${r.equipment ? `<div style="font-size:.82rem;color:#888;margin-top:5px">Équipement : ${escHtml(r.equipment)}</div>` : ''}
     </td></tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px">
     <tr><td style="background:#080808;border:1px solid #c9a96e;padding:14px 18px;border-radius:2px">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Votre rémunération</div>
       <div style="font-family:Georgia,serif;font-size:1.8rem;color:#c9a96e;font-weight:bold;letter-spacing:.04em">${driverPrice} €</div>
+      <div style="font-size:.75rem;color:#9a9185;margin-top:4px">Montant fixé pour cette course</div>
     </td></tr></table>
-    <div style="background:#080808;border:1px solid #c9a96e;padding:18px 20px;margin-bottom:28px;border-radius:2px">
+    <div style="background:#080808;border:1px solid #c9a96e;padding:18px 20px;margin-bottom:28px;border-radius:2px;text-align:center">
       <div style="font-size:.68rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px">Ordre de mission</div>
+      <div style="font-size:.82rem;color:#f0ece4;margin-bottom:16px">Cliquez pour accéder à votre bon de commande :</div>
       <a href="${missionUrl}" style="display:inline-block;background:#c9a96e;color:#080808;padding:9px 22px;text-decoration:none;font-size:.8rem;font-weight:bold;letter-spacing:.1em;border-radius:2px">Voir l'ordre de mission →</a>
     </div>
+    <p style="font-size:.85rem;color:#666;margin:0 0 12px">Si vous avez des questions, n'hésitez pas à nous contacter.</p>
     <p style="font-size:.85rem;color:#666;margin:0">Nous vous remercions pour votre collaboration.</p>
   </td></tr>
   <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:14px 32px">
@@ -243,7 +282,12 @@ function buildMissionOrderHtml(r) {
   const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref || r.id}|${r.trajet || ''}|${dateStr}|${r.time || ''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
-  const plate = r.vehicle === 'van' ? 'FT-365-XH' : '';
+  const driverNameRaw = String(r.assignedDriverName || '').trim();
+  const plateRaw = String(r.assignedDriverPlate || '').trim();
+  const driverNameHtml = driverNameRaw ? escHtml(driverNameRaw) : '—';
+  const plateCell = plateRaw
+    ? `<div><div class="lbl">Immatriculation</div><div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${escHtml(plateRaw)}</div></div>`
+    : `<div><div class="lbl">Immatriculation</div><div class="val" style="color:#888">—</div></div>`;
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -311,11 +355,12 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
     ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
   </div>
   <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
-    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Votre chauffeur</div>
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Conducteur assigné (bon)</div>
     <div class="grid2">
-      <div><div class="lbl">Prénom</div><div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">ISMA</div></div>
-      ${plate ? `<div><div class="lbl">Immatriculation</div><div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${plate}</div></div>` : ''}
+      <div><div class="lbl">Nom</div><div class="val" style="font-size:1.15rem;font-weight:bold;color:#080808">${driverNameHtml}</div></div>
+      ${plateCell}
     </div>
+    ${r.driverOrderSentTo ? `<div style="margin-top:12px;font-size:.78rem;color:#777;line-height:1.45">Bon transmis à <strong style="color:#555">${escHtml(r.driverOrderSentTo)}</strong>.</div>` : ''}
   </div>
   <div class="qr-block">
     <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
@@ -414,12 +459,17 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
       }).catch(e => console.error('DB update webhook error:', e.message));
       const r = await dbGetById(reservationId).catch(() => null);
       console.log('[Stripe] Paiement confirmé réservation', reservationId);
-      if (r && !alreadyPaidThisSession) {
-        await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
-          console.error('[Telegram] admin notify:', e.message)
-        );
-        await notifyAdminEmailPayment(r, 'stripe_webhook').catch(e =>
-          console.error('[Resend] admin paiement notify:', e.message)
+      if (r) {
+        if (!alreadyPaidThisSession) {
+          await notifyAdminTelegramPayment(r, 'stripe_webhook').catch(e =>
+            console.error('[Telegram] admin notify:', e.message)
+          );
+          await notifyAdminEmailPayment(r, 'stripe_webhook').catch(e =>
+            console.error('[Resend] admin paiement notify:', e.message)
+          );
+        }
+        await sendClientConfirmationAfterPayment(r, session.customer_email).catch(e =>
+          console.error('[Resend] confirmation client:', e.message)
         );
       }
     }
@@ -428,7 +478,26 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 });
 
 /* ── Middleware ── */
-app.use(express.json());
+app.use(helmet({
+  contentSecurityPolicy: false, // désactivé car on sert des HTML inline complexes
+}));
+app.use(express.json({ limit: '100kb' }));
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 30,
+  message: { error: 'Trop de tentatives, réessayez dans 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const publicLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 min
+  max: 20,
+  message: { error: 'Trop de requêtes, réessayez dans une minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 function escHtml(s) {
   return String(s ?? '')
@@ -591,7 +660,7 @@ function buildReviewEmailHtml(r, qrDataUrl) {
 /* ── API ── */
 
 /* Réservation manuelle (admin) — doit être AVANT /api/reservations/:id */
-app.post('/api/reservations/manual', async (req, res) => {
+app.post('/api/reservations/manual', adminLimiter, async (req, res) => {
   const { pwd, ...data } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   const conflict = await checkConflict(data.date, data.time, data.durationMin || 60);
@@ -604,12 +673,12 @@ app.post('/api/reservations/manual', async (req, res) => {
 });
 
 /* Conducteurs */
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/drivers', adminLimiter, async (req, res) => {
   if (req.query.pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  try { res.json(await dbListDrivers()); } catch (e) { res.status(500).json({ error: e.message }); }
+  try { res.json(await dbListDrivers()); } catch (e) { res.status(500).json({ error: 'Erreur serveur' }); }
 });
 
-app.post('/api/drivers', async (req, res) => {
+app.post('/api/drivers', adminLimiter, async (req, res) => {
   const { pwd, name, phone, email, carCategory, immatriculation } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
@@ -617,7 +686,7 @@ app.post('/api/drivers', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.put('/api/drivers/:id', async (req, res) => {
+app.put('/api/drivers/:id', adminLimiter, async (req, res) => {
   const { pwd, name, phone, email, carCategory, immatriculation } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!name || !email) return res.status(400).json({ error: 'Nom et email requis' });
@@ -625,7 +694,7 @@ app.put('/api/drivers/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.delete('/api/drivers/:id', async (req, res) => {
+app.delete('/api/drivers/:id', adminLimiter, async (req, res) => {
   const { pwd } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   await dbDeleteDriver(req.params.id);
@@ -633,30 +702,57 @@ app.delete('/api/drivers/:id', async (req, res) => {
 });
 
 /* Email conducteur */
-app.post('/api/send-driver-email', async (req, res) => {
-  const { pwd, tripId, driverEmail, driverName, driverPrice } = req.body || {};
+app.post('/api/send-driver-email', adminLimiter, async (req, res) => {
+  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   if (!RESEND_API_KEY) return res.status(503).json({ error: 'RESEND_API_KEY manquant.' });
+  const to = String(driverEmail || '').trim();
+  if (!to) return res.status(400).json({ error: 'Email du destinataire requis.' });
   const r = await dbGetById(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
+
+  const formDriverName = String(driverName || '').trim();
+  const formPlate = String(driverPlate || '').trim();
+  /* Croiser l'annuaire pour combler les champs manquants */
+  const allDrivers = await dbListDrivers().catch(() => []);
+  const dirMatch = allDrivers.find(d => d.email === to);
+  const dirName = String(dirMatch?.name || '').trim();
+  const dirPlate = String(dirMatch?.immatriculation || '').trim();
+  const nm = formDriverName || dirName;
+  const pl = formPlate || dirPlate;
+  const assignedDisplay = (nm || to).slice(0, 200);
+
   const token = missionToken(tripId);
   const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
-  const html = buildDriverEmailHtml(r, driverName || '', missionUrl, driverPrice);
-  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time}`;
+  const html = buildDriverEmailHtml(r, nm, missionUrl, driverPrice, pl, to);
+  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time} — ${assignedDisplay.slice(0, 48)}`;
   try {
     const resend = new Resend(RESEND_API_KEY);
-    const { error } = await resend.emails.send({ from: RESEND_FROM, to: driverEmail, subject, html });
+    const { error } = await resend.emails.send({ from: RESEND_FROM, to, subject, html });
     if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
-    if (driverName) {
-      await dbInsertDriver({ id: Date.now().toString(36), name: driverName, email: driverEmail, phone: '', carCategory: '', createdAt: new Date().toISOString() });
+
+    /* Sauvegarder le conducteur assigné sur la réservation */
+    await dbUpdate(tripId, {
+      driverOrderSentAt: new Date().toISOString(),
+      driverOrderSentTo: to,
+      assignedDriverName: assignedDisplay || null,
+      assignedDriverPlate: pl || null
+    }).catch(e => console.error('[send-driver-email] DB update:', e.message));
+
+    /* Mettre à jour ou créer la fiche dans l'annuaire */
+    const nameForDir = formDriverName || dirName;
+    if (nameForDir) {
+      await dbInsertDriver({ id: Date.now().toString(36), name: nameForDir, email: to, phone: '', carCategory: '', immatriculation: pl || '', createdAt: new Date().toISOString() })
+        .catch(() => {});
     }
     res.json({ ok: true });
   } catch (e) {
-    res.status(500).json({ error: 'Erreur envoi : ' + e.message });
+    console.error('[send-driver-email]', e.message);
+    res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email.' });
   }
 });
 
-app.post('/api/reservations', async (req, res) => {
+app.post('/api/reservations', publicLimiter, async (req, res) => {
   try {
     const body = req.body || {};
     const email = String(body.email || '').trim();
@@ -722,19 +818,20 @@ app.post('/api/reservations', async (req, res) => {
   }
 });
 
-app.get('/api/reservations', async (req, res) => {
+app.get('/api/reservations', adminLimiter, async (req, res) => {
   const { pwd } = req.query;
-  if (pwd !== 'idvtc2024') return res.status(401).json({ error: 'Unauthorized' });
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   try {
     res.json(await dbList());
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('[api/reservations GET]', e.message);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
-app.patch('/api/reservations/:id', async (req, res) => {
+app.patch('/api/reservations/:id', adminLimiter, async (req, res) => {
   const { pwd, ...updates } = req.body || {};
-  if (pwd !== 'idvtc2024') return res.status(401).json({ error: 'Non autorisé' });
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   const previous = await dbGetById(req.params.id);
   if (!previous) return res.status(404).json({ error: 'Introuvable' });
   const updated = await dbUpdate(req.params.id, updates);
@@ -763,7 +860,7 @@ app.patch('/api/reservations/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/check-availability', async (req, res) => {
+app.post('/api/check-availability', publicLimiter, async (req, res) => {
   const { date, time, durationMin, excludeId } = req.body || {};
   if (!date || !time) return res.json({ available: true });
   const conflict = await checkConflict(date, time, durationMin || 60, excludeId);
@@ -776,7 +873,7 @@ app.post('/api/check-availability', async (req, res) => {
   res.json({ available: true });
 });
 
-app.post('/api/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
   if (!stripe) {
     return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans les variables d\'environnement.' });
   }
@@ -814,7 +911,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ url: session.url, id });
   } catch (err) {
     console.error('Checkout error:', err.message);
-    res.status(500).json({ error: 'Erreur lors du paiement : ' + err.message });
+    res.status(500).json({ error: 'Erreur lors de la création de la session de paiement.' });
   }
 });
 
@@ -853,14 +950,31 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
         console.error('[Resend] admin paiement notify:', e.message)
       );
     }
-    return res.json({ ok: true, emailSent: false });
+
+    const resolvedEmail = String(r.email || session.customer_email || '').trim();
+    if (resolvedEmail && !r.email) {
+      await dbUpdate(reservationId, { email: resolvedEmail }).catch(() => {});
+      r = { ...r, email: resolvedEmail };
+    }
+
+    if (resolvedEmail && r.confirmationEmailSent !== true) {
+      try {
+        await sendClientConfirmationAfterPayment(r, session.customer_email);
+        return res.json({ ok: true, emailSent: true });
+      } catch (e) {
+        console.error('[Resend] confirmation client (sync):', e.message);
+        return res.json({ ok: true, emailSent: false, emailError: e.message });
+      }
+    }
+
+    return res.json({ ok: true, emailSent: false, reason: 'already_sent_or_no_email' });
   } catch (e) {
     console.error('sync-booking-after-payment:', e.message);
     res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-app.get('/mission-order/:id', async (req, res) => {
+app.get('/mission-order/:id', adminLimiter, async (req, res) => {
   const r = await dbGetById(req.params.id).catch(() => null);
   if (!r) return res.status(404).send('Course introuvable');
   const expected = missionToken(req.params.id);

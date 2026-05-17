@@ -908,9 +908,18 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
             console.error('[Resend] admin paiement notify:', e.message)
           );
         }
-        await sendClientConfirmationEmail(r).catch(e =>
-          console.error('Confirmation email error:', e.message)
-        );
+        const sessionEmail = session.customer_email || session.customer_details?.email;
+        let rowForEmail = r;
+        const resolvedClientEmail = String(r.email || sessionEmail || '').trim();
+        if (resolvedClientEmail && !r.email) {
+          await dbUpdateRes(reservationId, { email: resolvedClientEmail }).catch(() => {});
+          rowForEmail = { ...r, email: resolvedClientEmail };
+        }
+        if (rowForEmail.confirmationEmailSent !== true) {
+          await sendClientConfirmationEmail(rowForEmail).catch(e =>
+            console.error('Confirmation email error:', e.message)
+          );
+        }
       }
     }
   }

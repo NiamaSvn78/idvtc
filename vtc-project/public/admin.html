@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.png">
 <title>Admin — Gestion des courses · IsmaDrive</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -736,7 +739,9 @@ function openTrip(id){
     ${row('Prix', (r.price||0)+' €')}
     ${r.notes ? row('Notes', r.notes) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
-    ${r.driverOrderSentAt ? row('Bon collègue', '✉ Envoyé le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à '+escHtml(r.driverOrderSentTo||'—')+(colleagueDisplayName(r) ? ' · collègue : '+escHtml(colleagueDisplayName(r)) : '')) : ''}
+    ${r.driverOrderSentAt ? row('Collègue assigné', '<strong style="color:var(--gold)">'+escHtml(colleagueDisplayName(r) || r.driverOrderSentTo || '—')+'</strong>') : ''}
+    ${r.driverOrderSentAt && r.assignedDriverPlate ? row('Plaque collègue', escHtml(r.assignedDriverPlate)) : ''}
+    ${r.driverOrderSentAt ? row('Bon envoyé le', '✉ '+fmtDriverOrderSent(r.driverOrderSentAt)+' → '+escHtml(r.driverOrderSentTo||'—')) : ''}
   `;
   const foot = document.getElementById('tm-foot');
   foot.innerHTML = '';

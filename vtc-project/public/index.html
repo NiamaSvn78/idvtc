@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.png">
 <title>Chauffeur Privé Paris | VTC Touristes &amp; Transferts CDG Orly — IsmaDrive</title>
 <meta name="description" content="Chauffeur privé à Paris pour touristes et professionnels. Transferts CDG &amp; Orly, visites monuments, Versailles. Mercedes Van &amp; Berline, prix fixe, 24h/24 — IsmaDrive.">
 <meta name="keywords" content="chauffeur privé Paris, VTC touriste Paris, transfert aéroport CDG Orly, chauffeur privé touriste, visite Paris chauffeur, excursion Versailles VTC">
@@ -12,7 +15,6 @@
 <meta property="og:description" content="Chauffeur privé à Paris pour touristes et professionnels. Transferts CDG &amp; Orly, visites monuments, Versailles. Mercedes Van &amp; Berline, prix fixe, 24h/24 — IsmaDrive.">
 <meta property="og:url" content="https://ismadrive.fr/">
 <meta property="og:site_name" content="IsmaDrive">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="canonical" href="https://ismadrive.fr/">
 <link rel="alternate" hreflang="fr" href="https://ismadrive.fr/">
 <link rel="alternate" hreflang="en" href="https://ismadrive.fr/cdg-airport-transfer-paris">
@@ -101,7 +103,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 @media(max-width:800px){
   .lang-toggle{min-height:44px;min-width:60px;padding:.5rem 1rem;font-size:.8rem;justify-content:center;margin-left:.4rem;-webkit-tap-highlight-color:transparent}
 }
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 5vw 80px;background:linear-gradient(to bottom,rgba(8,8,8,.5) 0%,rgba(8,8,8,.78) 55%,rgba(8,8,8,1) 100%),url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed}
+.hero{min-height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:88px 5vw 3rem;background:linear-gradient(to bottom,rgba(8,8,8,.5) 0%,rgba(8,8,8,.78) 55%,rgba(8,8,8,1) 100%),url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed}
 .hero-tag{font-size:.68rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:1.4rem}
 .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,6vw,5.2rem);font-weight:300;line-height:1.08;text-align:center;max-width:780px;margin-bottom:.8rem}
 .hero-title em{font-style:italic;color:var(--gold)}
@@ -112,10 +114,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5vw;di
 .b-tab{flex:1;background:none;border:none;padding:.95rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;margin-bottom:-1px}
 .b-tab.on{color:var(--gold);border-bottom-color:var(--gold)}
 .b-pane{display:none;padding:2rem}.b-pane.on{display:block}
-.fg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.fg2{display:grid;grid-template-columns:1fr;gap:.75rem;margin-bottom:1rem}
 .fg1{margin-bottom:1rem}
 label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
-.fi,.fs{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:300;outline:none;transition:border-color .2s}
+.fi,.fs{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.82rem .9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:300;outline:none;transition:border-color .2s}
 /* Ne pas forcer appearance:none sur date : sinon sélecteur natif et bouton « Définir » mal positionné sur mobile */
 .fi:not([type=date]),
 .fs{-webkit-appearance:none;appearance:none}
@@ -143,7 +145,7 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .rv-line{flex:1;height:1px;background:rgba(201,169,110,.15);position:relative;overflow:visible}
 .rv-bar{position:absolute;top:0;left:0;height:100%;width:0;background:var(--gold);transition:width 1.1s ease}
 .rv-tag{position:absolute;left:50%;top:-13px;transform:translateX(-50%);white-space:nowrap;font-size:.67rem;font-weight:500;color:var(--gold);background:var(--dark3);border:1px solid var(--gold-border);padding:1px 9px;border-radius:20px;display:none}
-.v-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1.2rem 0}
+.v-grid{display:grid;grid-template-columns:1fr;gap:.8rem;margin:1.2rem 0}
 .v-card{border:1px solid var(--subtle);padding:1.4rem 1.2rem 1.4rem 1.2rem;padding-right:48%;cursor:pointer;transition:all .25s;position:relative}
 .v-card:hover{border-color:var(--gold-border);transform:translateY(-1px)}
 .v-card.on{border-color:var(--gold);background:var(--gold-dim)}
@@ -182,17 +184,17 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .btn-calc:hover{background:var(--gold);color:var(--black)}.btn-calc.busy{pointer-events:none;opacity:.55}
 .btn-pay{width:100%;background:var(--gold);border:none;color:var(--black);padding:1rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-pay:hover{background:var(--gold2)}.btn-pay:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1rem}
+.btn-row{display:grid;grid-template-columns:1fr;gap:.7rem;margin-top:1rem}
 .btn-row .btn-calc,.btn-row .btn-pay{margin-top:0}
 .secure-line{text-align:center;font-size:.68rem;color:var(--faint);margin-top:.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:15px;height:15px;border:1.5px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
-section{padding:7.5rem 5vw}
+section{padding:4.5rem 4.5vw}
 .section-tag{font-size:.68rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem}
 .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.15;max-width:540px;margin-bottom:3.5rem}
 .inner{max-width:1100px;margin:0 auto}
 #fleet{background:var(--dark)}
-.fleet-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.fleet-grid{display:grid;grid-template-columns:1fr;gap:2px}
 .fleet-item{background:var(--dark2);padding:2.5rem;position:relative;overflow:hidden}
 .fleet-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:1}
 .fleet-photo{display:block;width:calc(100% + 5rem);height:240px;object-fit:cover;margin:-2.5rem -2.5rem 2rem;}
@@ -208,14 +210,14 @@ section{padding:7.5rem 5vw}
 .tarif-row:last-child{border:none}.tarif-key{color:var(--muted)}
 .tarif-val{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:1rem}
 #services{background:var(--black)}
-.srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--subtle)}
+.srv-grid{display:grid;grid-template-columns:1fr;gap:1px;background:var(--subtle)}
 .srv{background:var(--black);padding:2rem 1.8rem}
 .srv-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--faint);line-height:1;margin-bottom:.8rem}
 .srv-name{font-size:.88rem;font-weight:500;margin-bottom:.4rem}
 .srv-desc{font-size:.8rem;color:var(--muted);line-height:1.65}
-#garanties{background:var(--dark);padding:6rem 5vw}
-#tarifs{background:var(--black);padding:6rem 5vw}
-.guar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
+#garanties{background:var(--dark);padding:3.5rem 4.5vw}
+#tarifs{background:var(--black);padding:3.5rem 4.5vw}
+.guar-grid{display:grid;grid-template-columns:1fr;gap:1.6rem}
 .guar{border-top:1px solid var(--border);padding-top:1.4rem}
 .guar-ico{width:32px;height:32px;color:var(--gold);margin-bottom:.9rem}
 .guar-title{font-size:.88rem;font-weight:500;margin-bottom:.35rem}
@@ -229,7 +231,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(6px)}
 .ov.open{display:flex}
 .modal{background:var(--dark2);border:1px solid var(--border);width:100%;max-width:480px;padding:2.2rem;position:relative;max-height:92vh;overflow-y:auto}
-.mx{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;transition:color .2s}
+.mx{position:absolute;top:.6rem;right:.6rem;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;transition:color .2s}
 .mx:hover{color:var(--text)}
 .mh{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:400;margin-bottom:.2rem}
 .msub{font-size:.8rem;color:var(--muted);margin-bottom:1.4rem}
@@ -240,7 +242,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .m-total{background:var(--gold-dim);border:1px solid var(--gold-border);padding:.9rem 1rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1.3rem}
 .mt-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
 .mt-price{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--gold)}
-.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.mgrid{display:grid;grid-template-columns:1fr;gap:.7rem}
 .mf{margin-bottom:0}
 .mf label{display:block;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
 .mf input{width:100%;background:var(--dark3);border:1px solid var(--subtle);color:var(--text);padding:.72rem .9rem;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;font-weight:300}
@@ -306,12 +308,12 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .fleet-3{grid-template-columns:repeat(3,1fr)}
 
 /* ── Sections SEO ── */
-.seo-section{padding:5rem 5vw}
+.seo-section{padding:3.5rem 4.5vw}
 .seo-section.alt{background:var(--dark)}
 .seo-inner{max-width:1100px;margin:0 auto}
 
 /* ── Zones ── */
-.zones-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--subtle);margin-top:2.5rem}
+.zones-grid{display:grid;grid-template-columns:1fr;gap:1px;background:var(--subtle);margin-top:2.5rem}
 .zone-card{background:var(--dark2);padding:1.6rem 1.4rem}
 .zone-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--gold);margin-bottom:.6rem;line-height:1.2}
 .zone-dept{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:.7rem}
@@ -329,7 +331,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .airport-sub{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
 
 /* ── Pourquoi nous ── */
-.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-top:2.5rem}
+.why-grid{display:grid;grid-template-columns:1fr;gap:1.2rem;margin-top:2.5rem}
 .why-card{border-top:1px solid var(--border);padding-top:1.4rem}
 .why-ico{width:32px;height:32px;color:var(--gold);margin-bottom:.9rem}
 .why-title{font-size:.9rem;font-weight:500;margin-bottom:.4rem;color:var(--text)}
@@ -338,14 +340,14 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 /* ── MAD section ── */
 .mad-list-wrap{margin-top:2rem}
 .mad-intro{font-size:.88rem;color:var(--muted);line-height:1.75;margin-bottom:1.4rem;max-width:680px}
-.mad-items{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--subtle)}
+.mad-items{display:grid;grid-template-columns:1fr;gap:1px;background:var(--subtle)}
 .mad-item{background:var(--dark2);padding:1.6rem 1.8rem}
 .mad-item-ico{font-size:1.6rem;margin-bottom:.7rem}
 .mad-item-title{font-size:.85rem;font-weight:500;margin-bottom:.3rem}
 .mad-item-desc{font-size:.78rem;color:var(--muted);line-height:1.6}
 
 /* ── Avis ── */
-.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem}
+.reviews-grid{display:grid;grid-template-columns:1fr;gap:1.5rem;margin-top:2.5rem}
 .review-card{background:var(--dark2);border:1px solid var(--border);padding:1.6rem}
 .stars{color:var(--gold);font-size:1rem;letter-spacing:.1em;margin-bottom:.7rem}
 .review-text{font-size:.83rem;color:var(--muted);line-height:1.7;margin-bottom:1rem;font-style:italic}
@@ -358,8 +360,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 /* ══════════════════════════════
    SECTION À PROPOS
    ══════════════════════════════ */
-.ap-section{padding:6rem 5vw;background:var(--dark)}
-.ap-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:340px 1fr;gap:5rem;align-items:start}
+.ap-section{padding:3.5rem 4vw;background:var(--dark)}
+.ap-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:2.5rem;align-items:start}
 .ap-photo-wrap{position:relative;margin-bottom:1.8rem}
 .ap-photo-placeholder{width:100%;aspect-ratio:4/5;background:var(--dark2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--faint)}
 .ap-photo-placeholder svg{width:80px;height:80px;opacity:.4}
@@ -378,7 +380,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 /* ══════════════════════════════
    SECTION FAQ
    ══════════════════════════════ */
-.faq-section{padding:6rem 5vw;background:var(--black)}
+.faq-section{padding:3.5rem 4vw;background:var(--black)}
 .faq-inner{max-width:800px;margin:0 auto}
 .faq-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:300;margin-bottom:2.8rem;margin-top:.5rem}
 .faq-list{display:flex;flex-direction:column;gap:1px;background:var(--subtle)}
@@ -399,18 +401,15 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
 /* ── Mobile À propos & FAQ ── */
 @media(max-width:768px){
-  .ap-section{padding:3.5rem 4vw}
-  .ap-inner{grid-template-columns:1fr;gap:2.5rem}
   .ap-photo-placeholder{aspect-ratio:3/2}
-  .faq-section{padding:3.5rem 4vw}
   .faq-q h3{font-size:.84rem}
   .faq-q{padding:1rem 1.1rem}
   .faq-a{padding:0 1.1rem 1rem}
 }
 
 /* ── Footer SEO ── */
-.footer-top{padding:3.5rem 5vw 2rem;border-top:1px solid var(--border);background:var(--dark)}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;max-width:1100px;margin:0 auto}
+.footer-top{padding:2.5rem 4vw 1.5rem;border-top:1px solid var(--border);background:var(--dark)}
+.footer-grid{display:grid;grid-template-columns:1fr;gap:2rem;max-width:1100px;margin:0 auto}
 .footer-col-title{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
 .footer-nap{font-size:.8rem;color:var(--muted);line-height:1.9}
 .footer-nap strong{color:var(--text);font-weight:500}
@@ -425,12 +424,12 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .foot-links-row a:hover{color:var(--gold)}
 
 /* ════════════════════════════════
-   MOBILE FIRST — base ≤ 768px
+   OVERRIDES MOBILE ≤ 768px
+   (les valeurs de base sont déjà mobile-first)
    ════════════════════════════════ */
 @media(max-width:768px){
 
   /* Hero */
-  .hero{padding:88px 5vw 3rem;min-height:auto}
   .hero-tag{font-size:.62rem;letter-spacing:.2em;margin-bottom:.9rem}
   .hero-title{font-size:clamp(1.9rem,7.5vw,2.6rem);margin-bottom:.7rem}
   .hero-sub{font-size:.86rem;margin-bottom:2.2rem;max-width:none}
@@ -447,8 +446,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .guar-3{grid-template-columns:1fr 1fr}
   .fleet-3{grid-template-columns:1fr}
 
-  /* Inputs — 16px minimum pour éviter le zoom iOS */
-  .fi,.fs{font-size:1rem;padding:.82rem .9rem}
   .mf input{font-size:1rem}
   /* Espace pour les overlays date/heure (bouton « Définir » / actions du picker) */
   input[type=time],input[type=date]{
@@ -458,17 +455,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   }
   .fg2.fg-dt input[type=time],.fg2.fg-dt input[type=date]{scroll-margin-bottom:max(20rem,58vh)}
 
-  /* Grids formulaire */
-  .fg2{grid-template-columns:1fr 1fr}
-  /* Date + heure en colonne : champ plus haut à l’écran → plus de place pour le picker natif */
+  /* Date + heure en colonne sur mobile */
   .fg2.fg-dt{grid-template-columns:1fr;gap:.75rem}
-  .v-grid{grid-template-columns:1fr}
   .d-grid{grid-template-columns:repeat(4,1fr)}
   .d-btn{min-height:48px;padding:.6rem .2rem}
 
   /* Boutons — cibles tactiles 52px min */
   .btn-calc,.btn-pay,.btn-ok{min-height:52px;font-size:.9rem;padding:1rem 1.2rem}
-  .btn-row{grid-template-columns:1fr}
   .btn-row .btn-calc,.btn-row .btn-pay{margin-top:0}
   .nav-btn{min-height:44px}
 
@@ -479,42 +472,28 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .price-top{flex-direction:column;align-items:flex-start;gap:.5rem}
   .price-num{font-size:2.4rem}
 
-  /* Sections générales */
-  section{padding:4.5rem 4.5vw}
-  #paris-experience,#storytelling{padding:4.5rem 4.5vw}
-  #garanties,#tarifs{padding:3.5rem 4.5vw}
+  /* Sections */
   .section-title{font-size:clamp(1.5rem,5.5vw,2rem);margin-bottom:2rem;max-width:none}
-  .seo-section{padding:3.5rem 4.5vw}
   .exp-card-img{height:130px}
   .fleet-photo{height:190px}
   .fleet-photo-pair img{height:180px}
   .fleet-photo-pair{grid-template-columns:1fr 1fr}
   .seo-section .section-title{margin-bottom:1.4rem}
 
-  /* Onglets — contenu */
-  .fleet-grid{grid-template-columns:1fr}
+  /* Fleet */
   .fleet-item{padding:2rem 1.5rem}
-  .srv-grid{grid-template-columns:1fr}
-  .guar-grid{grid-template-columns:1fr 1fr;gap:1.6rem}
 
   /* SEO sections */
-  .zones-grid{grid-template-columns:1fr}
-  .why-grid{grid-template-columns:1fr 1fr;gap:1.2rem}
-  .mad-items{grid-template-columns:1fr}
-  .reviews-grid{grid-template-columns:1fr}
   .airport-wrap{margin-top:1.5rem}
   .airport-table th,.airport-table td{padding:.7rem .8rem;font-size:.78rem}
 
   /* Modal */
   .ov{padding:.5rem}
   .modal{padding:1.4rem 1.2rem;max-height:96vh}
-  .mgrid{grid-template-columns:1fr}
   .mf.full{grid-column:1}
   .mt-price{font-size:1.8rem}
 
   /* Footer */
-  .footer-grid{grid-template-columns:1fr;gap:2rem}
-  .footer-top{padding:2.5rem 4vw 1.5rem}
   .footer-bottom-inner{flex-direction:column;align-items:flex-start;gap:.8rem}
   .foot-links-row{flex-wrap:wrap;gap:.8rem 1.4rem}
 
@@ -525,29 +504,57 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .fab-stack{bottom:1rem;right:1rem;gap:.75rem}
   .wa-btn{padding:.65rem 1rem .65rem .8rem;font-size:.78rem;box-shadow:0 3px 16px rgba(37,211,102,.4)}
   .wa-btn svg{width:20px;height:20px}
+
+  /* Guar-grid 2 col sur mobile moyen */
+  .guar-grid{grid-template-columns:1fr 1fr;gap:1.6rem}
+  .why-grid{grid-template-columns:1fr 1fr}
 }
 
 /* Très petits écrans */
 @media(max-width:400px){
-  .v-grid{grid-template-columns:1fr}
   .guar-grid{grid-template-columns:1fr}
   .guar-3{grid-template-columns:1fr}
   .why-grid{grid-template-columns:1fr}
-  .fg2{grid-template-columns:1fr}
   .d-grid{grid-template-columns:repeat(4,1fr)}
   .hero-title{font-size:1.85rem}
 }
 
 /* ── Desktop (min-width 769px) ── */
 @media(min-width:769px){
-  .zones-grid{grid-template-columns:repeat(5,1fr)}
-  .why-grid{grid-template-columns:repeat(4,1fr)}
-  .footer-grid{grid-template-columns:2fr 1fr 1fr 1fr}
-  .reviews-grid{grid-template-columns:repeat(3,1fr)}
-  .mad-items{grid-template-columns:repeat(3,1fr)}
+  /* Hero */
+  .hero{min-height:100vh;padding:120px 5vw 80px}
+  /* Sections padding */
+  section{padding:7.5rem 5vw}
+  #garanties{padding:6rem 5vw}
+  #tarifs{padding:6rem 5vw}
+  .seo-section{padding:5rem 5vw}
+  .ap-section{padding:6rem 5vw}
+  .faq-section{padding:6rem 5vw}
+  #paris-experience{padding:7.5rem 5vw}
+  .experience-header{margin-bottom:4rem}
+  #storytelling{padding:7.5rem 5vw}
+  .story-header{margin-bottom:4rem}
+  .footer-top{padding:3.5rem 5vw 2rem}
+  /* Grilles */
   .fleet-grid{grid-template-columns:1fr 1fr}
   .srv-grid{grid-template-columns:repeat(3,1fr)}
-  .guar-grid{grid-template-columns:repeat(4,1fr)}
+  .guar-grid{grid-template-columns:repeat(4,1fr);gap:2rem}
+  .zones-grid{grid-template-columns:repeat(5,1fr)}
+  .why-grid{grid-template-columns:repeat(4,1fr);gap:2rem}
+  .footer-grid{grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem}
+  .reviews-grid{grid-template-columns:repeat(3,1fr)}
+  .mad-items{grid-template-columns:repeat(3,1fr)}
+  .ap-inner{grid-template-columns:340px 1fr;gap:5rem}
+  .experience-grid{grid-template-columns:repeat(3,1fr);gap:24px}
+  .story-grid{grid-template-columns:repeat(3,1fr);gap:2px;background:var(--subtle)}
+  .trip-type-grid{grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.6rem}
+  /* Formulaire */
+  .fg2{grid-template-columns:1fr 1fr;gap:1rem}
+  .v-grid{grid-template-columns:1fr 1fr}
+  .mgrid{grid-template-columns:1fr 1fr}
+  .btn-row{grid-template-columns:1fr 1fr;gap:.7rem}
+  .fi,.fs{font-size:.88rem;padding:.75rem 1rem}
+  .mf input{font-size:.88rem}
 }
 
 @media(min-width:769px) and (max-width:1024px){
@@ -596,11 +603,9 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .family-badge{display:inline-flex;align-items:center;gap:.35rem;background:rgba(201,169,110,.1);border:1px solid var(--gold-border);color:var(--gold);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .65rem;margin-bottom:.75rem}
 
 @media(max-width:480px){
-  .pack-grid{grid-template-columns:1fr 1fr;gap:.5rem}
   .pack-card{padding:1.1rem .8rem}
   .pack-ico{font-size:1.5rem}
   .pack-name{font-size:.8rem}
-  .v-grid{grid-template-columns:1fr}
   .family-bar{gap:.8rem}
 }
 @media(max-width:360px){
@@ -627,11 +632,11 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .trust-badge{flex:1 1 calc(50% - 4px);white-space:normal;font-size:12px;padding:8px 10px;border-radius:6px;min-width:0}
 }
 /* ── PARIS EXPERIENCE ── */
-#paris-experience{padding:7.5rem 5vw;background:#0d0d0d}
-.experience-header{text-align:center;margin-bottom:4rem}
+#paris-experience{padding:4.5rem 4.5vw;background:#0d0d0d}
+.experience-header{text-align:center;margin-bottom:2.5rem}
 .experience-header h2{color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:1px;font-weight:400}
 .experience-header p{color:#aaa;font-size:1rem;margin-top:12px}
-.experience-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto}
+.experience-grid{display:grid;grid-template-columns:1fr;gap:16px;max-width:1100px;margin:0 auto}
 .exp-card{background:linear-gradient(145deg,#1a1a1a,#111);border:1px solid var(--border);border-radius:12px;padding:0;text-align:center;transition:transform 0.2s;overflow:hidden}
 .exp-card:hover{transform:translateY(-5px);border-color:rgba(201,169,110,0.5)}
 .exp-card-img{width:100%;height:160px;object-fit:cover;display:block}
@@ -639,19 +644,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .exp-card .exp-icon{font-size:2rem;display:block;margin-bottom:10px}
 .exp-card h3{color:#fff;font-size:0.95rem;font-weight:600;margin-bottom:6px}
 .exp-card p{color:#888;font-size:0.82rem;line-height:1.45}
-@media(max-width:600px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:400px){.experience-grid{grid-template-columns:1fr}}
+@media(min-width:480px){.experience-grid{grid-template-columns:repeat(2,1fr)}}
 /* ── STORYTELLING ── */
-#storytelling{padding:7.5rem 5vw;background:var(--dark)}
-.story-header{text-align:center;margin-bottom:4rem}
+#storytelling{padding:4.5rem 4.5vw;background:var(--dark)}
+.story-header{text-align:center;margin-bottom:2.5rem}
 .story-header h2{color:var(--text);font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:300}
 .story-header p{color:var(--muted);font-size:1rem;margin-top:12px}
-.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--subtle);max-width:1100px;margin:0 auto}
+.story-grid{display:grid;grid-template-columns:1fr;gap:1rem;background:transparent;max-width:1100px;margin:0 auto}
 .story-card{background:var(--dark2);padding:2.8rem 2.2rem;border-top:3px solid var(--gold);position:relative}
 .story-card .story-icon{font-size:2.4rem;display:block;margin-bottom:1.2rem}
 .story-card h3{color:var(--text);font-size:1rem;font-weight:500;margin-bottom:.7rem;letter-spacing:.03em}
 .story-card p{color:var(--muted);font-size:.88rem;line-height:1.78}
-@media(max-width:768px){.story-grid{grid-template-columns:1fr;background:transparent;gap:1rem}}
 
 /* ══════════════════════════════
    WIZARD RÉSERVATION
@@ -671,7 +674,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .wiz-pane.active{display:block}
 
 /* Trip type selector */
-.trip-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.6rem}
+.trip-type-grid{display:grid;grid-template-columns:1fr;gap:.55rem;margin-bottom:1.2rem}
 .trip-type-btn{border:1px solid var(--subtle);padding:1.2rem 1rem;cursor:pointer;transition:all .25s;text-align:center;background:var(--dark3);-webkit-tap-highlight-color:transparent}
 .trip-type-btn:hover{border-color:var(--gold-border);transform:translateY(-1px)}
 .trip-type-btn.on{border-color:var(--gold);background:var(--gold-dim)}
@@ -710,7 +713,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   .wiz-progress{padding:1rem 1.2rem}
   .wp-lbl{display:none}
   .wp-dot{width:26px;height:26px;font-size:.68rem}
-  .trip-type-grid{grid-template-columns:1fr;gap:.55rem;margin-bottom:1.2rem}
   .wiz-pane{padding:1.5rem}
   .wiz-back-btn{min-width:90px}
   .wiz-footer{flex-wrap:wrap;gap:.5rem}
@@ -1518,7 +1520,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
     </div>
     <div class="exp-card">
-      <img class="exp-card-img" src="/van-exterieur.jpg" alt="Van Mercedes 7 places famille IsmaDrive" loading="lazy">
+      <img class="exp-card-img" src="/van_familliale.png" alt="Van Mercedes 7 places famille IsmaDrive" loading="lazy">
       <div class="exp-card-body">
         <h3 data-i18n="paris.c4_title">Van Familial 7 places</h3>
         <p data-i18n="paris.c4_desc">Mercedes Classe V, siège bébé inclus</p>
