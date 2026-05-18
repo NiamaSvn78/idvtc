@@ -410,6 +410,11 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
       <div class="driver-trip-preview" id="driver-trip-preview"></div>
       <div class="driver-order-notice" id="driver-order-notice"></div>
 
+      <div id="driver-course-row" style="display:none;margin-bottom:.9rem">
+        <label class="add-label" style="margin-bottom:.35rem">Course à assigner</label>
+        <select class="add-input add-select" id="send-driver-course" style="width:100%"></select>
+      </div>
+
       <div style="margin-bottom:1rem">
         <div class="add-label" style="margin-bottom:.5rem">Conducteurs enregistrés</div>
         <div class="driver-list" id="driver-list">
@@ -884,6 +889,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 let currentDriverTripId = null;
 let savedDrivers = [];
 
+function parsePrestationsClient(notes){
+  if(!notes) return [];
+  const regex = /\[Prestation \d+:([^\]]*)\]/g;
+  const results = [];
+  let m;
+  while((m = regex.exec(notes)) !== null) results.push(m[1].trim());
+  return results;
+}
 async function openDriverModal(id){
   currentDriverTripId = id;
   const r = reservations.find(x => x.id === id);
@@ -896,6 +909,22 @@ async function openDriverModal(id){
   document.getElementById('send-driver-price').value = '';
   document.getElementById('send-status').className   = 'send-status';
   document.getElementById('btn-send-email').disabled = false;
+
+  const prests = parsePrestationsClient(r.notes);
+  const courseRow = document.getElementById('driver-course-row');
+  const courseSelect = document.getElementById('send-driver-course');
+  if(prests.length > 0){
+    courseSelect.innerHTML = `<option value="0">Course 1 — ${r.trajet||'Principale'}</option>` +
+      prests.map((p, i) => {
+        const label = p.split(' · ')[0] || ('Prestation ' + (i+2));
+        return `<option value="${i+1}">Course ${i+2} — ${label}</option>`;
+      }).join('');
+    courseRow.style.display = '';
+  } else {
+    courseSelect.innerHTML = '';
+    courseRow.style.display = 'none';
+  }
+
   await loadDrivers();
   updateDriverOrderNoticeInModal();
   document.getElementById('driver-ov').classList.add('open');
@@ -986,7 +1015,7 @@ async function sendDriverEmail(){
   try{
     const r = await fetch('/api/send-driver-email',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price), driverPlate:plate})});
+      body:JSON.stringify({pwd:PWD, tripId:currentDriverTripId, driverEmail:email, driverName:name, driverPrice:Number(price), driverPlate:plate, courseIndex:Number(document.getElementById('send-driver-course')?.value||0)})});
     const raw = await r.text();
     let d = parseJsonSafe(raw, r.status);
     if(r.ok && d.ok){

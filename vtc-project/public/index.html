@@ -2321,10 +2321,12 @@ function buildReservationData(paymentMethod){
     if (p.tab === 'p') {
       const f = CFG.forfaits[p.fpack || 'cdg'];
       const addr = (document.getElementById(`i-pn${p.id}addr`)?.value || '').substring(0, 40);
+      const timeVal = document.getElementById(`i-pn${p.id}time`)?.value || '';
       const retAddr = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}retaddr`)?.value || '').substring(0, 40) : '';
       const retDate = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rdate`)?.value || '') : '';
-      const retPart = retAddr ? ` · Retour: ${retAddr}${retDate ? ' ' + retDate : ''}` : '';
-      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal} · ${p.price}€]`;
+      const retTime = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rtime`)?.value || '') : '';
+      const retPart = retAddr ? ` · Retour: ${retAddr}${retDate ? ' ' + retDate : ''}${retTime ? ' ' + retTime : ''}` : '';
+      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal}${timeVal ? ' ' + timeVal : ''} · ${p.price}€]`;
     } else if (p.tab === 'm') {
       const mdep = (document.getElementById(`i-pn${p.id}mdep`)?.value || '').substring(0, 40);
       return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${dateVal} · ${p.price}€]`;

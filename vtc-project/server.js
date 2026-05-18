@@ -46,7 +46,7 @@ const ADMIN_PAYMENT_NOTIFY_EMAIL = String(
   process.env.ADMIN_PAYMENT_NOTIFY_EMAIL || 'diabyismaila80@gmail.com'
 ).trim();
 
-/** Envoie via Resend ; renvoie { data, error } (les erreurs API ne lèvent pas toujours d’exception). */
+/** Envoie via Resend ; renvoie { data, error } (les erreurs API ne lèvent pas toujours d'exception). */
 async function resendEmailsSend(payload) {
   if (!RESEND_API_KEY || !RESEND_FROM_EMAIL) {
     const msg = 'RESEND_API_KEY ou RESEND_FROM_EMAIL manquant';
@@ -163,7 +163,7 @@ async function dbDeleteDriver(id) {
   if (error) throw new Error(error.message);
 }
 
-/** Partie affichable avant @ (secours si le nom n’a pas été saisi). */
+/** Partie affichable avant @ (secours si le nom n'a pas été saisi). */
 function emailLocalPart(email) {
   const t = String(email || '').trim();
   if (!t) return '';
@@ -171,7 +171,7 @@ function emailLocalPart(email) {
   return i > 0 ? t.slice(0, i) : t;
 }
 
-/** Cherche un conducteur dans l’annuaire (email insensible à la casse, sans piège ILIKE sur _). */
+/** Cherche un conducteur dans l'annuaire (email insensible à la casse, sans piège ILIKE sur _). */
 async function dbGetDriverByEmail(email) {
   const raw = String(email || '').trim();
   if (!raw) return null;
@@ -304,7 +304,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, qrDataUrl,
   <tr><td style="padding:32px">
     <p style="margin:0 0 12px;font-size:1rem">${greeting}</p>
     <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>.</p>
-    ${dem ? `<p style="margin:0 0 10px;font-size:.82rem;color:#666">Ce message est destiné à <strong>${demEsc}</strong> — merci de vérifier qu’il s’agit bien de vous avant d’ajouter l’événement au calendrier (évite les doubles envois).</p>` : ''}
+    ${dem ? `<p style="margin:0 0 10px;font-size:.82rem;color:#666">Ce message est destiné à <strong>${demEsc}</strong> — merci de vérifier qu'il s'agit bien de vous avant d'ajouter l'événement au calendrier (évite les doubles envois).</p>` : ''}
     <p style="margin:0 0 24px;font-size:.85rem;color:#666">
       Ajouter au calendrier :
       <a href="${googleCal}" style="color:#c9a96e;text-decoration:none">Google Agenda</a>
@@ -459,7 +459,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
       </div>
       ${plateCell}
     </div>
-    ${r.driverOrderSentTo ? `<div style="margin-top:12px;font-size:.78rem;color:#777;line-height:1.45">Bon transmis à l’adresse <strong style="color:#555">${escHtml(r.driverOrderSentTo)}</strong> (anti-doublon).</div>` : ''}
+    ${r.driverOrderSentTo ? `<div style="margin-top:12px;font-size:.78rem;color:#777;line-height:1.45">Bon transmis à l'adresse <strong style="color:#555">${escHtml(r.driverOrderSentTo)}</strong> (anti-doublon).</div>` : ''}
   </div>
   <div class="qr-block">
     <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code client — scanner pour valider</div>
@@ -483,8 +483,8 @@ async function buildConfirmationQrDataUrl(r) {
   });
 }
 
-function buildClientConfirmationHtml(r, qrDataUrl) {
-  if (r.lang === 'en') return buildClientConfirmationHtmlEN(r, qrDataUrl);
+function buildClientConfirmationHtml(r, qrDataUrl, prestDetails = [], prestQrs = []) {
+  if (r.lang === 'en') return buildClientConfirmationHtmlEN(r, qrDataUrl, prestDetails, prestQrs);
   const client  = escHtml(r.client || 'cher client');
   const ref     = escHtml(r.ref || r.id || '');
   const trajet  = escHtml(r.trajet || '—');
@@ -553,6 +553,19 @@ function buildClientConfirmationHtml(r, qrDataUrl) {
       <img src="${qrDataUrl}" width="200" height="200" alt="QR code réservation IsmaDrive" style="display:block;margin:0 auto;border:4px solid #fff;border-radius:2px"/>
       <div style="margin-top:10px;font-size:.72rem;color:#777">Sauvegardez ce mail ou faites une capture d'écran.</div>
     </div>
+
+
+    ${prestDetails.length > 0 ? prestDetails.map((detail, i) => `
+    <tr><td style="padding:0 32px 20px">
+      <div style="border-top:1px solid #e8e0d0;padding-top:16px">
+        <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Course ${i + 2}</div>
+        <div style="background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px;padding:12px 16px;margin-bottom:14px;font-size:.83rem;color:#444;line-height:1.5">${escHtml(detail)}</div>
+        ${prestQrs[i] ? `<div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:16px;text-align:center;margin-bottom:8px">
+          <div style="font-size:.6rem;color:#9a9185;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">QR code — Course ${i + 2}</div>
+          <img src="${prestQrs[i]}" width="160" height="160" alt="QR code course ${i + 2}" style="display:block;margin:0 auto;border:3px solid #fff;border-radius:2px"/>
+        </div>` : ''}
+      </div>
+    </td></tr>`).join('') : ''}
 
     <!-- Bouton + URL en clair -->
     <div style="text-align:center;margin-bottom:12px">
@@ -651,6 +664,19 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
       <div style="margin-top:10px;font-size:.72rem;color:#777">Save this email or take a screenshot.</div>
     </div>
 
+
+    ${prestDetails.length > 0 ? prestDetails.map((detail, i) => `
+    <tr><td style="padding:0 32px 20px">
+      <div style="border-top:1px solid #e8e0d0;padding-top:16px">
+        <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Ride ${i + 2}</div>
+        <div style="background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px;padding:12px 16px;margin-bottom:14px;font-size:.83rem;color:#444;line-height:1.5">${escHtml(detail)}</div>
+        ${prestQrs[i] ? `<div style="background:#080808;border:1px solid #c9a96e;border-radius:3px;padding:16px;text-align:center;margin-bottom:8px">
+          <div style="font-size:.6rem;color:#9a9185;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px">QR code — Ride ${i + 2}</div>
+          <img src="${prestQrs[i]}" width="160" height="160" alt="QR code ride ${i + 2}" style="display:block;margin:0 auto;border:3px solid #fff;border-radius:2px"/>
+        </div>` : ''}
+      </div>
+    </td></tr>`).join('') : ''}
+
     <!-- Button + plain URL -->
     <div style="text-align:center;margin-bottom:12px">
       <a href="${reservationUrl}" style="display:inline-block;background:#080808;color:#fff;padding:12px 28px;text-decoration:none;font-size:.85rem;font-weight:bold;border-radius:4px;letter-spacing:.04em">📋 Access my booking</a>
@@ -687,7 +713,16 @@ async function sendClientConfirmationEmail(r) {
   }
 
   const qrDataUrl = await buildConfirmationQrDataUrl(r);
-  const html = buildClientConfirmationHtml(r, qrDataUrl);
+  const prestDetails = parsePrestationsFromNotes(r.notes);
+  const prestQrs = await Promise.all(
+    prestDetails.map((_, i) =>
+      QRCode.toDataURL(`${APP_URL}/reservation/${r.id}?course=${i + 2}`, {
+        width: 200, margin: 2, errorCorrectionLevel: 'M',
+        type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+      })
+    )
+  );
+  const html = buildClientConfirmationHtml(r, qrDataUrl, prestDetails, prestQrs);
   const subject = r.lang === 'en'
     ? `IsmaDrive — Booking confirmed · Ref. ${r.ref || r.id}`
     : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
@@ -729,6 +764,33 @@ function formatNotesHtml(notes, accentColor) {
   });
   if (clean) html += `<div style="margin-top:8px;font-size:.83rem;color:#555">${escHtml(clean)}</div>`;
   return html;
+}
+
+function parsePrestationsFromNotes(notes) {
+  if (!notes) return [];
+  const regex = /\[Prestation \d+:([^\]]*)\]/g;
+  const results = [];
+  let m;
+  while ((m = regex.exec(notes)) !== null) results.push(m[1].trim());
+  return results;
+}
+
+function parsePrestationFields(detail) {
+  const parts = detail.split(' · ').map(p => p.trim());
+  const dateTimeIdx = parts.findIndex(p => /^\d{4}-\d{2}-\d{2}/.test(p));
+  const raw = dateTimeIdx > -1 ? parts[dateTimeIdx] : '';
+  const date = raw.substring(0, 10);
+  const time = raw.length > 10 ? raw.substring(11, 16) : '';
+  const priceMatch = detail.match(/(\d+)€/);
+  const price = priceMatch ? priceMatch[1] : '—';
+  const dirIdx = parts.findIndex(p => p === 'Depuis aéroport' || p === 'Vers aéroport');
+  const dir = dirIdx > -1 ? parts[dirIdx] : '';
+  const addr = dirIdx > -1 && dirIdx + 1 < parts.length ? parts[dirIdx + 1] : '';
+  const routeEnd = dirIdx > -1 ? dirIdx : (dateTimeIdx > -1 ? dateTimeIdx : parts.length);
+  const route = parts.slice(0, routeEnd).join(' · ');
+  const dep = dir === 'Depuis aéroport' ? route : addr;
+  const arr = dir === 'Depuis aéroport' ? addr : route;
+  return { date, time, price, route, addr, dir, dep, arr };
 }
 
 async function buildReviewQrDataUrl() {
@@ -958,7 +1020,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 /* ── MIDDLEWARE ── */
 app.use(express.json());
 
-/* ── Secours email : si le webhook Stripe n’a pas été reçu, la page succès envoie session_id ── */
+/* ── Secours email : si le webhook Stripe n'a pas été reçu, la page succès envoie session_id ── */
 app.post('/api/sync-booking-after-payment', async (req, res) => {
   const sessionId = String(req.body?.sessionId || '').trim();
   if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId requis' });
@@ -1167,7 +1229,7 @@ app.delete('/api/drivers/:id', async (req, res) => {
 
 /* ── ENVOI EMAIL CONDUCTEUR ── */
 app.post('/api/send-driver-email', async (req, res) => {
-  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate } = req.body;
+  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate, courseIndex } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   const to = String(driverEmail || '').trim();
   if (!to) return res.status(400).json({ error: 'Email du destinataire requis.' });
@@ -1177,9 +1239,27 @@ app.post('/api/send-driver-email', async (req, res) => {
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
+  /* Si courseIndex > 0, on construit un objet r surchargeant les infos avec la prestation concernée */
+  const cIdx = parseInt(courseIndex || 0, 10);
+  let rForEmail = r;
+  if (cIdx > 0) {
+    const prests = parsePrestationsFromNotes(r.notes);
+    const detail = prests[cIdx - 1];
+    if (!detail) return res.status(400).json({ error: `Prestation ${cIdx} introuvable dans les notes.` });
+    const pf = parsePrestationFields(detail);
+    rForEmail = {
+      ...r,
+      date: pf.date || r.date,
+      time: pf.time || r.time,
+      trajet: pf.route || r.trajet,
+      depLabel: pf.dep || undefined,
+      arrLabel: pf.arr || undefined,
+    };
+  }
+
   const formDriverName = String(driverName || '').trim();
   const formPlate = String(driverPlate || '').trim();
-  /* Toujours croiser l’annuaire : le nom peut être saisi à la main sans la plaque, ou l’inverse. */
+  /* Toujours croiser l'annuaire : le nom peut être saisi à la main sans la plaque, ou l'inverse. */
   const driverDirMatch = await dbGetDriverByEmail(to);
   const dirName = String(driverDirMatch?.name || '').trim();
   const dirPlate = String(driverDirMatch?.immatriculation || '').trim();
@@ -1188,7 +1268,9 @@ app.post('/api/send-driver-email', async (req, res) => {
   const assignedDisplay = (nm || emailLocalPart(to) || to).slice(0, 200);
 
   const token      = missionToken(tripId);
-  const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
+  const missionUrl = cIdx > 0
+    ? `${APP_URL}/mission-order/${tripId}?token=${token}&course=${cIdx + 1}`
+    : `${APP_URL}/mission-order/${tripId}?token=${token}`;
   let qrDataUrl;
   try {
     qrDataUrl = await QRCode.toDataURL(missionUrl, {
@@ -1201,9 +1283,10 @@ app.post('/api/send-driver-email', async (req, res) => {
   }
   /* Email : nom « humain » (pas seulement la partie locale mail si on a un vrai nom) + plaque fusionnée */
   const nameForEmail = (nm || assignedDisplay).trim();
-  const html = buildDriverEmailHtml(r, nameForEmail, missionUrl, driverPrice, qrDataUrl, pl, to);
+  const html = buildDriverEmailHtml(rForEmail, nameForEmail, missionUrl, driverPrice, qrDataUrl, pl, to);
   const whoLabel = assignedDisplay.slice(0, 48);
-  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time} — ${whoLabel}`;
+  const courseLabel = cIdx > 0 ? ` · Course ${cIdx + 1}` : '';
+  const subject = `Course IsmaDrive — ${fmtDateFr(rForEmail.date)} à ${rForEmail.time}${courseLabel} — ${whoLabel}`;
 
   try {
     const { error } = await resendEmailsSend({ from: RESEND_FROM, to, subject, html });
@@ -1215,7 +1298,7 @@ app.post('/api/send-driver-email', async (req, res) => {
     return res.status(500).json({ error: 'Erreur envoi : ' + e.message });
   }
 
-  /* Après envoi réussi : horodatage + destinataire + conducteur assigné (écrase l’ancien pour refléter le collègue) */
+  /* Après envoi réussi : horodatage + destinataire + conducteur assigné (écrase l'ancien pour refléter le collègue) */
   const postEmail = {
     driverOrderSentAt: new Date().toISOString(),
     driverOrderSentTo: to,
@@ -1227,7 +1310,7 @@ app.post('/api/send-driver-email', async (req, res) => {
   } catch (e) {
     console.error('[send-driver-email] DB réservation (bon / conducteur assigné):', e.message);
   }
-  /* N’ajoute à l’annuaire que si on a un vrai nom (formulaire ou fiche conducteur), pas le pseudo-email seul. */
+  /* N'ajoute à l'annuaire que si on a un vrai nom (formulaire ou fiche conducteur), pas le pseudo-email seul. */
   const nameForDirectory = formDriverName || String(driverDirMatch?.name || '').trim();
   if (nameForDirectory) {
     try {
@@ -1632,7 +1715,7 @@ function parseJsonSafe(raw, httpStatus) {
     const html = /^[\\s]*<(!DOCTYPE|html)/i.test(t);
     if (html) return { error: 'Réponse HTML (erreur serveur / Vercel). Consultez les logs. [HTTP ' + (httpStatus || '?') + ']' };
     if (/^An error occurred/i.test(t) || /^Application error/i.test(t))
-      return { error: 'Erreur d’exécution serveur (Vercel). [HTTP ' + (httpStatus || '?') + ']' };
+      return { error: 'Erreur d'exécution serveur (Vercel). [HTTP ' + (httpStatus || '?') + ']' };
     return { error: 'Réponse non-JSON [HTTP ' + (httpStatus || '?') + ']' };
   }
 }
