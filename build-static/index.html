@@ -1650,13 +1650,13 @@ async function acSearch(inp,lid){
   const q=inp.value.trim(),list=document.getElementById(lid);
   if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null;
   clearTimeout(acT[lid]);
-  if(q.length<2){list.classList.remove('open');return;}
+  if(q.length<3){list.classList.remove('open');return;}
   list.innerHTML='<div class="ac-item msg"><span>Recherche…</span></div>';
   list.classList.add('open');
   acT[lid]=setTimeout(async()=>{
     try{
       const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=6&autocomplete=1`);
-      if(!res.ok)throw new Error('HTTP '+res.status);
+      if(!res.ok)return;
       const data=await res.json();
       const features=data.features||[];
       list.innerHTML='';
@@ -1678,7 +1678,7 @@ async function acSearch(inp,lid){
         });
         list.appendChild(item);
       });
-    }catch(err){list.innerHTML=`<div class="ac-item msg"><span style="color:#e07070">Erreur : ${err.message}</span></div>`;}
+    }catch(err){/* réseau instable — garder le loader */}
   },300);
 }
 function acBlur(lid){acBT[lid]=setTimeout(()=>document.getElementById(lid).classList.remove('open'),200);}

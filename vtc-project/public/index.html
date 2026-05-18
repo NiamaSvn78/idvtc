@@ -1961,7 +1961,7 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prest2Active:false, p2tab:'p', p2fpack:'cdg', p2fdir:'from', p2mdur:2, p2price:0 };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prest2Active:false, p2tab:'p', p2fpack:'cdg', p2fdir:'from', p2mdur:2, p2price:0, p2dep:null, p2arr:null, p2km:null };
 let _pendingModalType = null;
 const acT={}, acBT={};
 function syncTimeVal(id){const h=(document.getElementById(id+'-h')||{}).value||'00',m=(document.getElementById(id+'-m')||{}).value||'00',el=document.getElementById(id);if(el)el.value=h+':'+m;}
@@ -2186,14 +2186,15 @@ function updatePackPrice(){
 async function acSearch(inp,lid){
   const q=inp.value.trim(),list=document.getElementById(lid);
   if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null;
+  if(lid==='ac-p2dep'){S.p2dep=null;S.p2km=null;} if(lid==='ac-p2arr'){S.p2arr=null;S.p2km=null;}
   clearTimeout(acT[lid]);
-  if(q.length<2){list.classList.remove('open');return;}
+  if(q.length<3){list.classList.remove('open');return;}
   list.innerHTML='<div class="ac-item msg"><span>Recherche…</span></div>';
   list.classList.add('open');
   acT[lid]=setTimeout(async()=>{
     try{
       const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=6&autocomplete=1`);
-      if(!res.ok)throw new Error('HTTP '+res.status);
+      if(!res.ok)return;
       const data=await res.json();
       const features=data.features||[];
       list.innerHTML='';
@@ -2210,12 +2211,15 @@ async function acSearch(inp,lid){
           const coord={lat,lon,label};
           if(lid==='ac-dep')S.dep=coord;
           if(lid==='ac-arr')S.arr=coord;
+          if(lid==='ac-p2dep')S.p2dep=coord;
+          if(lid==='ac-p2arr')S.p2arr=coord;
           list.classList.remove('open');
           if(S.dep&&S.arr)doCalc();
+          if(S.p2dep&&S.p2arr)doCalcP2();
         });
         list.appendChild(item);
       });
-    }catch(err){list.innerHTML=`<div class="ac-item msg"><span style="color:#e07070">Erreur : ${err.message}</span></div>`;}
+    }catch(err){/* réseau instable — garder le loader, l'utilisateur continue de taper */}
   },300);
 }
 function acBlur(lid){acBT[lid]=setTimeout(()=>document.getElementById(lid).classList.remove('open'),200);}
@@ -2243,6 +2247,19 @@ async function doCalc(){
   finally{btn.classList.remove('busy');btn.innerHTML='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg> Recalculer';}
 }
 function setStatus(msg,type){const el=document.getElementById('status-t');el.textContent=msg;el.className='status'+(type?' '+type:'');}
+async function doCalcP2(){
+  if(!S.p2dep||!S.p2arr)return;
+  const el=document.getElementById('p2-price-val');
+  if(el)el.textContent='Calcul…';
+  try{
+    const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${S.p2dep.lon},${S.p2dep.lat};${S.p2arr.lon},${S.p2arr.lat}?overview=false`);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(data.code!=='Ok')throw new Error('Itinéraire introuvable');
+    S.p2km=data.routes[0].distance/1000;
+    calcP2Price();
+  }catch(err){if(el)el.textContent='Erreur calcul';}
+}
 function renderPrice(km){
   const t=CFG.tarifs[S.veh],raw=km*t.km,total=Math.ceil(Math.max(raw,t.min));
   S.price=total;
@@ -2390,7 +2407,7 @@ function buildReservationData(paymentMethod){
     } else {
       const p2dep = (document.getElementById('i-p2dep')?.value || '').substring(0, 30);
       const p2arr = (document.getElementById('i-p2arr')?.value || '').substring(0, 30);
-      prest2Info = `[Prestation 2: Transfert ${p2dep} → ${p2arr} · ${p2dateVal}]`;
+      prest2Info = `[Prestation 2: Transfert ${p2dep} → ${p2arr} · ${p2dateVal} · ${S.p2price > 0 ? S.p2price + '€' : 'prix non calculé'}]`;
     }
     if (prest2Info) notes = notes ? notes + ' ' + prest2Info : prest2Info;
   }
@@ -2497,6 +2514,7 @@ function removePrestation2() {
 }
 function selTripType2(type, el) {
   S.p2tab = type;
+  S.p2dep = null; S.p2arr = null; S.p2km = null;
   document.querySelectorAll('#ttg2 .trip-type-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
   document.querySelectorAll('#prest2-panel .trip-fields').forEach(f => f.classList.remove('active'));
@@ -2530,10 +2548,19 @@ function calcP2Price() {
     p = f[veh] || f.van;
   } else if (S.p2tab === 'm') {
     p = (S.p2mdur || 2) * (CFG.tarifs[veh] || CFG.tarifs.van).h;
+  } else if (S.p2tab === 't') {
+    if (S.p2km !== null) {
+      const t = CFG.tarifs[veh] || CFG.tarifs.van;
+      p = Math.ceil(Math.max(S.p2km * t.km, t.min));
+    }
   }
   S.p2price = p;
   const el = document.getElementById('p2-price-val');
-  if (el) el.textContent = p > 0 ? p + ' €' : (S.p2tab === 't' ? 'À calculer' : '—');
+  if (S.p2tab === 't') {
+    if (el) el.textContent = p > 0 ? p + ' €' : (S.p2dep && S.p2arr ? 'Calcul…' : 'Saisissez les adresses');
+  } else {
+    if (el) el.textContent = p > 0 ? p + ' €' : '—';
+  }
 }
 
 function selTripType(type, el) {
@@ -2647,9 +2674,18 @@ function fillWizardRecap() {
   } else {
     rows = `<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heure${S.mdur > 1 ? 's' : ''}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;
   }
-  if (S.prest2Active && S.p2tab !== 't') {
-    const f2 = S.p2tab === 'p' ? CFG.forfaits[S.p2fpack || 'cdg'] : null;
-    const p2label = S.p2tab === 'p' ? (f2.label + (S.p2fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)')) : `Mise à disposition ${S.p2mdur}h`;
+  if (S.prest2Active) {
+    let p2label = '';
+    if (S.p2tab === 'p') {
+      const f2 = CFG.forfaits[S.p2fpack || 'cdg'];
+      p2label = f2.label + (S.p2fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)');
+    } else if (S.p2tab === 'm') {
+      p2label = `Mise à disposition ${S.p2mdur}h`;
+    } else {
+      const dep2 = S.p2dep?.label || (document.getElementById('i-p2dep')?.value) || '—';
+      const arr2 = S.p2arr?.label || (document.getElementById('i-p2arr')?.value) || '—';
+      p2label = `${dep2.substring(0,35)} → ${arr2.substring(0,35)}`;
+    }
     rows += `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.3rem;padding-top:.5rem"><span class="mrk" style="color:var(--gold)">Prestation 2</span><span class="mrv">${p2label}</span></div>`;
     if (S.p2price > 0) rows += `<div class="mr"><span class="mrk">Prix prestation 2</span><span class="mrv">${S.p2price} €</span></div>`;
   }
