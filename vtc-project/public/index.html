@@ -2366,18 +2366,23 @@ function generateQR(ref,paymentMethod){
   const sieg=document.getElementById('f-siege')?.checked;
   const equip=[reh&&'Rehausseur',sieg&&'Siege bebe'].filter(Boolean).join('+') || 'Non';
   const dateStr=(date||'').split('-').reverse().join('/');
-  const qrText=[
+  const isRoundQR=S.tripMode==='round-trip'||S.tripMode==='split';
+  const returnAddrQR=isRoundQR?(document.getElementById('i-preturnaddr')?.value||'').trim():'';
+  const returnDateQR=isRoundQR?(document.getElementById('i-prdate')?.value||''):'';
+  const returnTimeQR=isRoundQR?(document.getElementById('i-prtime')?.value||''):'';
+  const returnDateStrQR=returnDateQR?(returnDateQR.split('-').reverse().join('/')):'';
+  const qrLines=[
     'IsmaDrive - PAIEMENT NON EFFECTUE',
     'Ref:'+ref,
     'Trajet:'+trajet,
+    'Type:'+(isRoundQR?'Aller-retour':'Aller simple'),
     'Vehicule:'+veh,
-    'Date:'+dateStr+' '+time,
-    'Client:'+nom,
-    'Equip:'+equip,
-    'Prix:'+S.price+'EUR',
-    'Paiement:Non',
-    'Mode:'+buildPaymentLabel(paymentMethod)
-  ].join('|');
+    'Date aller:'+dateStr+' '+time,
+  ];
+  if(returnAddrQR) qrLines.push('Adresse retour:'+returnAddrQR.substring(0,50));
+  if(returnDateStrQR) qrLines.push('Date retour:'+returnDateStrQR+' '+(returnTimeQR||''));
+  qrLines.push('Client:'+nom,'Equip:'+equip,'Prix:'+S.price+'EUR','Paiement:Non','Mode:'+buildPaymentLabel(paymentMethod));
+  const qrText=qrLines.join('|');
   document.getElementById('qr-ref').textContent='Réf. '+ref+' · Paiement non effectué · Mode : '+buildPaymentLabel(paymentMethod);
   const container=document.getElementById('qr-canvas');
   container.innerHTML='';

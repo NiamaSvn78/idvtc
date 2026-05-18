@@ -493,6 +493,9 @@ function buildClientConfirmationHtml(r, qrDataUrl) {
   const veh     = escHtml(r.vehicleName || r.vehicle || '—');
   const price   = escHtml(String(r.price || '—'));
   const equip          = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Équipement</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const tripModeRow    = (r.tripMode && r.tripMode !== 'one-way') ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Type de trajet</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">Aller-retour</td></tr>` : '';
+  const returnAddrRow  = r.returnAddr ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Adresse de retour</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${escHtml(r.returnAddr)}</td></tr>` : '';
+  const returnDateRow  = r.returnDate ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Heure retour</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${escHtml(fmtDateFr(r.returnDate))} à ${escHtml(r.returnTime||'—')}</td></tr>` : '';
   const reservationUrl = `${APP_URL}/reservation/${r.id || ''}`;
 
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -526,7 +529,10 @@ function buildClientConfirmationHtml(r, qrDataUrl) {
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;color:#888;font-size:13px">Référence</td><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;text-align:right;font-weight:bold;color:#080808;font-size:13px;letter-spacing:.05em">${ref}</td></tr>
         <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Trajet</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${trajet}</td></tr>
-        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Heure</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} à ${time}</td></tr>
+        ${tripModeRow}
+        ${returnAddrRow}
+        ${returnDateRow}
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Heure aller</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} à ${time}</td></tr>
         <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Véhicule</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${veh}</td></tr>
         ${equip}
         <tr><td style="padding:8px 0 0;color:#333;font-size:14px;font-weight:bold">Total payé</td><td style="padding:8px 0 0;text-align:right;font-size:16px;font-weight:bold;color:#c9a96e">${price} €</td></tr>
@@ -584,6 +590,9 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
   const veh     = escHtml(r.vehicleName || r.vehicle || '—');
   const price   = escHtml(String(r.price || '—'));
   const equip          = r.equipment ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Equipment</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(r.equipment)}</td></tr>` : '';
+  const tripModeRow    = (r.tripMode && r.tripMode !== 'one-way') ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Trip type</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">Round trip</td></tr>` : '';
+  const returnAddrRow  = r.returnAddr ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Return address</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${escHtml(r.returnAddr)}</td></tr>` : '';
+  const returnDateRow  = r.returnDate ? `<tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Return date &amp; time</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${escHtml(fmtDateFr(r.returnDate))} at ${escHtml(r.returnTime||'—')}</td></tr>` : '';
   const reservationUrl = `${APP_URL}/reservation/${r.id || ''}`;
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -617,7 +626,10 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;color:#888;font-size:13px">Reference</td><td style="padding:6px 0;border-bottom:1px solid #e8e0d0;text-align:right;font-weight:bold;color:#080808;font-size:13px;letter-spacing:.05em">${ref}</td></tr>
         <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Trip</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${trajet}</td></tr>
-        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Time</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} at ${time}</td></tr>
+        ${tripModeRow}
+        ${returnAddrRow}
+        ${returnDateRow}
+        <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Outbound date &amp; time</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${dateStr} at ${time}</td></tr>
         <tr><td style="padding:6px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Vehicle</td><td style="padding:6px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px;color:#333">${veh}</td></tr>
         ${equip}
         <tr><td style="padding:8px 0 0;color:#333;font-size:14px;font-weight:bold">Total paid</td><td style="padding:8px 0 0;text-align:right;font-size:16px;font-weight:bold;color:#c9a96e">${price} €</td></tr>
