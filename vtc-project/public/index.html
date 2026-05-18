@@ -736,13 +736,12 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 /* ── 2ÈME PRESTATION ── */
 .add-prest-btn{display:flex;align-items:center;justify-content:center;gap:.55rem;background:none;border:1px dashed var(--subtle);color:var(--muted);padding:.72rem 1rem;font-family:'DM Sans',sans-serif;font-size:.79rem;cursor:pointer;transition:all .22s;width:100%;margin:.9rem 0 0;letter-spacing:.03em}
 .add-prest-btn:hover{border-color:var(--gold-border);color:var(--gold)}
-.prest2-panel{display:none;margin-top:.9rem;border:1px solid var(--gold-border);background:rgba(201,169,110,.04);padding:1.2rem}
-.prest2-panel.open{display:block}
-.prest2-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-.prest2-title{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
-.prest2-rm{background:none;border:1px solid var(--subtle);color:var(--muted);padding:.18rem .65rem;font-size:.8rem;cursor:pointer;transition:all .2s;font-family:inherit}
-.prest2-rm:hover{border-color:var(--gold-border);color:var(--gold)}
-.p2-price-line{margin-top:.8rem;padding:.5rem .7rem;background:var(--dark3);border:1px solid var(--border);font-size:.82rem;display:flex;justify-content:space-between;align-items:center}
+.prest-panel{margin-top:.9rem;border:1px solid var(--gold-border);background:rgba(201,169,110,.04);padding:1.2rem}
+.prest-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.prest-title{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.prest-rm{background:none;border:1px solid var(--subtle);color:var(--muted);padding:.18rem .65rem;font-size:.8rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.prest-rm:hover{border-color:var(--gold-border);color:var(--gold)}
+.prest-price-line{margin-top:.8rem;padding:.5rem .7rem;background:var(--dark3);border:1px solid var(--border);font-size:.82rem;display:flex;justify-content:space-between;align-items:center}
 @media(max-width:480px){.trip-mode-grid{gap:.3rem}.tmb-name{font-size:.6rem}}
 </style>
 </head>
@@ -984,103 +983,11 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </div>
       </div>
 
-      <button class="add-prest-btn" id="add-prest-btn" onclick="togglePrestation2()">
+      <button class="add-prest-btn" id="add-prest-btn" onclick="addPrestation()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         <span data-i18n="wizard.add_service">Ajouter une prestation</span>
       </button>
-      <div class="prest2-panel" id="prest2-panel">
-        <div class="prest2-header">
-          <span class="prest2-title" data-i18n="wizard.service2_title">2ème prestation</span>
-          <button class="prest2-rm" onclick="removePrestation2()" data-i18n="wizard.service2_remove">✕ Supprimer</button>
-        </div>
-        <div class="trip-type-grid" id="ttg2" style="margin-bottom:1rem">
-          <div class="trip-type-btn on" id="ttb2-p" onclick="selTripType2('p',this)">
-            <div class="ttb-ico">✈</div>
-            <div class="ttb-name" data-i18n="wizard.s2_airport_name">Forfait Aéroport</div>
-            <div class="ttb-sub" data-i18n="wizard.s2_airport_sub">CDG · Orly · Prix fixe</div>
-          </div>
-          <div class="trip-type-btn" id="ttb2-t" onclick="selTripType2('t',this)">
-            <div class="ttb-ico">🚗</div>
-            <div class="ttb-name" data-i18n="wizard.s2_transfer_name">Transfert</div>
-            <div class="ttb-sub" data-i18n="wizard.s2_transfer_sub">Prix au km</div>
-          </div>
-          <div class="trip-type-btn" id="ttb2-m" onclick="selTripType2('m',this)">
-            <div class="ttb-ico">⏱</div>
-            <div class="ttb-name" data-i18n="wizard.s2_mad_name">Mise à dispo</div>
-            <div class="ttb-sub" data-i18n="wizard.s2_mad_sub">À l'heure</div>
-          </div>
-        </div>
-        <!-- 2ème prestation – Forfait Aéroport -->
-        <div class="trip-fields active" id="tf2-p">
-          <label class="fl" style="margin-bottom:.5rem" data-i18n="wizard.s2_airport_label">Aéroport</label>
-          <div class="pack-grid">
-            <div class="pack-card on" id="pk2-cdg" onclick="selPack2('cdg',this)">
-              <div class="pack-ico">✈</div>
-              <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
-              <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
-              <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
-            </div>
-            <div class="pack-card" id="pk2-orly" onclick="selPack2('orly',this)">
-              <div class="pack-ico">✈</div>
-              <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
-              <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
-              <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
-            </div>
-          </div>
-          <div class="dir-toggle">
-            <button type="button" class="dir-btn on" id="dir2-from" onclick="selDir2('from',this)" data-i18n="wizard.s2_from_airport">✈ Depuis l'aéroport</button>
-            <button type="button" class="dir-btn" id="dir2-to" onclick="selDir2('to',this)" data-i18n="wizard.s2_to_airport">🏠 Vers l'aéroport</button>
-          </div>
-          <div class="ac-wrap">
-            <input class="fi" id="i-p2addr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" data-i18n-ph="airport.addr_ph" autocomplete="off" oninput="acSearch(this,'ac-p2addr')" onfocus="acSearch(this,'ac-p2addr')" onblur="acBlur('ac-p2addr')">
-            <div class="ac-list" id="ac-p2addr"></div>
-          </div>
-          <div class="fg2 fg-dt">
-            <div><label class="fl" data-i18n="airport.date">Date</label><input class="fi" id="i-p2date" type="date" style="padding-left:.75rem"></div>
-            <div><label class="fl" data-i18n="airport.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-p2time-h" onchange="syncTimeVal('i-p2time')"></select><span class="time-sep">:</span><select class="ts" id="i-p2time-m" onchange="syncTimeVal('i-p2time')"></select><input type="hidden" id="i-p2time"></div></div>
-          </div>
-        </div>
-        <!-- 2ème prestation – Transfert -->
-        <div class="trip-fields" id="tf2-t">
-          <div class="fg1">
-            <label class="fl" data-i18n="transfer.dep_label">Adresse de départ</label>
-            <div class="ac-wrap"><input class="fi" id="i-p2dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" data-i18n-ph="transfer.dep_ph" autocomplete="off" oninput="acSearch(this,'ac-p2dep')" onfocus="acSearch(this,'ac-p2dep')" onblur="acBlur('ac-p2dep')"><div class="ac-list" id="ac-p2dep"></div></div>
-          </div>
-          <div class="fg1">
-            <label class="fl" data-i18n="transfer.arr_label">Adresse d'arrivée</label>
-            <div class="ac-wrap"><input class="fi" id="i-p2arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" data-i18n-ph="transfer.arr_ph" autocomplete="off" oninput="acSearch(this,'ac-p2arr')" onfocus="acSearch(this,'ac-p2arr')" onblur="acBlur('ac-p2arr')"><div class="ac-list" id="ac-p2arr"></div></div>
-          </div>
-          <div class="fg2 fg-dt">
-            <div><label class="fl" data-i18n="transfer.date">Date</label><input class="fi" id="i-p2tdate" type="date" style="padding-left:.75rem"></div>
-            <div><label class="fl" data-i18n="transfer.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-p2ttime-h" onchange="syncTimeVal('i-p2ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-p2ttime-m" onchange="syncTimeVal('i-p2ttime')"></select><input type="hidden" id="i-p2ttime"></div></div>
-          </div>
-          <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem" data-i18n="wizard.s2_km_note">Prix calculé au km après saisie des adresses</p>
-        </div>
-        <!-- 2ème prestation – Mise à disposition -->
-        <div class="trip-fields" id="tf2-m">
-          <div class="fg1">
-            <label class="fl" data-i18n="mad.dep_label">Adresse de prise en charge</label>
-            <div class="ac-wrap"><input class="fi" id="i-p2mdep" type="text" placeholder="Adresse de départ" data-i18n-ph="mad.dep_ph" autocomplete="off" oninput="acSearch(this,'ac-p2mdep')" onfocus="acSearch(this,'ac-p2mdep')" onblur="acBlur('ac-p2mdep')"><div class="ac-list" id="ac-p2mdep"></div></div>
-          </div>
-          <div class="fg2 fg-dt">
-            <div><label class="fl" data-i18n="mad.date">Date</label><input class="fi" id="i-p2mdate" type="date" style="padding-left:.75rem"></div>
-            <div><label class="fl" data-i18n="mad.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-p2mtime-h" onchange="syncTimeVal('i-p2mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-p2mtime-m" onchange="syncTimeVal('i-p2mtime')"></select><input type="hidden" id="i-p2mtime"></div></div>
-          </div>
-          <label class="fl" style="margin:.6rem 0 .4rem" data-i18n="mad.duration_label">Durée</label>
-          <div class="d-grid">
-            <div class="d-btn on" onclick="selD2(2,this)"><div class="d-h">2h</div></div>
-            <div class="d-btn" onclick="selD2(3,this)"><div class="d-h">3h</div></div>
-            <div class="d-btn" onclick="selD2(4,this)"><div class="d-h">4h</div></div>
-            <div class="d-btn" onclick="selD2(5,this)"><div class="d-h">5h</div></div>
-            <div class="d-btn" onclick="selD2(6,this)"><div class="d-h">6h</div></div>
-            <div class="d-btn" onclick="selD2(8,this)"><div class="d-h">8h</div></div>
-          </div>
-        </div>
-        <div class="p2-price-line">
-          <span style="color:var(--muted)" data-i18n="wizard.service2_label">Prestation 2</span>
-          <span id="p2-price-val" style="color:var(--gold)">—</span>
-        </div>
-      </div>
+      <div id="prestations-container"></div>
       <div class="wiz-footer">
         <button class="btn-pay" onclick="wizardNext()">Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </div>
@@ -1961,7 +1868,8 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prest2Active:false, p2tab:'p', p2fpack:'cdg', p2fdir:'from', p2mdur:2, p2price:0, p2dep:null, p2arr:null, p2km:null };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[] };
+let _prestCounter = 0;
 let _pendingModalType = null;
 const acT={}, acBT={};
 function syncTimeVal(id){const h=(document.getElementById(id+'-h')||{}).value||'00',m=(document.getElementById(id+'-m')||{}).value||'00',el=document.getElementById(id);if(el)el.value=h+':'+m;}
@@ -1987,21 +1895,19 @@ window.addEventListener('DOMContentLoaded', ()=>{
   ['i-pdate','i-date','i-mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   const hOpts=Array.from({length:24},(_,i)=>{const v=pad(i);return `<option value="${v}">${v}</option>`;}).join('');
   const mOpts=[0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad(m);return `<option value="${v}">${v}</option>`;}).join('');
-  ['i-ptime','i-time','i-mtime','i-prtime','i-trtime','i-p2time','i-p2ttime','i-p2mtime'].forEach(id=>{
+  ['i-ptime','i-time','i-mtime','i-prtime','i-trtime'].forEach(id=>{
     const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
     if(hEl)hEl.innerHTML=hOpts;
     if(mEl)mEl.innerHTML=mOpts;
   });
-  ['i-time','i-mtime','i-trtime','i-p2ttime','i-p2mtime'].forEach(id=>{
+  ['i-time','i-mtime','i-trtime'].forEach(id=>{
     const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
     if(hEl)hEl.value=pad(now.getHours());
     if(mEl)mEl.value='00';
     syncTimeVal(id);
   });
-  /* Initialiser date retour et dates prestation 2 */
-  ['i-prdate','i-trdate','i-p2date','i-p2tdate','i-p2mdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
-  /* Sync valeurs initiales des champs heure retour et prestation 2 */
-  ['i-prtime','i-trtime','i-p2time','i-p2ttime','i-p2mtime'].forEach(id=>syncTimeVal(id));
+  ['i-prdate','i-trdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
+  ['i-prtime','i-trtime'].forEach(id=>syncTimeVal(id));
   ['i-pdate','i-date','i-mdate'].forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
@@ -2186,7 +2092,8 @@ function updatePackPrice(){
 async function acSearch(inp,lid){
   const q=inp.value.trim(),list=document.getElementById(lid);
   if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null;
-  if(lid==='ac-p2dep'){S.p2dep=null;S.p2km=null;} if(lid==='ac-p2arr'){S.p2arr=null;S.p2km=null;}
+  const pm=lid.match(/^ac-pn(\d+)(dep|arr)$/);
+  if(pm){const pid=parseInt(pm[1]),pf=pm[2],p=S.prestations.find(x=>x.id===pid);if(p){p[pf]=null;p.km=null;}}
   clearTimeout(acT[lid]);
   if(q.length<3){list.classList.remove('open');return;}
   list.innerHTML='<div class="ac-item msg"><span>Recherche…</span></div>';
@@ -2211,11 +2118,9 @@ async function acSearch(inp,lid){
           const coord={lat,lon,label};
           if(lid==='ac-dep')S.dep=coord;
           if(lid==='ac-arr')S.arr=coord;
-          if(lid==='ac-p2dep')S.p2dep=coord;
-          if(lid==='ac-p2arr')S.p2arr=coord;
+          if(pm){const pid=parseInt(pm[1]),pf=pm[2],pr=S.prestations.find(x=>x.id===pid);if(pr){pr[pf]=coord;if(pr.dep&&pr.arr)doCalcPrestN(pid);}}
           list.classList.remove('open');
           if(S.dep&&S.arr)doCalc();
-          if(S.p2dep&&S.p2arr)doCalcP2();
         });
         list.appendChild(item);
       });
@@ -2247,17 +2152,18 @@ async function doCalc(){
   finally{btn.classList.remove('busy');btn.innerHTML='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg> Recalculer';}
 }
 function setStatus(msg,type){const el=document.getElementById('status-t');el.textContent=msg;el.className='status'+(type?' '+type:'');}
-async function doCalcP2(){
-  if(!S.p2dep||!S.p2arr)return;
-  const el=document.getElementById('p2-price-val');
+async function doCalcPrestN(pid){
+  const pr=S.prestations.find(x=>x.id===pid);
+  if(!pr||!pr.dep||!pr.arr)return;
+  const el=document.getElementById('pv-pn'+pid);
   if(el)el.textContent='Calcul…';
   try{
-    const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${S.p2dep.lon},${S.p2dep.lat};${S.p2arr.lon},${S.p2arr.lat}?overview=false`);
+    const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${pr.dep.lon},${pr.dep.lat};${pr.arr.lon},${pr.arr.lat}?overview=false`);
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
     if(data.code!=='Ok')throw new Error('Itinéraire introuvable');
-    S.p2km=data.routes[0].distance/1000;
-    calcP2Price();
+    pr.km=data.routes[0].distance/1000;
+    calcPrestPrice(pid);
   }catch(err){if(el)el.textContent='Erreur calcul';}
 }
 function renderPrice(km){
@@ -2330,9 +2236,6 @@ async function doPay(){
   btn.disabled=true;bar.classList.add('go');
   try{
     const resData = buildReservationData('carte');
-    const checkR = await fetch('/api/check-availability',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:resData.date,time:resData.time,durationMin:resData.durationMin})});
-    const checkD = await checkR.json();
-    if(!checkD.available){ toast('Ce créneau vient d\'être réservé. Choisissez '+(checkD.nextSlot||'un autre horaire')+'.'); bar.classList.remove('go');btn.disabled=false; return; }
     const sessionRes=await fetch('/api/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
     const sessionData=await sessionRes.json().catch(()=>({}));
     if(!sessionRes.ok||!sessionData.url){toast(sessionData.error||'Erreur lors de la création du paiement Stripe');bar.classList.remove('go');btn.disabled=false;return;}
@@ -2393,26 +2296,27 @@ function buildReservationData(paymentMethod){
       returnTime = document.getElementById('i-trtime')?.value || '';
     }
   }
-  /* 2ème prestation */
-  let prest2Info = '';
-  if (S.prest2Active) {
-    const p2dateVal = document.getElementById('i-p2date')?.value || document.getElementById('i-p2tdate')?.value || document.getElementById('i-p2mdate')?.value || '';
-    if (S.p2tab === 'p') {
-      const f2 = CFG.forfaits[S.p2fpack || 'cdg'];
-      const p2addr = (document.getElementById('i-p2addr')?.value || '').substring(0, 40);
-      prest2Info = `[Prestation 2: ${f2.label} · ${S.p2fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${p2addr} · ${p2dateVal} · ${S.p2price}€]`;
-    } else if (S.p2tab === 'm') {
-      const p2mdep = (document.getElementById('i-p2mdep')?.value || '').substring(0, 40);
-      prest2Info = `[Prestation 2: Mise à disposition ${S.p2mdur}h depuis ${p2mdep} · ${p2dateVal} · ${S.p2price}€]`;
+  /* Prestations supplémentaires */
+  const prestsInfo = S.prestations.map((p, i) => {
+    const num = i + 2;
+    const dateVal = document.getElementById(`i-pn${p.id}date`)?.value || document.getElementById(`i-pn${p.id}tdate`)?.value || document.getElementById(`i-pn${p.id}mdate`)?.value || '';
+    const modeLabel = p.tripMode === 'round-trip' ? 'Aller-retour' : 'Aller simple';
+    if (p.tab === 'p') {
+      const f = CFG.forfaits[p.fpack || 'cdg'];
+      const addr = (document.getElementById(`i-pn${p.id}addr`)?.value || '').substring(0, 40);
+      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr} · ${dateVal} · ${p.price}€]`;
+    } else if (p.tab === 'm') {
+      const mdep = (document.getElementById(`i-pn${p.id}mdep`)?.value || '').substring(0, 40);
+      return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${dateVal} · ${p.price}€]`;
     } else {
-      const p2dep = (document.getElementById('i-p2dep')?.value || '').substring(0, 30);
-      const p2arr = (document.getElementById('i-p2arr')?.value || '').substring(0, 30);
-      prest2Info = `[Prestation 2: Transfert ${p2dep} → ${p2arr} · ${p2dateVal} · ${S.p2price > 0 ? S.p2price + '€' : 'prix non calculé'}]`;
+      const dep = (document.getElementById(`i-pn${p.id}dep`)?.value || '').substring(0, 30);
+      const arr = (document.getElementById(`i-pn${p.id}arr`)?.value || '').substring(0, 30);
+      return `[Prestation ${num}: Transfert ${dep} → ${arr} · ${modeLabel} · ${dateVal} · ${p.price > 0 ? p.price + '€' : 'prix non calculé'}]`;
     }
-    if (prest2Info) notes = notes ? notes + ' ' + prest2Info : prest2Info;
-  }
-  const totalPrice = (S.price || 0) + (S.prest2Active ? (S.p2price || 0) : 0);
-  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr'), consentTimestamp:new Date().toISOString(), policyVersion:'2026.05' };
+  }).join(' ');
+  if (prestsInfo) notes = notes ? notes + ' ' + prestsInfo : prestsInfo;
+  const totalPrice = (S.price || 0) + S.prestations.reduce((sum, p) => sum + (p.price || 0), 0);
+  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr'), consentTimestamp:new Date().toISOString(), policyVersion:'2025.05' };
 }
 
 
@@ -2497,69 +2401,166 @@ function selTripMode(mode, form, el) {
   if (form === 't' && S.km !== null) renderPrice(S.km);
 }
 
-/* ── 2ÈME PRESTATION ── */
-function togglePrestation2() {
-  S.prest2Active = true;
-  document.getElementById('prest2-panel').classList.add('open');
-  document.getElementById('add-prest-btn').style.display = 'none';
-  calcP2Price();
+/* ── PRESTATIONS DYNAMIQUES ── */
+function getPrestHTML(n) {
+  return `<div class="prest-panel" id="prest-${n}">
+  <div class="prest-header">
+    <span class="prest-title"></span>
+    <button class="prest-rm" onclick="removePrest(${n})">✕ Supprimer</button>
+  </div>
+  <div class="trip-type-grid" id="ttg-pn${n}" style="margin-bottom:1rem">
+    <div class="trip-type-btn on" onclick="selTripTypeN(${n},'p',this)"><div class="ttb-ico">✈</div><div class="ttb-name">Forfait Aéroport</div><div class="ttb-sub">CDG · Orly · Prix fixe</div></div>
+    <div class="trip-type-btn" onclick="selTripTypeN(${n},'t',this)"><div class="ttb-ico">🚗</div><div class="ttb-name">Transfert</div><div class="ttb-sub">Prix au km</div></div>
+    <div class="trip-type-btn" onclick="selTripTypeN(${n},'m',this)"><div class="ttb-ico">⏱</div><div class="ttb-name">Mise à dispo</div><div class="ttb-sub">À l'heure</div></div>
+  </div>
+  <div class="trip-mode-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem" id="tmg-pn${n}">
+    <button type="button" class="trip-mode-btn on" onclick="selTripModeN(${n},'one-way',this)"><div class="tmb-ico">→</div><div class="tmb-name">Aller simple</div></button>
+    <button type="button" class="trip-mode-btn" onclick="selTripModeN(${n},'round-trip',this)"><div class="tmb-ico">⇄</div><div class="tmb-name">Aller-retour</div></button>
+  </div>
+  <div class="trip-fields active" id="tf-pn${n}-p">
+    <label class="fl" style="margin-bottom:.5rem">Aéroport</label>
+    <div class="pack-grid">
+      <div class="pack-card on" id="pk-pn${n}-cdg" onclick="selPackN(${n},'cdg',this)"><div class="pack-ico">✈</div><div class="pack-name">Aéroport CDG</div><div class="pack-badge">Aller ou retour</div><div class="pack-prices"><span class="pack-price-tag">100 €</span></div></div>
+      <div class="pack-card" id="pk-pn${n}-orly" onclick="selPackN(${n},'orly',this)"><div class="pack-ico">✈</div><div class="pack-name">Aéroport Orly</div><div class="pack-badge">Aller ou retour</div><div class="pack-prices"><span class="pack-price-tag">90 €</span></div></div>
+    </div>
+    <div class="dir-toggle">
+      <button type="button" class="dir-btn on" onclick="selDirN(${n},'from',this)">✈ Depuis l'aéroport</button>
+      <button type="button" class="dir-btn" onclick="selDirN(${n},'to',this)">🏠 Vers l'aéroport</button>
+    </div>
+    <div class="ac-wrap"><input class="fi" id="i-pn${n}addr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}addr')" onfocus="acSearch(this,'ac-pn${n}addr')" onblur="acBlur('ac-pn${n}addr')"><div class="ac-list" id="ac-pn${n}addr"></div></div>
+    <div class="fg2 fg-dt">
+      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
+    </div>
+  </div>
+  <div class="trip-fields" id="tf-pn${n}-t">
+    <div class="fg1"><label class="fl">Adresse de départ</label><div class="ac-wrap"><input class="fi" id="i-pn${n}dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}dep')" onfocus="acSearch(this,'ac-pn${n}dep')" onblur="acBlur('ac-pn${n}dep')"><div class="ac-list" id="ac-pn${n}dep"></div></div></div>
+    <div class="fg1"><label class="fl">Adresse d'arrivée</label><div class="ac-wrap"><input class="fi" id="i-pn${n}arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" autocomplete="off" oninput="acSearch(this,'ac-pn${n}arr')" onfocus="acSearch(this,'ac-pn${n}arr')" onblur="acBlur('ac-pn${n}arr')"><div class="ac-list" id="ac-pn${n}arr"></div></div></div>
+    <div class="fg2 fg-dt">
+      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}tdate" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}ttime-h" onchange="syncTimeVal('i-pn${n}ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}ttime-m" onchange="syncTimeVal('i-pn${n}ttime')"></select><input type="hidden" id="i-pn${n}ttime"></div></div>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem">Prix calculé au km après saisie des adresses</p>
+  </div>
+  <div class="trip-fields" id="tf-pn${n}-m">
+    <div class="fg1"><label class="fl">Adresse de prise en charge</label><div class="ac-wrap"><input class="fi" id="i-pn${n}mdep" type="text" placeholder="Adresse de départ" autocomplete="off" oninput="acSearch(this,'ac-pn${n}mdep')" onfocus="acSearch(this,'ac-pn${n}mdep')" onblur="acBlur('ac-pn${n}mdep')"><div class="ac-list" id="ac-pn${n}mdep"></div></div></div>
+    <div class="fg2 fg-dt">
+      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}mdate" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}mtime-h" onchange="syncTimeVal('i-pn${n}mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}mtime-m" onchange="syncTimeVal('i-pn${n}mtime')"></select><input type="hidden" id="i-pn${n}mtime"></div></div>
+    </div>
+    <label class="fl" style="margin:.6rem 0 .4rem">Durée</label>
+    <div class="d-grid">
+      <div class="d-btn on" onclick="selDurN(${n},2,this)"><div class="d-h">2h</div></div>
+      <div class="d-btn" onclick="selDurN(${n},3,this)"><div class="d-h">3h</div></div>
+      <div class="d-btn" onclick="selDurN(${n},4,this)"><div class="d-h">4h</div></div>
+      <div class="d-btn" onclick="selDurN(${n},5,this)"><div class="d-h">5h</div></div>
+      <div class="d-btn" onclick="selDurN(${n},6,this)"><div class="d-h">6h</div></div>
+      <div class="d-btn" onclick="selDurN(${n},8,this)"><div class="d-h">8h</div></div>
+    </div>
+  </div>
+  <div class="prest-price-line">
+    <span style="color:var(--muted)">Prestation</span>
+    <span id="pv-pn${n}" style="color:var(--gold)">—</span>
+  </div>
+</div>`;
 }
-function removePrestation2() {
-  S.prest2Active = false;
-  S.p2price = 0;
-  document.getElementById('prest2-panel').classList.remove('open');
-  document.getElementById('add-prest-btn').style.display = '';
-  const el = document.getElementById('p2-price-val');
-  if (el) el.textContent = '—';
+function addPrestation() {
+  const n = _prestCounter++;
+  S.prestations.push({ id:n, tab:'p', fpack:'cdg', fdir:'from', mdur:2, price:0, dep:null, arr:null, km:null, tripMode:'one-way' });
+  const container = document.getElementById('prestations-container');
+  const div = document.createElement('div');
+  div.innerHTML = getPrestHTML(n);
+  container.appendChild(div.firstElementChild);
+  const now = new Date(), pad2 = v => String(v).padStart(2,'0');
+  const ds = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+  const hOpts = Array.from({length:24},(_,i)=>{const v=pad2(i);return `<option value="${v}">${v}</option>`;}).join('');
+  const mOpts = [0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad2(m);return `<option value="${v}">${v}</option>`;}).join('');
+  [`i-pn${n}time`,`i-pn${n}ttime`,`i-pn${n}mtime`].forEach(id=>{
+    const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
+    if(hEl){hEl.innerHTML=hOpts;hEl.value=pad2(now.getHours());}
+    if(mEl){mEl.innerHTML=mOpts;mEl.value='00';}
+    syncTimeVal(id);
+  });
+  [`i-pn${n}date`,`i-pn${n}tdate`,`i-pn${n}mdate`].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
+  renumberPrestLabels();
+  calcPrestPrice(n);
 }
-function selTripType2(type, el) {
-  S.p2tab = type;
-  S.p2dep = null; S.p2arr = null; S.p2km = null;
-  document.querySelectorAll('#ttg2 .trip-type-btn').forEach(b => b.classList.remove('on'));
+function removePrest(pid) {
+  const idx = S.prestations.findIndex(x => x.id === pid);
+  if (idx !== -1) S.prestations.splice(idx, 1);
+  const el = document.getElementById('prest-' + pid);
+  if (el) el.remove();
+  renumberPrestLabels();
+}
+function renumberPrestLabels() {
+  S.prestations.forEach((p, i) => {
+    const lbl = document.querySelector('#prest-' + p.id + ' .prest-title');
+    if (lbl) lbl.textContent = (i + 2) + 'ème prestation';
+  });
+}
+function selTripModeN(pid, mode, el) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.tripMode = mode;
+  document.querySelectorAll('#tmg-pn' + pid + ' .trip-mode-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
-  document.querySelectorAll('#prest2-panel .trip-fields').forEach(f => f.classList.remove('active'));
-  const tf = document.getElementById('tf2-' + type);
+  calcPrestPrice(pid);
+}
+function selTripTypeN(pid, type, el) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.tab = type; p.dep = null; p.arr = null; p.km = null;
+  document.querySelectorAll('#ttg-pn' + pid + ' .trip-type-btn').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  document.querySelectorAll('#prest-' + pid + ' .trip-fields').forEach(f => f.classList.remove('active'));
+  const tf = document.getElementById('tf-pn' + pid + '-' + type);
   if (tf) tf.classList.add('active');
-  calcP2Price();
+  calcPrestPrice(pid);
 }
-function selPack2(pack, el) {
-  S.p2fpack = pack;
-  document.querySelectorAll('#tf2-p .pack-card').forEach(c => c.classList.remove('on'));
+function selPackN(pid, pack, el) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.fpack = pack;
+  document.querySelectorAll('#tf-pn' + pid + '-p .pack-card').forEach(c => c.classList.remove('on'));
   if (el) el.classList.add('on');
-  calcP2Price();
+  calcPrestPrice(pid);
 }
-function selDir2(dir, el) {
-  S.p2fdir = dir;
-  document.querySelectorAll('#tf2-p .dir-btn').forEach(b => b.classList.remove('on'));
+function selDirN(pid, dir, el) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.fdir = dir;
+  document.querySelectorAll('#tf-pn' + pid + '-p .dir-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
 }
-function selD2(h, el) {
-  S.p2mdur = h;
-  document.querySelectorAll('#tf2-m .d-btn').forEach(d => d.classList.remove('on'));
+function selDurN(pid, h, el) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.mdur = h;
+  document.querySelectorAll('#tf-pn' + pid + '-m .d-btn').forEach(d => d.classList.remove('on'));
   if (el) el.classList.add('on');
-  calcP2Price();
+  calcPrestPrice(pid);
 }
-function calcP2Price() {
-  if (!S.prest2Active) { S.p2price = 0; return; }
-  let p = 0;
+function calcPrestPrice(pid) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  let base = 0;
   const veh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
-  if (S.p2tab === 'p') {
-    const f = CFG.forfaits[S.p2fpack || 'cdg'];
-    p = f[veh] || f.van;
-  } else if (S.p2tab === 'm') {
-    p = (S.p2mdur || 2) * (CFG.tarifs[veh] || CFG.tarifs.van).h;
-  } else if (S.p2tab === 't') {
-    if (S.p2km !== null) {
-      const t = CFG.tarifs[veh] || CFG.tarifs.van;
-      p = Math.ceil(Math.max(S.p2km * t.km, t.min));
-    }
+  if (p.tab === 'p') {
+    const f = CFG.forfaits[p.fpack || 'cdg'];
+    base = f[veh] || f.van;
+  } else if (p.tab === 'm') {
+    base = (p.mdur || 2) * (CFG.tarifs[veh] || CFG.tarifs.van).h;
+  } else if (p.tab === 't' && p.km !== null) {
+    const t = CFG.tarifs[veh] || CFG.tarifs.van;
+    base = Math.ceil(Math.max(p.km * t.km, t.min));
   }
-  S.p2price = p;
-  const el = document.getElementById('p2-price-val');
-  if (S.p2tab === 't') {
-    if (el) el.textContent = p > 0 ? p + ' €' : (S.p2dep && S.p2arr ? 'Calcul…' : 'Saisissez les adresses');
+  const price = (p.tripMode === 'round-trip' && base > 0) ? base * 2 : base;
+  p.price = price;
+  const el = document.getElementById('pv-pn' + pid);
+  if (p.tab === 't') {
+    if (el) el.textContent = price > 0 ? price + ' €' : (p.dep && p.arr ? 'Calcul…' : 'Saisissez les adresses');
   } else {
-    if (el) el.textContent = p > 0 ? p + ' €' : '—';
+    if (el) el.textContent = price > 0 ? price + ' €' : '—';
   }
 }
 
@@ -2674,25 +2675,27 @@ function fillWizardRecap() {
   } else {
     rows = `<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heure${S.mdur > 1 ? 's' : ''}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;
   }
-  if (S.prest2Active) {
-    let p2label = '';
-    if (S.p2tab === 'p') {
-      const f2 = CFG.forfaits[S.p2fpack || 'cdg'];
-      p2label = f2.label + (S.p2fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)');
-    } else if (S.p2tab === 'm') {
-      p2label = `Mise à disposition ${S.p2mdur}h`;
+  S.prestations.forEach((p, i) => {
+    const num = i + 2;
+    let plabel = '';
+    const modeLabel = p.tripMode === 'round-trip' ? 'Aller-retour' : 'Aller simple';
+    if (p.tab === 'p') {
+      const f = CFG.forfaits[p.fpack || 'cdg'];
+      plabel = f.label + ' · ' + modeLabel + (p.fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)');
+    } else if (p.tab === 'm') {
+      plabel = `Mise à disposition ${p.mdur}h · ${modeLabel}`;
     } else {
-      const dep2 = S.p2dep?.label || (document.getElementById('i-p2dep')?.value) || '—';
-      const arr2 = S.p2arr?.label || (document.getElementById('i-p2arr')?.value) || '—';
-      p2label = `${dep2.substring(0,35)} → ${arr2.substring(0,35)}`;
+      const dep2 = p.dep?.label || document.getElementById(`i-pn${p.id}dep`)?.value || '—';
+      const arr2 = p.arr?.label || document.getElementById(`i-pn${p.id}arr`)?.value || '—';
+      plabel = `${dep2.substring(0,35)} → ${arr2.substring(0,35)} · ${modeLabel}`;
     }
-    rows += `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.3rem;padding-top:.5rem"><span class="mrk" style="color:var(--gold)">Prestation 2</span><span class="mrv">${p2label}</span></div>`;
-    if (S.p2price > 0) rows += `<div class="mr"><span class="mrk">Prix prestation 2</span><span class="mrv">${S.p2price} €</span></div>`;
-  }
+    rows += `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.3rem;padding-top:.5rem"><span class="mrk" style="color:var(--gold)">Prestation ${num}</span><span class="mrv">${plabel}</span></div>`;
+    if (p.price > 0) rows += `<div class="mr"><span class="mrk">Prix prestation ${num}</span><span class="mrv">${p.price} €</span></div>`;
+  });
   const recap = document.getElementById('wiz-recap');
   const total = document.getElementById('wiz-total');
   if (recap) recap.innerHTML = rows;
-  const totalPrice = (S.price || 0) + (S.prest2Active ? (S.p2price || 0) : 0);
+  const totalPrice = (S.price || 0) + S.prestations.reduce((sum, p) => sum + (p.price || 0), 0);
   if (total) total.textContent = totalPrice + ' €';
 }
 

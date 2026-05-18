@@ -448,7 +448,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
       <div><div class="lbl">Client</div><div class="val">${r.client||'—'}</div></div>
       <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${r.tel||'—'}</a></div></div>
     </div>
-    ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
+    ${r.notes ? `<div style="margin-top:12px">${formatNotesHtml(r.notes, '#c9a96e')}</div>` : ''}
   </div>
   <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
     <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Conducteur assigné (bon)</div>
@@ -701,6 +701,22 @@ async function sendClientConfirmationEmail(r) {
 /* ── EMAIL AVIS CLIENT ── */
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatNotesHtml(notes, accentColor) {
+  if (!notes) return '';
+  const color = accentColor || '#c9a96e';
+  const blocks = [];
+  const clean = notes.replace(/\[Prestation \d+:[^\]]*\]/g, m => { blocks.push(m); return ''; }).trim();
+  let html = '';
+  blocks.forEach(b => {
+    const inner = b.slice(1, -1);
+    const colon = inner.indexOf(':');
+    const label = colon > -1 ? inner.slice(0, colon).trim() : 'Prestation';
+    const detail = colon > -1 ? inner.slice(colon + 1).trim() : inner;
+    html += `<div style="margin-top:8px;padding:8px 10px;background:#fffbf2;border-left:3px solid ${color};font-size:.82rem"><strong style="color:${color}">${escHtml(label)}</strong><br><span style="color:#555">${escHtml(detail)}</span></div>`;
+  });
+  if (clean) html += `<div style="margin-top:8px;font-size:.83rem;color:#555">${escHtml(clean)}</div>`;
+  return html;
 }
 
 async function buildReviewQrDataUrl() {
@@ -998,13 +1014,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
     return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans vos variables d\'environnement.' });
   }
   const { date, time, durationMin, price, trajet, email } = req.body;
-  const conflict = await checkConflict(date, time, durationMin || 60);
-  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
-
   const id     = Date.now().toString(36).toUpperCase().slice(-8);
   const ref    = generateResRef();
   const consentTimestamp = req.body.consentTimestamp || new Date().toISOString();
-  const policyVersion    = req.body.policyVersion    || '2026.05';
+  const policyVersion    = req.body.policyVersion    || '2025.05';
   const newRes = { ...req.body, id, ref, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion };
 
   try {
@@ -1069,9 +1082,6 @@ app.get('/api/availability', async (req, res) => {
 
 /* ── API : SAUVEGARDER RÉSERVATION ── */
 app.post('/api/reservations', async (req, res) => {
-  const { date, time, durationMin } = req.body;
-  const conflict = await checkConflict(date, time, durationMin || 60);
-  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
   const id     = Date.now().toString(36).toUpperCase().slice(-8);
   const ref    = generateResRef();
   const newRes = { ...req.body, id, ref, createdAt: new Date().toISOString() };
@@ -1089,8 +1099,6 @@ app.get('/api/reservations', async (req, res) => {
 app.post('/api/reservations/manual', async (req, res) => {
   const { pwd, ...data } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  const conflict = await checkConflict(data.date, data.time, data.durationMin || 60);
-  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
   const id     = Date.now().toString(36).toUpperCase().slice(-8);
   const newRes = { ...data, id, status: 'confirmed', source: 'manual', createdAt: new Date().toISOString() };
   await dbInsertRes(newRes);
@@ -1522,7 +1530,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:12px;min
       <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${escHtml(r.tel || '')}" style="color:#c9a96e;text-decoration:none">${escHtml(r.tel || '—')}</a></div></div>
     </div>
     ${r.email ? `<div style="margin-top:10px"><div class="lbl">Email</div><div class="val" style="font-size:.85rem">${escHtml(r.email)}</div></div>` : ''}
-    ${r.notes ? `<div style="margin-top:10px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${escHtml(r.notes)}</div></div>` : ''}
+    ${r.notes ? `<div style="margin-top:10px">${formatNotesHtml(r.notes, '#c9a96e')}</div>` : ''}
   </div>
 
   <div class="sec">
