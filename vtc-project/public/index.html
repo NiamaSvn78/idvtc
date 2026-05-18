@@ -1127,7 +1127,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="cgv-wrap">
         <label class="cgv-lbl">
           <input type="checkbox" id="cgv-ok">
-          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
+          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
         </label>
       </div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
@@ -1667,13 +1667,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <p data-i18n="paris.c1_desc">Prise en charge dès votre atterrissage</p>
       </div>
     </div>
-    <div class="exp-card">
-      <img class="exp-card-img" src="/photo_pro.png" alt="Chauffeur privé IsmaDrive avec pancarte" loading="lazy">
-      <div class="exp-card-body">
-        <h3 data-i18n="paris.c2_title">Meet &amp; Greet</h3>
-        <p data-i18n="paris.c2_desc">Votre chauffeur vous attend, pancarte à votre nom</p>
-      </div>
-    </div>
+
     <div class="exp-card">
       <img class="exp-card-img" src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80" alt="Tour Eiffel Paris visite chauffeur privé" loading="lazy">
       <div class="exp-card-body">
@@ -1923,7 +1917,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="cgv-wrap">
         <label class="cgv-lbl">
           <input type="checkbox" id="cgv-ok">
-          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
+          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
         </label>
       </div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
@@ -2401,7 +2395,7 @@ function buildReservationData(paymentMethod){
     if (prest2Info) notes = notes ? notes + ' ' + prest2Info : prest2Info;
   }
   const totalPrice = (S.price || 0) + (S.prest2Active ? (S.p2price || 0) : 0);
-  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr') };
+  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr'), consentTimestamp:new Date().toISOString(), policyVersion:'2026.05' };
 }
 
 
@@ -2716,5 +2710,6 @@ function toggleFaq(btn){
 </a>
 </div>
 <script src="/js/i18n.js?v=3"></script>
+<script src="/js/cookie-banner.js"></script>
 </body>
 </html>

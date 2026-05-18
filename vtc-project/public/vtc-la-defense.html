@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -6,9 +6,9 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.png">
-<title>Chauffeur Privé La Défense | VTC Business, Touristes &amp; Transferts — IsmaDrive</title>
-<meta name="description" content="VTC La Défense pour professionnels et touristes. Transferts aéroport CDG &amp; Orly, navettes hôtels, visite quartier business. Mercedes, prix fixes 24h/24 — IsmaDrive.">
-<meta name="keywords" content="chauffeur privé La Défense, VTC La Défense touriste, transfert hôtel La Défense, VTC business La Défense, chauffeur privé CNIT La Défense">
+<title>VTC La Défense | Chauffeur Privé Business, Transferts CDG & Orly — IsmaDrive</title>
+<meta name="description" content="Chauffeur privé à La Défense pour cadres et délégations. Tour First, CNIT, Grande Arche — transferts CDG (45 km) & Orly (38 km), navettes inter-tours 24h/24. Mercedes Classe E & Van 7 places — IsmaDrive.">
+<meta name="keywords" content="chauffeur privé La Défense, VTC La Défense business, transfert CDG La Défense, VTC Tour First La Défense, chauffeur Grande Arche, navette entreprise La Défense">
 <link rel="canonical" href="https://ismadrive.fr/vtc-la-defense">
 <script type="application/ld+json">
 {
@@ -42,6 +42,12 @@ h1 em{font-style:italic;color:var(--gold)}
 .page-body{max-width:860px;margin:0 auto;padding:4rem 5vw}
 h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:300;margin-bottom:1.2rem;color:var(--text)}
 .page-body p{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:1.2rem}
+.section{margin-bottom:3rem}
+.dest-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
+.dest-cell{background:var(--dark2);padding:1.4rem 1.6rem}
+.dest-label{font-size:.72rem;color:var(--text);font-weight:500;margin-bottom:.25rem}
+.dest-km{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
+.dest-value{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold)}
 .tarif-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
 .tarif-cell{background:var(--dark2);padding:1.4rem 1.6rem}
 .tarif-label{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
@@ -55,8 +61,8 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   .page-hero{padding:90px 4vw 40px;min-height:auto}
   h1{font-size:clamp(1.65rem,7vw,2.6rem)}
   .page-body{padding:2.5rem 4vw}
-  .tarif-grid{grid-template-columns:1fr}
-  .tarif-cell{padding:1.1rem 1.2rem}
+  .dest-grid,.tarif-grid{grid-template-columns:1fr}
+  .dest-cell,.tarif-cell{padding:1.1rem 1.2rem}
   .cta-btn{display:block;text-align:center;padding:.9rem 1.2rem}
   nav{height:58px}
 }
@@ -74,37 +80,76 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag" data-i18n="seo_defense.page_tag">Hauts-de-Seine · 92800 · 1er Quartier d'Affaires Européen</p>
-  <h1 data-i18n-html="seo_defense.title_html">Chauffeur Privé à La Défense<br><em>VTC Business 24/7</em></h1>
-  <p class="page-sub" data-i18n="seo_defense.sub">Tour First, Tour Total, CNIT, Grande Arche — IsmaDrive est le partenaire mobilité des professionnels de La Défense. Transferts aéroport matin et soir, navettes inter-tours, accueil de délégations : nous gérons votre mobilité d'entreprise avec rigueur.</p>
-  <a class="cta-btn" href="/#reservation" data-i18n="seo_defense.cta">Réserver mon VTC La Défense</a>
+  <p class="page-tag">Hauts-de-Seine · 92800 · 1er Quartier d'Affaires Européen</p>
+  <h1>Chauffeur Privé à La Défense<br><em>VTC Business au Cœur des Tours</em></h1>
+  <p class="page-sub">Tour First, CNIT, Grande Arche, Westfield Les 4 Temps — IsmaDrive est le partenaire mobilité des 180 000 salariés et délégations qui transitent chaque jour dans le 1er quartier d'affaires européen. Transferts CDG, Orly, navettes inter-tours, mise à disposition : votre mobilité professionnelle sans faille.</p>
+  <a class="cta-btn" href="/#reservation">Réserver mon VTC La Défense</a>
 </section>
 
 <div class="page-body">
-  <h2>Le VTC business indispensable à La Défense</h2>
-  <p>La Défense, c'est 180 000 salariés, des dizaines de tours de bureaux et des horaires contraints. Nos chauffeurs maîtrisent la géographie complexe du quartier (parvis, parkings souterrains, accès tours) et s'adaptent à vos contraintes de réunion du matin au soir.</p>
-  <p>Nous proposons également des forfaits mensuels pour les entreprises souhaitant externaliser leur flotte de direction. Facturation B2B, reçus TVA, rapport mensuel des courses disponibles.</p>
 
-  <h2>Tarifs depuis La Défense</h2>
-  <div class="tarif-grid">
-    <div class="tarif-cell">
-      <div class="tarif-label">La Défense → Aéroport CDG</div>
-      <div class="tarif-value">à partir de 95 €</div>
+  <section class="section">
+    <h2>Le VTC business indispensable à La Défense</h2>
+    <p>La Défense regroupe 3 500 entreprises et 72 tours de bureaux dans un périmètre de moins de 3 km² — c'est le plus grand quartier d'affaires d'Europe continentale. Les tours qui jalonnent son parvis sont des destinations récurrentes pour nos chauffeurs : Tour First (siège de BNP Paribas, Société Générale), Tour Total Energies, Tour Majunga (KPMG, EY), Tour Hekla, Tour CBX, Tour Areva, Tour Michelet et la Grande Arche de la Fraternité qui accueille en son sommet des événements institutionnels de premier plan.</p>
+    <p>La complexité logistique du quartier est bien réelle : le parvis piétonnier interdit toute circulation véhicule, les accès se font uniquement par les voiries souterraines (boulevard Circulaire, voie des Colonnes, allée de l'Arche) et les parkings dédiés. Un VTC non spécialisé perd 10 à 15 minutes à trouver le bon accès. Nos chauffeurs connaissent précisément chaque point de dépose : entrée souterraine du CNIT, accès parking Coeur Défense, zone de prise en charge du Westfield Les 4 Temps, voies de desserte côté Esplanade.</p>
+    <p>Nous proposons également des forfaits mensuels pour les DRH et secrétaires de direction souhaitant externaliser la mobilité de leurs cadres. Facturation B2B, reçus TVA, rapport mensuel des trajets disponibles sous 48h. Devis sur demande pour les comptes entreprise.</p>
+  </section>
+
+  <section class="section">
+    <h2>Nos trajets depuis La Défense</h2>
+    <div class="dest-grid">
+      <div class="dest-cell">
+        <div class="dest-label">La Défense → Aéroport CDG</div>
+        <div class="dest-km">Environ 45 km · A86 + A1</div>
+        <div class="dest-value">à partir de 95 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">La Défense → Aéroport Orly</div>
+        <div class="dest-km">Environ 38 km · A86 + A6</div>
+        <div class="dest-value">à partir de 70 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">La Défense → Paris Centre</div>
+        <div class="dest-km">Environ 12 km · Champs-Élysées, Opéra</div>
+        <div class="dest-value">à partir de 40 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">La Défense → Versailles</div>
+        <div class="dest-km">Environ 28 km · N118</div>
+        <div class="dest-value">à partir de 65 €</div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">La Défense → Aéroport Orly</div>
-      <div class="tarif-value">à partir de 70 €</div>
+    <p><a href="/#reservation" style="color:var(--gold)">Calculez votre trajet exact et réservez en ligne →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Tarifs mise à disposition à La Défense</h2>
+    <div class="tarif-grid">
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe E · Business</div>
+        <div class="tarif-value">dès 75 €/h</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe V · Van 7 places</div>
+        <div class="tarif-value">dès 95 €/h</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Mise à disposition journée (8h)</div>
+        <div class="tarif-value">dès 520 €</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Compte entreprise · Facturation B2B</div>
+        <div class="tarif-value">Sur devis</div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">La Défense → Paris Centre</div>
-      <div class="tarif-value">à partir de 40 €</div>
-    </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Mise à disposition journée</div>
-      <div class="tarif-value">dès 520 € (8h)</div>
-    </div>
-  </div>
-  <p><a href="/#reservation" style="color:var(--gold)">Calculez votre trajet exact →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Pourquoi choisir un VTC à La Défense ?</h2>
+    <p>La Défense est conçue pour les piétons — pas pour les voitures. Les accès véhicules sont complexes, peu signalisés, et les itinéraires alternatifs au périphérique Ouest sont engorgés dès 7h30 le matin. Un chauffeur privé qui maîtrise la géographie du quartier vous économise 15 à 20 minutes sur chaque trajet — et vous dépose au pied de votre tour, pas à 400 mètres sur une voirie de desserte.</p>
+    <p>Pour les vols tôt le matin au départ de CDG, la prise en charge depuis La Défense à 4h30 ou 5h00 est un service que ni les taxis ni les transports en commun ne peuvent garantir avec fiabilité. IsmaDrive assure cette disponibilité 24h/24, 365 jours par an, avec un véhicule Mercedes en parfait état et un chauffeur professionnel en costume.</p>
+  </section>
+
 </div>
 
 <footer>
@@ -124,5 +169,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
 <script src="/js/i18n.js?v=2"></script>
+<script src="/js/cookie-banner.js"></script>
 </body>
 </html>

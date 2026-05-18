@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -6,9 +6,9 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.png">
-<title>Transfert Touriste CDG → Paris | Chauffeur Privé Prix Fixe — IsmaDrive</title>
-<meta name="description" content="Transfert depuis Roissy CDG pour touristes &amp; voyageurs. Accueil pancarte, attente 60 min offerte, suivi vol en temps réel. Mercedes, prix fixe garanti 24h/24 — IsmaDrive.">
-<meta name="keywords" content="transfert touriste CDG Paris, VTC Roissy CDG touriste, chauffeur privé aéroport CDG, navette touriste CDG, accueil aéroport touriste">
+<title>Transfert Roissy CDG → Paris | Chauffeur Privé Terminaux T1 T2 T3, Prix Fixe — IsmaDrive</title>
+<meta name="description" content="Transfert depuis Charles de Gaulle (CDG) vers Paris en Mercedes. Accueil dans les halls T1, T2A/B/C/D/E/F/G & T3 — suivi vol en temps réel, 60 min d'attente offertes, tarif fixe garanti. IsmaDrive.">
+<meta name="keywords" content="transfert CDG Paris chauffeur privé, VTC Roissy CDG terminaux, navette CDG T1 T2 T3 Paris, chauffeur privé aéroport CDG prix fixe, accueil CDG pancarte, transfert CDG famille">
 <link rel="canonical" href="https://ismadrive.fr/transfert-roissy-cdg">
 <link rel="alternate" hreflang="fr" href="https://ismadrive.fr/transfert-roissy-cdg">
 <link rel="alternate" hreflang="en" href="https://ismadrive.fr/cdg-airport-transfer-paris">
@@ -44,11 +44,22 @@ h1 em{font-style:italic;color:var(--gold)}
 .page-body{max-width:860px;margin:0 auto;padding:4rem 5vw}
 h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:300;margin-bottom:1.2rem;color:var(--text)}
 .page-body p{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:1.2rem}
+.section{margin-bottom:3rem}
 .steps{display:flex;flex-direction:column;gap:1px;background:var(--subtle);margin:2rem 0}
 .step{background:var(--dark2);padding:1.3rem 1.6rem;display:flex;align-items:flex-start;gap:1.2rem}
 .step-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--gold);flex-shrink:0;line-height:1}
 .step-content{font-size:.83rem;color:var(--muted);line-height:1.65}
 .step-title{font-size:.88rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
+.terminal-list{display:flex;flex-direction:column;gap:1px;background:var(--subtle);margin:2rem 0}
+.terminal-item{background:var(--dark2);padding:1.2rem 1.6rem;display:flex;gap:1.2rem;align-items:flex-start}
+.terminal-tag{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold);flex-shrink:0;min-width:60px;line-height:1.2}
+.terminal-detail{font-size:.8rem;color:var(--muted);line-height:1.6}
+.terminal-rdv{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:.2rem}
+.dest-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
+.dest-cell{background:var(--dark2);padding:1.4rem 1.6rem}
+.dest-label{font-size:.72rem;color:var(--text);font-weight:500;margin-bottom:.25rem}
+.dest-km{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
+.dest-value{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold)}
 .tarif-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
 .tarif-cell{background:var(--dark2);padding:1.4rem 1.6rem}
 .tarif-label{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
@@ -62,8 +73,8 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   .page-hero{padding:90px 4vw 40px;min-height:auto}
   h1{font-size:clamp(1.65rem,7vw,2.6rem)}
   .page-body{padding:2.5rem 4vw}
-  .tarif-grid{grid-template-columns:1fr}
-  .tarif-cell{padding:1.1rem 1.2rem}
+  .dest-grid,.tarif-grid{grid-template-columns:1fr}
+  .dest-cell,.tarif-cell{padding:1.1rem 1.2rem}
   .cta-btn{display:block;text-align:center;padding:.9rem 1.2rem}
   .step{flex-direction:column;gap:.5rem;padding:1.1rem 1.2rem}
   .step-num{font-size:1.5rem;line-height:1}
@@ -83,40 +94,122 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag" data-i18n="seo_cdg.page_tag">Aéroport Paris-Charles de Gaulle · Terminal 1, 2A–2G &amp; 3</p>
-  <h1 data-i18n-html="seo_cdg.title_html">Transfert Aéroport Roissy CDG → Paris<br><em>Votre Chauffeur Privé à l'Arrivée</em></h1>
-  <p class="page-sub" data-i18n="seo_cdg.sub">CDG est le plus grand aéroport d'Europe — naviguer entre ses terminaux peut être un défi. Votre chauffeur IsmaDrive connaît chaque point de rendez-vous, attend dans le hall des arrivées pancarte à la main, et surveille votre vol en temps réel.</p>
-  <a class="cta-btn" href="/#reservation" data-i18n="seo.book_transfer">Réserver mon transfert CDG</a>
+  <p class="page-tag">Aéroport Paris-Charles de Gaulle · T1 · T2A–T2G · T3 · CDG</p>
+  <h1>Transfert Aéroport Roissy CDG → Paris<br><em>Votre Chauffeur Privé à l'Arrivée</em></h1>
+  <p class="page-sub">CDG est le 2ème aéroport d'Europe avec 78 millions de passagers par an, répartis sur 3 terminaux principaux et 9 sous-terminaux distincts. Naviguer entre T1, T2E ou T3 sans repères à l'arrivée d'un long-courrier peut être déroutant. Votre chauffeur IsmaDrive connaît chaque point de rendez-vous — il vous attend pancarte en main dans votre hall d'arrivée exact.</p>
+  <a class="cta-btn" href="/#reservation">Réserver mon transfert CDG</a>
 </section>
 
 <div class="page-body">
-  <h2>Prise en charge à CDG : comment ça se passe ?</h2>
-  <div class="steps">
-    <div class="step"><div class="step-num">01</div><div class="step-content"><div class="step-title">Indiquez votre numéro de vol</div>Dès votre réservation en ligne, renseignez votre numéro de vol. Nous synchronisons l'heure d'arrivée réelle — retard inclus, sans surcoût.</div></div>
-    <div class="step"><div class="step-num">02</div><div class="step-content"><div class="step-title">Accueil personnalisé dans le hall</div>60 minutes d'attente gratuites après l'atterrissage. Votre chauffeur patiente avec pancarte à votre nom dans la zone d'accueil de votre terminal.</div></div>
-    <div class="step"><div class="step-num">03</div><div class="step-content"><div class="step-title">Transfert confort vers Paris</div>Mercedes climatisée, eau minérale, Wi-Fi. Votre destination, votre rythme. Le tarif fixe a été arrêté à la réservation.</div></div>
-  </div>
 
-  <h2>Tarifs transfert CDG → Paris (prix fixes)</h2>
-  <div class="tarif-grid">
-    <div class="tarif-cell">
-      <div class="tarif-label">Berline Business</div>
-      <div class="tarif-value">100 €</div>
+  <section class="section">
+    <h2>Prise en charge à CDG : comment ça se passe ?</h2>
+    <p>Charles de Gaulle est l'un des aéroports les plus complexes d'Europe : ses terminaux sont séparés par plusieurs kilomètres de navettes internes, les sorties sont mal indiquées pour les non-initiés, et les files de taxis peuvent atteindre 30 à 45 minutes aux heures d'affluence. Avec IsmaDrive, aucune de ces contraintes ne vous concerne.</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-content"><div class="step-title">Indiquez votre numéro de vol à la réservation</div>Renseignez votre numéro de vol et votre terminal. Nous synchronisons l'heure d'arrivée réelle depuis le décollage — retard inclus, sans surcoût. Vous n'avez rien à faire.</div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-content"><div class="step-title">Accueil personnalisé dans votre hall d'arrivée</div>60 minutes d'attente gratuites après l'atterrissage. Votre chauffeur patiente avec pancarte à votre nom dans la zone d'accueil de votre terminal — T1, T2 (A à G) ou T3 — au niveau des sorties douanes.</div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-content"><div class="step-title">Transfert confort vers votre destination Paris</div>Mercedes Classe E climatisée ou Van Classe V pour les groupes. Eau minérale à bord. Votre destination, votre rythme. Le tarif fixe a été arrêté à la réservation — aucune négociation, aucune surprise.</div></div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Van Premium · Berline</div>
-      <div class="tarif-value">100 €</div>
+  </section>
+
+  <section class="section">
+    <h2>Votre point de rendez-vous par terminal à CDG</h2>
+    <div class="terminal-list">
+      <div class="terminal-item">
+        <div class="terminal-tag">T1</div>
+        <div class="terminal-detail">Structure circulaire avec satellites 4 & 6. Compagnies non-européennes (United, Delta, Air China, etc.). Accès par CDGval interne ou allée centrale.
+          <div class="terminal-rdv">Hall arrivées · Module porte principale · Côté Ouest</div>
+        </div>
+      </div>
+      <div class="terminal-item">
+        <div class="terminal-tag">T2A/2B</div>
+        <div class="terminal-detail">Compagnies européennes partenaires Air France. Vols Schengen principalement. Accès voiture direct par voirie T2.
+          <div class="terminal-rdv">Arrivées rez-de-chaussée · Sortie vers zone de prise en charge</div>
+        </div>
+      </div>
+      <div class="terminal-item">
+        <div class="terminal-tag">T2C/2D</div>
+        <div class="terminal-detail">Air France vols domestiques et européens. Connexion CDGval vers T1 et T3 si correspondance nécessaire.
+          <div class="terminal-rdv">Niveau 0 · Hall B · Zone taxis et VTC</div>
+        </div>
+      </div>
+      <div class="terminal-item">
+        <div class="terminal-tag">T2E/2F</div>
+        <div class="terminal-detail">Terminal principal Air France international (long-courriers, Amérique, Asie, Afrique). Halls L & K. Le plus fréquenté de CDG.
+          <div class="terminal-rdv">Hall K et L · Niveau 0 · Sortie arrivées · Zone accueil chauffeurs</div>
+        </div>
+      </div>
+      <div class="terminal-item">
+        <div class="terminal-tag">T2G</div>
+        <div class="terminal-detail">Terminal satellite, accès par navette bus interne depuis T2. Compagnies charter et vols spéciaux.
+          <div class="terminal-rdv">Zone d'attente extérieure · Accès via bus terminal T2</div>
+        </div>
+      </div>
+      <div class="terminal-item">
+        <div class="terminal-tag">T3</div>
+        <div class="terminal-detail">Compagnies low-cost : Vueling, Wizz Air, easyJet (vols hors Orly), Ryanair. Terminal compact, flux important.
+          <div class="terminal-rdv">Hall unique · Niveau 0 · Sortie principale · Zone VTC dédiée</div>
+        </div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Toutes destinations Paris & Île-de-France</div>
-      <div class="tarif-value">Forfait fixe garanti</div>
+    <p style="font-size:.8rem;color:var(--faint)">Le numéro de terminal figure sur votre carte d'embarquement. Confirmez-le lors de votre réservation pour que le point de rendez-vous soit précis.</p>
+  </section>
+
+  <section class="section">
+    <h2>Nos trajets depuis l'aéroport CDG</h2>
+    <div class="dest-grid">
+      <div class="dest-cell">
+        <div class="dest-label">CDG → Paris Centre</div>
+        <div class="dest-km">Environ 30 km · A1 · 35 à 60 min</div>
+        <div class="dest-value">Forfait 100 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">CDG → La Défense</div>
+        <div class="dest-km">Environ 38 km · A1 + A86 · 40 à 65 min</div>
+        <div class="dest-value">à partir de 100 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">CDG → Versailles</div>
+        <div class="dest-km">Environ 50 km · A1 + périphérique + N118 · 50 à 75 min</div>
+        <div class="dest-value">à partir de 110 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">CDG → Aéroport Orly</div>
+        <div class="dest-km">Environ 56 km · inter-aéroport · 50 à 80 min</div>
+        <div class="dest-value">à partir de 110 €</div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Siège bébé & réhausseur enfant</div>
-      <div class="tarif-value">Inclus · sans supplément</div>
+    <p>Van Premium disponible pour les groupes jusqu'à 7 personnes. <a href="/#reservation" style="color:var(--gold)">Réserver mon transfert CDG →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Tarifs transfert CDG → Paris (prix fixes)</h2>
+    <div class="tarif-grid">
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe E · Business</div>
+        <div class="tarif-value">100 €</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe V · Van 7 places</div>
+        <div class="tarif-value">100 €</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Siège bébé & réhausseur enfant</div>
+        <div class="tarif-value">Inclus · sans supplément</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Attente après atterrissage</div>
+        <div class="tarif-value">60 min offertes</div>
+      </div>
     </div>
-  </div>
-  <p>Van Premium disponible pour les groupes jusqu'à 7 personnes. <a href="/#reservation" style="color:var(--gold)">Réserver mon transfert CDG →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Pourquoi choisir un VTC depuis CDG ?</h2>
+    <p>CDG est volontairement conçu pour être complexe — ses terminaux sont séparés par plusieurs kilomètres de navettes internes, ses sorties sont mal signalisées pour les non-initiés, et les files de taxis peuvent atteindre 30 à 50 minutes les soirs et week-ends. À l'arrivée d'un long-courrier après 10 heures de vol, chercher un taxi ou déchiffrer le RER B n'est pas ce que vos passagers méritent.</p>
+    <p>IsmaDrive vous garantit un chauffeur identifié, présent dans votre hall d'arrivée exact, qui prend vos bagages et vous guide directement vers le véhicule sans attente ni incertitude. Le prix fixe est arrêté à la réservation — aucun compteur, aucune surprise pour les embouteillages sur l'A1. Réhausseur et siège bébé inclus pour les familles avec enfants en bas âge.</p>
+  </section>
+
 </div>
 
 <footer>
@@ -124,7 +217,7 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   <div class="foot-links">
     <a href="/" data-i18n="footer.home">Accueil</a>
     <a href="/transfert-orly-paris" data-i18n="footer.orly">Transfert Orly</a>
-    <a href="/chauffeur-prive-versailles">VTC Versailles</a>
+    <a href="/vtc-la-defense">VTC La Défense</a>
     <a href="/chauffeur-prive-neuilly-sur-seine">VTC Neuilly</a>
   </div>
   <div style="font-size:.72rem;color:var(--faint)" data-i18n="footer.copy_simple">© 2025 IsmaDrive</div>
@@ -136,5 +229,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
 <script src="/js/i18n.js?v=2"></script>
+<script src="/js/cookie-banner.js"></script>
 </body>
 </html>

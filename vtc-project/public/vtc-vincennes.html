@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -6,9 +6,9 @@
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/favicon.png">
-<title>Chauffeur Privé Vincennes | VTC Touriste Bois de Vincennes — IsmaDrive</title>
-<meta name="description" content="Chauffeur privé à Vincennes pour touristes et résidents. Visite du Bois de Vincennes, Château de Vincennes, transferts CDG &amp; Orly. Mercedes, prix fixes 24h/24 — IsmaDrive.">
-<meta name="keywords" content="chauffeur privé Vincennes touriste, VTC Vincennes touriste, visite Bois de Vincennes chauffeur, transfert touriste Vincennes, Château Vincennes VTC">
+<title>VTC Vincennes | Chauffeur Privé Bois & Château de Vincennes, Transferts Aéroport — IsmaDrive</title>
+<meta name="description" content="Chauffeur privé à Vincennes pour résidents et visiteurs. Château de Vincennes, Hippodrome, Bois de Vincennes — transferts CDG (35 km) & Orly (25 km), Paris Centre. Mercedes, prix fixes 24h/24 — IsmaDrive.">
+<meta name="keywords" content="chauffeur privé Vincennes, VTC Vincennes transfert aéroport, Bois de Vincennes chauffeur, Château Vincennes VTC, hippodrome Vincennes VTC, transfert Orly Vincennes">
 <link rel="canonical" href="https://ismadrive.fr/vtc-vincennes">
 <script type="application/ld+json">
 {
@@ -42,6 +42,12 @@ h1 em{font-style:italic;color:var(--gold)}
 .page-body{max-width:860px;margin:0 auto;padding:4rem 5vw}
 h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:300;margin-bottom:1.2rem;color:var(--text)}
 .page-body p{font-size:.88rem;color:var(--muted);line-height:1.8;margin-bottom:1.2rem}
+.section{margin-bottom:3rem}
+.dest-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
+.dest-cell{background:var(--dark2);padding:1.4rem 1.6rem}
+.dest-label{font-size:.72rem;color:var(--text);font-weight:500;margin-bottom:.25rem}
+.dest-km{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
+.dest-value{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold)}
 .tarif-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--subtle);margin:2rem 0}
 .tarif-cell{background:var(--dark2);padding:1.4rem 1.6rem}
 .tarif-label{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem}
@@ -55,8 +61,8 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
   .page-hero{padding:90px 4vw 40px;min-height:auto}
   h1{font-size:clamp(1.65rem,7vw,2.6rem)}
   .page-body{padding:2.5rem 4vw}
-  .tarif-grid{grid-template-columns:1fr}
-  .tarif-cell{padding:1.1rem 1.2rem}
+  .dest-grid,.tarif-grid{grid-template-columns:1fr}
+  .dest-cell,.tarif-cell{padding:1.1rem 1.2rem}
   .cta-btn{display:block;text-align:center;padding:.9rem 1.2rem}
   nav{height:58px}
 }
@@ -74,37 +80,68 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </nav>
 
 <section class="page-hero">
-  <p class="page-tag" data-i18n="seo_vincennes.page_tag">Val-de-Marne · 94300</p>
-  <h1 data-i18n-html="seo_vincennes.title_html">Chauffeur Privé à Vincennes<br><em>VTC Luxe 24/7</em></h1>
-  <p class="page-sub" data-i18n="seo_vincennes.sub">Aux portes du Bois de Vincennes, IsmaDrive vous propose un service de chauffeur privé haut de gamme depuis votre domicile ou votre bureau. Transferts CDG, Orly, Paris et grande couronne — réservez en ligne en 2 minutes.</p>
-  <a class="cta-btn" href="/#reservation" data-i18n="seo_vincennes.cta">Réserver depuis Vincennes</a>
+  <p class="page-tag">Val-de-Marne · 94300 · Est Parisien</p>
+  <h1>Chauffeur Privé à Vincennes<br><em>VTC Luxe au Cœur du Val-de-Marne</em></h1>
+  <p class="page-sub">Aux portes du Bois de Vincennes — 995 hectares de nature classée — IsmaDrive vous propose un service de chauffeur privé haut de gamme depuis votre domicile ou votre hôtel. Transferts CDG & Orly, Paris Centre, Disneyland — disponible 24h/24, prix fixe garanti à la réservation.</p>
+  <a class="cta-btn" href="/#reservation">Réserver depuis Vincennes</a>
 </section>
 
 <div class="page-body">
-  <h2>Service VTC à Vincennes et alentours</h2>
-  <p>Vincennes, Saint-Mandé, Nogent-sur-Marne, Saint-Maur-des-Fossés : nos chauffeurs couvrent l'ensemble de l'est parisien avec la même exigence de service. Que vous rejoigniez la Gare de Lyon pour un Eurostar, que vous partiez tôt vers l'aéroport d'Orly, ou que vous accueilliez des clients à CDG, nous garantissons votre ponctualité.</p>
-  <p>Le Château de Vincennes, l'hippodrome, les ministères implantés dans la zone — nous desservons tous ces sites avec une discrétion et une connaissance terrain incomparable.</p>
 
-  <h2>Tarifs depuis Vincennes</h2>
-  <div class="tarif-grid">
-    <div class="tarif-cell">
-      <div class="tarif-label">Vincennes → Aéroport CDG</div>
-      <div class="tarif-value">à partir de 80 €</div>
+  <section class="section">
+    <h2>Votre chauffeur privé à Vincennes et dans l'est parisien</h2>
+    <p>Vincennes est une commune résidentielle et historique du Val-de-Marne, bordée par le Bois de Vincennes — le plus grand espace boisé de Paris avec ses 995 hectares de forêts, lacs et pelouses classées site naturel protégé. Avec ses 49 000 habitants, Vincennes conjugue cadre de vie verdoyant et connexion directe à la capitale via le RER A, qui en fait une commune prisée des cadres parisiens et des familles.</p>
+    <p>Le Château royal de Vincennes, monument médiéval du XIVe siècle classé monument historique national, attire chaque année des milliers de visiteurs français et étrangers en quête d'une expérience authentique hors du centre parisien surpeuplé. L'Hippodrome de Vincennes — référence mondiale des courses de trot attelé, avec le mythique Prix d'Amérique chaque janvier — génère une clientèle aisée et internationale qui exige un transport fiable et confortable.</p>
+    <p>La ville accueille aussi le Vélodrome National de Saint-Quentin-en-Yvelines (navettes depuis Vincennes lors des événements), le Parc Floral (concerts, expositions), ainsi que plusieurs ministères et administrations implantés dans la zone est : Zone d'aménagement de Saint-Mandé, secteur Fontenay-sous-Bois. IsmaDrive intervient régulièrement pour des prises en charge à domicile dès 4h00 pour les vols matinaux à Orly et CDG, pour des transferts retour de nuit, et pour des déplacements professionnels vers La Défense ou les pôles d'entreprises de l'est parisien.</p>
+  </section>
+
+  <section class="section">
+    <h2>Nos trajets depuis Vincennes</h2>
+    <div class="dest-grid">
+      <div class="dest-cell">
+        <div class="dest-label">Vincennes → Aéroport CDG</div>
+        <div class="dest-km">Environ 35 km · A4 + A1</div>
+        <div class="dest-value">à partir de 80 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">Vincennes → Aéroport Orly</div>
+        <div class="dest-km">Environ 25 km · A86 + A6</div>
+        <div class="dest-value">à partir de 55 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">Vincennes → Paris Centre</div>
+        <div class="dest-km">Environ 9 km · Nation, République, Opéra</div>
+        <div class="dest-value">à partir de 35 €</div>
+      </div>
+      <div class="dest-cell">
+        <div class="dest-label">Vincennes → Disneyland Paris</div>
+        <div class="dest-km">Environ 30 km · A4</div>
+        <div class="dest-value">à partir de 65 €</div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Vincennes → Aéroport Orly</div>
-      <div class="tarif-value">à partir de 55 €</div>
+    <p>Tarifs fixes garantis à la réservation. <a href="/#reservation" style="color:var(--gold)">Calculez votre trajet exact →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Tarifs mise à disposition depuis Vincennes</h2>
+    <div class="tarif-grid">
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe E · Business</div>
+        <div class="tarif-value">dès 75 €/h</div>
+      </div>
+      <div class="tarif-cell">
+        <div class="tarif-label">Mercedes Classe V · Van 7 places</div>
+        <div class="tarif-value">dès 95 €/h</div>
+      </div>
     </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Vincennes → Paris Centre</div>
-      <div class="tarif-value">à partir de 35 €</div>
-    </div>
-    <div class="tarif-cell">
-      <div class="tarif-label">Mise à disposition</div>
-      <div class="tarif-value">dès 75 €/h</div>
-    </div>
-  </div>
-  <p>Tarifs fixes garantis à la réservation. <a href="/#reservation" style="color:var(--gold)">Calculez votre trajet exact →</a></p>
+  </section>
+
+  <section class="section">
+    <h2>Pourquoi choisir un VTC depuis Vincennes ?</h2>
+    <p>La desserte en transports en commun depuis Vincennes fonctionne bien pour rejoindre Paris — mais elle est inadaptée pour les aéroports, les déplacements en dehors des axes RER, ou les horaires décalés. Pour un vol à 6h30 à Orly ou CDG, le premier RER A n'est pas une option viable avec des bagages et une famille. Un VTC IsmaDrive vous attend devant votre porte, vos valises sont chargées, et vous arrivez à l'aéroport en 25 à 40 minutes — sans changement, sans incertitude, sans stress.</p>
+    <p>Pour les visiteurs du Château de Vincennes ou de l'Hippodrome, notre service assure également le retour vers les hôtels parisiens ou les gares (Gare de Lyon, Gare du Nord) avec la même ponctualité. Réhausseur enfant et siège bébé disponibles sans supplément — essentiels pour les familles avec jeunes enfants.</p>
+  </section>
+
 </div>
 
 <footer>
@@ -124,5 +161,6 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 </a>
 <style>.wa-btn{position:fixed;bottom:1.8rem;right:1.8rem;z-index:999;display:flex;align-items:center;gap:.55rem;background:#25d366;color:#fff;text-decoration:none;padding:.7rem 1.2rem .7rem .9rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.04em;box-shadow:0 4px 20px rgba(37,211,102,.35);transition:all .25s}.wa-btn:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,.45)}.wa-btn svg{width:22px;height:22px;flex-shrink:0}</style>
 <script src="/js/i18n.js?v=2"></script>
+<script src="/js/cookie-banner.js"></script>
 </body>
 </html>

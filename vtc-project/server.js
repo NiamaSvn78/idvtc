@@ -64,7 +64,7 @@ const EXPLOITANT = {
   raisonSociale: 'ISMA TRANS',
   exploitant:    'DIABY ISMAILA',
   siret:        process.env.SIRET         || '849 624 374 00013',
-  numeroREVTC:  process.env.NUMERO_REVTC  || '— À renseigner —',
+  numeroREVTC:  process.env.NUMERO_REVTC  || 'EVTC075210338',
   telephone:    '+33 6 23 88 97 17',
   email:        'contact@ismadrive.fr',
   adresse:      '2 rue du Colonel Domine, 75013 Paris'
@@ -1003,7 +1003,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
   const id     = Date.now().toString(36).toUpperCase().slice(-8);
   const ref    = generateResRef();
-  const newRes = { ...req.body, id, ref, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString() };
+  const consentTimestamp = req.body.consentTimestamp || new Date().toISOString();
+  const policyVersion    = req.body.policyVersion    || '2026.05';
+  const newRes = { ...req.body, id, ref, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion };
 
   try {
     await dbInsertRes(newRes);
