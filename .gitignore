@@ -10,3 +10,6 @@ vtc-project.zip
 # Données locales (PII) — créées au premier lancement si absentes
 vtc-project/data/reservations.json
 .vercel
+
+# Export statique généré par scripts/build-static.js — ne pas versionner
+build-static/

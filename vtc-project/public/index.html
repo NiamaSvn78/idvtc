@@ -847,13 +847,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="pack-grid">
           <div class="pack-card on" id="pk-cdg" onclick="selPack('cdg',this)">
             <div class="pack-ico">✈</div>
-            <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
+            <div class="pack-name" data-i18n="airport.cdg_name">Forfait Paris · Aéroport CDG</div>
             <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
             <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
           </div>
           <div class="pack-card" id="pk-orly" onclick="selPack('orly',this)">
             <div class="pack-ico">✈</div>
-            <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
+            <div class="pack-name" data-i18n="airport.orly_name">Forfait Paris · Aéroport Orly</div>
             <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
             <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
           </div>
@@ -1076,13 +1076,13 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="pack-grid">
         <div class="pack-card on" onclick="void(0)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name" data-i18n="airport.cdg_name">Aéroport CDG</div>
+          <div class="pack-name" data-i18n="airport.cdg_name">Forfait Paris · Aéroport CDG</div>
           <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
           <div class="pack-prices"><span class="pack-price-tag">100 €</span></div>
         </div>
         <div class="pack-card" onclick="void(0)">
           <div class="pack-ico">✈</div>
-          <div class="pack-name" data-i18n="airport.orly_name">Aéroport Orly</div>
+          <div class="pack-name" data-i18n="airport.orly_name">Forfait Paris · Aéroport Orly</div>
           <div class="pack-badge" data-i18n="airport.oneway">Aller ou retour</div>
           <div class="pack-prices"><span class="pack-price-tag">90 €</span></div>
         </div>
@@ -1868,7 +1868,7 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[] };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[], paddressCoord:null };
 let _prestCounter = 0;
 let _pendingModalType = null;
 const acT={}, acBT={};
@@ -2068,10 +2068,20 @@ function selDir(dir,el){
   document.querySelectorAll('.dir-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
 }
+function haversineKm(lat1,lon1,lat2,lon2){const R=6371,toR=Math.PI/180,dLat=(lat2-lat1)*toR,dLon=(lon2-lon1)*toR,a=Math.sin(dLat/2)**2+Math.cos(lat1*toR)*Math.cos(lat2*toR)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function updatePackPrice(){
   const f=CFG.forfaits[S.fpack],basePrice=f[S.fveh];
   const isRound=S.tripMode==='round-trip'||S.tripMode==='split';
-  const price=isRound?basePrice*2:basePrice;
+  let price=isRound?basePrice*2:basePrice;
+  /* Surcharge IDF : +1€/km au-delà des 5 km de rayon parisien (hors 75) */
+  const pc=S.paddressCoord;
+  if(pc&&pc.postcode){
+    const dept=pc.postcode.slice(0,2);
+    if(['77','78','91','92','93','94','95'].includes(dept)){
+      const extra=Math.max(0,Math.ceil(haversineKm(pc.lat,pc.lon,48.853,2.350)-5));
+      if(extra>0)price+=isRound?extra*2:extra;
+    }
+  }
   S.price=price;
   document.getElementById('pp-price').textContent=price;
   document.getElementById('pp-veh').textContent=VNAME[S.fveh];
@@ -2091,7 +2101,7 @@ function updatePackPrice(){
 /* ── AUTOCOMPLETE — api-adresse.data.gouv.fr ✅ ── */
 async function acSearch(inp,lid){
   const q=inp.value.trim(),list=document.getElementById(lid);
-  if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null;
+  if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null; if(lid==='ac-paddress'){S.paddressCoord=null;updatePackPrice();}
   const pm=lid.match(/^ac-pn(\d+)(dep|arr)$/);
   if(pm){const pid=parseInt(pm[1]),pf=pm[2],p=S.prestations.find(x=>x.id===pid);if(p){p[pf]=null;p.km=null;}}
   clearTimeout(acT[lid]);
@@ -2118,6 +2128,7 @@ async function acSearch(inp,lid){
           const coord={lat,lon,label};
           if(lid==='ac-dep')S.dep=coord;
           if(lid==='ac-arr')S.arr=coord;
+          if(lid==='ac-paddress'){S.paddressCoord={lat,lon,label,postcode:p.postcode||''};updatePackPrice();}
           if(pm){const pid=parseInt(pm[1]),pf=pm[2],pr=S.prestations.find(x=>x.id===pid);if(pr){pr[pf]=coord;if(pr.dep&&pr.arr)doCalcPrestN(pid);}}
           list.classList.remove('open');
           if(S.dep&&S.arr)doCalc();
