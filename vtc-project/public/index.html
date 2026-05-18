@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -899,6 +899,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="dispo-timeline" id="dt-p" style="display:none"><div class="dispo-now" id="dtn-p"></div></div>
         <div class="dispo-legend" id="dl-p" style="display:none"><span>05:00</span><span>12:00</span><span>23:00</span></div>
         <div class="return-date-block" id="rdb-p">
+          <label class="fl" data-i18n="airport.return_addr_label" style="margin-bottom:.4rem">Adresse de retour</label>
+          <div class="ac-wrap" style="margin-bottom:.8rem"><input class="fi" id="i-preturnaddr" type="text" data-i18n-ph="airport.return_addr_ph" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-preturnaddr')" onfocus="acSearch(this,'ac-preturnaddr')" onblur="acBlur('ac-preturnaddr')"><div class="ac-list" id="ac-preturnaddr"></div></div>
           <label class="fl" data-i18n="wizard.return_datetime">↩ Date et heure de retour</label>
           <div class="fg2 fg-dt">
             <div><label class="fl" data-i18n="wizard.return_date_lbl">Date retour</label><input class="fi" id="i-prdate" type="date" style="padding-left:.75rem"></div>
@@ -2224,7 +2226,9 @@ function fillAndShowBookingModal(type){
     const extras=(reh?'Réhausseur enfant':'')+(reh&&sieg?' · ':'')+(sieg?'Siège bébé':'');
     const addr=(document.getElementById('i-paddress')?.value||'').substring(0,55);
     const trajetLabel=S.fdir==='from'?f.label+' → '+addr:addr+' → '+f.label;
-    rows=`<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetLabel}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras?`<div class="mr"><span class="mrk">Équipement famille</span><span class="mrv">${extras}</span></div>`:''}`;
+    const isRoundModal=S.tripMode==='round-trip'||S.tripMode==='split';
+    const retAddrModal=isRoundModal?(document.getElementById('i-preturnaddr')?.value||'').trim():'';
+    rows=`<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetLabel}</span></div>${retAddrModal?`<div class="mr"><span class="mrk">Adresse retour</span><span class="mrv">${retAddrModal.substring(0,55)}</span></div>`:''}<div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras?`<div class="mr"><span class="mrk">Équipement famille</span><span class="mrv">${extras}</span></div>`:''}``;
   } else if(type==='t'){rows=`<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div><div class="mr"><span class="mrk">Distance</span><span class="mrv">${S.km?S.km.toFixed(1)+' km':'—'}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;}
   else{rows=`<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heures</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;}
   document.getElementById('m-recap').innerHTML=rows;
@@ -2294,11 +2298,13 @@ function buildReservationData(paymentMethod){
   let notes=(document.getElementById('mc')?.value||'').trim();
   /* Mode aller-retour */
   let tripMode = 'one-way', returnDate = '', returnTime = '';
+  let returnAddr = '';
   if (S.tab === 'p') {
     tripMode = S.tripMode;
     if (tripMode === 'round-trip' || tripMode === 'split') {
       returnDate = document.getElementById('i-prdate')?.value || '';
       returnTime = document.getElementById('i-prtime')?.value || '';
+      returnAddr = (document.getElementById('i-preturnaddr')?.value || '').trim();
     }
   } else if (S.tab === 't') {
     tripMode = S.tTripMode;
@@ -2315,7 +2321,10 @@ function buildReservationData(paymentMethod){
     if (p.tab === 'p') {
       const f = CFG.forfaits[p.fpack || 'cdg'];
       const addr = (document.getElementById(`i-pn${p.id}addr`)?.value || '').substring(0, 40);
-      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr} · ${dateVal} · ${p.price}€]`;
+      const retAddr = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}retaddr`)?.value || '').substring(0, 40) : '';
+      const retDate = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rdate`)?.value || '') : '';
+      const retPart = retAddr ? ` · Retour: ${retAddr}${retDate ? ' ' + retDate : ''}` : '';
+      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal} · ${p.price}€]`;
     } else if (p.tab === 'm') {
       const mdep = (document.getElementById(`i-pn${p.id}mdep`)?.value || '').substring(0, 40);
       return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${dateVal} · ${p.price}€]`;
@@ -2327,7 +2336,7 @@ function buildReservationData(paymentMethod){
   }).join(' ');
   if (prestsInfo) notes = notes ? notes + ' ' + prestsInfo : prestsInfo;
   const totalPrice = (S.price || 0) + S.prestations.reduce((sum, p) => sum + (p.price || 0), 0);
-  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr'), consentTimestamp:new Date().toISOString(), policyVersion:'2025.05' };
+  return { ref, status:'pending_payment', paymentStatus:'unpaid', paymentMethod:buildPaymentLabel(paymentMethod), type:S.tab, tripMode, trajet, date, time, returnDate, returnTime, returnAddr, durationMin:dur, vehicle:veh, vehicleName:VNAME[veh], equipment:equip, client:nom, tel, email, price:totalPrice, notes, depLabel, depLat, depLon, arrLabel, arrLat, arrLon, source:'web', lang:(typeof getLang==='function'?getLang():'fr'), consentTimestamp:new Date().toISOString(), policyVersion:'2025.05' };
 }
 
 
@@ -2440,8 +2449,17 @@ function getPrestHTML(n) {
     </div>
     <div class="ac-wrap"><input class="fi" id="i-pn${n}addr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}addr')" onfocus="acSearch(this,'ac-pn${n}addr')" onblur="acBlur('ac-pn${n}addr')"><div class="ac-list" id="ac-pn${n}addr"></div></div>
     <div class="fg2 fg-dt">
-      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
+      <div><label class="fl">Date aller</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">Heure aller</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
+    </div>
+    <div class="return-date-block" id="rdb-pn${n}" style="display:none">
+      <label class="fl" style="margin-bottom:.4rem">Adresse de retour</label>
+      <div class="ac-wrap" style="margin-bottom:.8rem"><input class="fi" id="i-pn${n}retaddr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}retaddr')" onfocus="acSearch(this,'ac-pn${n}retaddr')" onblur="acBlur('ac-pn${n}retaddr')"><div class="ac-list" id="ac-pn${n}retaddr"></div></div>
+      <label class="fl">↩ Date et heure de retour</label>
+      <div class="fg2 fg-dt">
+        <div><label class="fl">Date retour</label><input class="fi" id="i-pn${n}rdate" type="date" style="padding-left:.75rem"></div>
+        <div><label class="fl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}rtime-h" onchange="syncTimeVal('i-pn${n}rtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}rtime-m" onchange="syncTimeVal('i-pn${n}rtime')"></select><input type="hidden" id="i-pn${n}rtime"></div></div>
+      </div>
     </div>
   </div>
   <div class="trip-fields" id="tf-pn${n}-t">
@@ -2486,13 +2504,13 @@ function addPrestation() {
   const ds = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
   const hOpts = Array.from({length:24},(_,i)=>{const v=pad2(i);return `<option value="${v}">${v}</option>`;}).join('');
   const mOpts = [0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad2(m);return `<option value="${v}">${v}</option>`;}).join('');
-  [`i-pn${n}time`,`i-pn${n}ttime`,`i-pn${n}mtime`].forEach(id=>{
+  [`i-pn${n}time`,`i-pn${n}ttime`,`i-pn${n}mtime`,`i-pn${n}rtime`].forEach(id=>{
     const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
     if(hEl){hEl.innerHTML=hOpts;hEl.value=pad2(now.getHours());}
     if(mEl){mEl.innerHTML=mOpts;mEl.value='00';}
     syncTimeVal(id);
   });
-  [`i-pn${n}date`,`i-pn${n}tdate`,`i-pn${n}mdate`].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
+  [`i-pn${n}date`,`i-pn${n}tdate`,`i-pn${n}mdate`,`i-pn${n}rdate`].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   renumberPrestLabels();
   calcPrestPrice(n);
 }
@@ -2515,6 +2533,8 @@ function selTripModeN(pid, mode, el) {
   p.tripMode = mode;
   document.querySelectorAll('#tmg-pn' + pid + ' .trip-mode-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
+  const rdbN = document.getElementById('rdb-pn' + pid);
+  if (rdbN) rdbN.style.display = (mode === 'round-trip') ? '' : 'none';
   calcPrestPrice(pid);
 }
 function selTripTypeN(pid, type, el) {
@@ -2692,7 +2712,8 @@ function fillWizardRecap() {
     const modeLabel = p.tripMode === 'round-trip' ? 'Aller-retour' : 'Aller simple';
     if (p.tab === 'p') {
       const f = CFG.forfaits[p.fpack || 'cdg'];
-      plabel = f.label + ' · ' + modeLabel + (p.fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)');
+      const retAddrRecap = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}retaddr`)?.value || '').substring(0, 35) : '';
+      plabel = f.label + ' · ' + modeLabel + (p.fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)') + (retAddrRecap ? ' · Retour : ' + retAddrRecap : '');
     } else if (p.tab === 'm') {
       plabel = `Mise à disposition ${p.mdur}h · ${modeLabel}`;
     } else {
