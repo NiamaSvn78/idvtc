@@ -1870,7 +1870,7 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[], paddressCoord:null };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tAirportKey:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[], paddressCoord:null };
 let _prestCounter = 0;
 let _pendingModalType = null;
 const acT={}, acBT={};
@@ -1969,7 +1969,7 @@ const MVID={van:'vc-mv',business:'vc-mb'};
 const VNAME={van:'Van Premium',business:'Berline'};
 const MVNAME={van:'Van Premium',business:'Berline'};
 const VMNAME={van:'Van Premium',business:'Berline'};
-function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.km!==null)renderPrice(S.km);}
+function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.tAirportKey||S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}
 function updateMAD(){
@@ -2115,9 +2115,27 @@ async function acSearch(inp,lid){
       const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=6&autocomplete=1`);
       if(!res.ok)return;
       const data=await res.json();
-      const features=data.features||[];
+      let features=data.features||[];
       list.innerHTML='';
-      if(!features.length){list.innerHTML='<div class="ac-item msg"><span>Aucune adresse trouvée</span></div>';return;}
+      // Suggestions aéroports en tête si le champ est dep ou arr
+      if(lid==='ac-dep'||lid==='ac-arr'){
+        const apSugg=airportSuggestions(q);
+        apSugg.forEach(ap=>{
+          const coord={lat:ap.lat,lon:ap.lon,label:ap.label};
+          const item=document.createElement('div');item.className='ac-item';
+          item.innerHTML=`<div class="ac-dot" style="background:#c9a96e"></div><div><div class="ac-main">✈ ${ap.label}</div><div class="ac-sec">Forfait fixe · ${CFG.forfaits[ap.key].van}€</div></div>`;
+          item.addEventListener('mousedown',e=>{
+            e.preventDefault();
+            const inp=document.getElementById(lid==='ac-dep'?'i-dep':'i-arr');
+            if(inp){inp.value=ap.label;inp.classList.add('ok');}
+            if(lid==='ac-dep')S.dep=coord; else S.arr=coord;
+            list.classList.remove('open');
+            if(S.dep&&S.arr)doCalc();
+          });
+          list.appendChild(item);
+        });
+      }
+      if(!features.length&&list.children.length===0){list.innerHTML='<div class="ac-item msg"><span>Aucune adresse trouvée</span></div>';return;}
       features.forEach(f=>{
         const p=f.properties,label=p.label;
         const[lon,lat]=f.geometry.coordinates;
@@ -2142,9 +2160,50 @@ async function acSearch(inp,lid){
 }
 function acBlur(lid){acBT[lid]=setTimeout(()=>document.getElementById(lid).classList.remove('open'),200);}
 
+/* ── DÉTECTION AÉROPORT ── */
+const AIRPORTS_T = [
+  { key:'cdg',  lat:49.0097, lon:2.5479, label:'Aéroport Paris CDG', shortLabel:'CDG' },
+  { key:'orly', lat:48.7233, lon:2.3794, label:'Aéroport Paris Orly', shortLabel:'Orly' }
+];
+function detectAirport(coord){
+  if(!coord) return null;
+  for(const ap of AIRPORTS_T){
+    const dLat=(coord.lat-ap.lat)*Math.PI/180, dLon=(coord.lon-ap.lon)*Math.PI/180;
+    const a=Math.sin(dLat/2)**2+Math.cos(coord.lat*Math.PI/180)*Math.cos(ap.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+    if(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))<6) return ap.key;
+  }
+  const lbl=(coord.label||'').toLowerCase();
+  if(/roissy|charles.de.gaulle|\bcdg\b/.test(lbl)) return 'cdg';
+  if(/\borly\b/.test(lbl)) return 'orly';
+  return null;
+}
+function airportSuggestions(q){
+  const lq=q.toLowerCase();
+  return AIRPORTS_T.filter(ap=>
+    lq.includes(ap.key)||lq.includes('aeroport')||lq.includes('aéroport')||
+    (ap.key==='cdg'&&(lq.includes('roissy')||lq.includes('charles')))||
+    (ap.key==='orly'&&lq.includes('orly'))
+  );
+}
+
 /* ── CALCUL OSRM ── */
 async function doCalc(){
   if(!S.dep||!S.arr){setStatus('Sélectionnez vos adresses dans les suggestions.','err');return;}
+  // Détection forfait aéroport
+  const depAp=detectAirport(S.dep), arrAp=detectAirport(S.arr);
+  const apKey=depAp||arrAp;
+  if(apKey){
+    S.km=null; S.tAirportKey=apKey;
+    const ap=AIRPORTS_T.find(a=>a.key===apKey);
+    document.getElementById('rv-tag').textContent='Forfait '+ap.shortLabel+' appliqué';
+    document.getElementById('rv-tag').style.display='block';
+    document.getElementById('rv-bar').style.width='100%';
+    setStatus('','');
+    renderPrice(null);
+    document.getElementById('price-box').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  S.tAirportKey=null;
   const btn=document.getElementById('btn-calc');
   btn.classList.add('busy');btn.innerHTML='<div class="spin"></div> Calcul en cours…';
   setStatus('Calcul de l\'itinéraire…','loading');
@@ -2180,12 +2239,23 @@ async function doCalcPrestN(pid){
   }catch(err){if(el)el.textContent='Erreur calcul';}
 }
 function renderPrice(km){
-  const t=CFG.tarifs[S.veh],raw=km*t.km,total=Math.ceil(Math.max(raw,t.min));
+  let total;
+  if(S.tAirportKey){
+    const tRound=S.tTripMode==='round-trip'||S.tTripMode==='split';
+    const f=CFG.forfaits[S.tAirportKey];
+    total=tRound?f[S.veh]*2:f[S.veh];
+    const ap=AIRPORTS_T.find(a=>a.key===S.tAirportKey);
+    document.getElementById('d-km').textContent='Forfait fixe '+ap.shortLabel;
+    document.getElementById('d-breakdown').innerHTML=mkBR([['Forfait',ap.label],['Véhicule',VMNAME[S.veh]],['Type',tRound?'Aller-retour':'Aller simple']],total);
+  } else {
+    const t=CFG.tarifs[S.veh],raw=km*t.km;
+    total=Math.ceil(Math.max(raw,t.min));
+    document.getElementById('d-km').textContent=km.toFixed(1)+' km';
+    document.getElementById('d-breakdown').innerHTML=mkBR([['Véhicule',VMNAME[S.veh]],[`Distance (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €']],total);
+  }
   S.price=total;
   document.getElementById('d-price').textContent=total;
   document.getElementById('d-veh').textContent=VNAME[S.veh];
-  document.getElementById('d-km').textContent=km.toFixed(1)+' km';
-  document.getElementById('d-breakdown').innerHTML=mkBR([['Véhicule',VMNAME[S.veh]],[`Distance (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €']],total);
   document.getElementById('price-box').classList.add('show');
   document.getElementById('btn-pay-t').disabled=false;
 }
@@ -2354,7 +2424,7 @@ function generateQR(ref,paymentMethod){
   } else if(S.tab==='t'){
     const dep=(S.dep?.label||'').substring(0,30);
     const arr=(S.arr?.label||'').substring(0,30);
-    trajet=dep+' > '+arr;
+    trajet=S.tAirportKey ? CFG.forfaits[S.tAirportKey].label+' ('+dep+' > '+arr+')' : dep+' > '+arr;
     veh=VNAME[S.veh];
     date=document.getElementById('i-date').value;
     time=document.getElementById('i-time').value;
@@ -2425,7 +2495,7 @@ function selTripMode(mode, form, el) {
   const rdb = document.getElementById('rdb-' + form);
   if (rdb) rdb.style.display = (mode === 'round-trip' || mode === 'split') ? '' : 'none';
   if (form === 'p') updatePackPrice();
-  if (form === 't' && S.km !== null) renderPrice(S.km);
+  if (form === 't' && (S.tAirportKey || S.km !== null)) renderPrice(S.km);
 }
 
 /* ── PRESTATIONS DYNAMIQUES ── */
@@ -2624,7 +2694,11 @@ function updateWizardVehiclePrices() {
     vanPrice = S.mdur * CFG.tarifs.van.h;
     busPrice = S.mdur * CFG.tarifs.business.h;
   } else if (S.tab === 't') {
-    if (S.km !== null) {
+    if (S.tAirportKey) {
+      const f = CFG.forfaits[S.tAirportKey];
+      vanPrice = tRound ? f.van * 2 : f.van;
+      busPrice = tRound ? f.business * 2 : f.business;
+    } else if (S.km !== null) {
       const rawVan = Math.ceil(Math.max(S.km * CFG.tarifs.van.km, CFG.tarifs.van.min));
       const rawBus = Math.ceil(Math.max(S.km * CFG.tarifs.business.km, CFG.tarifs.business.min));
       vanPrice = tRound ? rawVan * 2 : rawVan;
