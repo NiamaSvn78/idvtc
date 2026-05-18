@@ -100,6 +100,15 @@ async function dbUpdate(id, updates) {
   return _mem[idx];
 }
 
+async function dbGetByCancellationToken(token) {
+  if (supabase) {
+    const { data } = await supabase.from('reservations')
+      .select('*').eq('cancellationToken', token).limit(1);
+    return (data && data[0]) || null;
+  }
+  return _mem.find(r => r.cancellationToken === token) || null;
+}
+
 /* ── DB helpers conducteurs ── */
 let _drivers = [];
 
@@ -178,6 +187,143 @@ function addMinToTime(time, min) {
 
 function missionToken(id) {
   return crypto.createHmac('sha256', ADMIN_PWD).update(id).digest('hex').slice(0, 20);
+}
+
+/* ── Annulation : helpers ── */
+
+function parisDateTimeToMs(dateStr, timeStr) {
+  if (!dateStr || !timeStr) return NaN;
+  const [y, mo, d] = dateStr.split('-').map(Number);
+  const [h, mn] = (timeStr || '00:00').split(':').map(Number);
+  const guessMs = Date.UTC(y, mo - 1, d, h, mn, 0);
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }).formatToParts(new Date(guessMs));
+  const get = (type) => parseInt(parts.find(p => p.type === type)?.value || '0');
+  const parisMs = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), 0);
+  return 2 * guessMs - parisMs;
+}
+
+function computeCancellationPolicy(r) {
+  const courseMs = parisDateTimeToMs(r.date, r.time);
+  const diffHours = (courseMs - Date.now()) / 3600000;
+  const price = Math.round((Number(r.price) || 0) * 100) / 100;
+  let tier, refundAmount;
+  if (diffHours > 72) {
+    tier = 'full'; refundAmount = price;
+  } else if (diffHours > 12) {
+    tier = 'half'; refundAmount = Math.round(price * 50) / 100;
+  } else {
+    tier = 'none'; refundAmount = 0;
+  }
+  return { hoursUntil: diffHours, tier, refundAmount, price };
+}
+
+function buildCancellationClientEmailHtml(r, refundAmount, tier) {
+  const client = escHtml(r.client || 'cher client');
+  const ref = escHtml(r.ref || r.id || '');
+  const dep = escHtml(r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—');
+  const arr = escHtml(r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—');
+  const price = Number(r.price) || 0;
+  const site = escHtml(APP_URL);
+
+  let refundMsg;
+  if (tier === 'full') {
+    refundMsg = `<p style="margin:0 0 6px;font-size:14px;color:#27ae60;font-weight:bold">Vous serez remboursé(e) de <strong>${refundAmount} €</strong> (100% du montant payé).</p><p style="margin:0 0 16px;font-size:13px;color:#666">Le remboursement sera visible sur votre compte sous 5 à 10 jours ouvrés.</p>`;
+  } else if (tier === 'half') {
+    refundMsg = `<p style="margin:0 0 6px;font-size:14px;color:#e6a817;font-weight:bold">Vous serez remboursé(e) de <strong>${refundAmount} €</strong> (50% du montant payé).</p><p style="margin:0 0 16px;font-size:13px;color:#666">L'annulation est intervenue entre 72h et 12h avant la course — les frais d'annulation partiels s'appliquent. Le remboursement sera visible sous 5 à 10 jours ouvrés.</p>`;
+  } else {
+    refundMsg = `<p style="margin:0 0 6px;font-size:14px;color:#e05454;font-weight:bold">Aucun remboursement ne sera effectué.</p><p style="margin:0 0 16px;font-size:13px;color:#666">L'annulation est intervenue à moins de 12h avant la course. Conformément à notre politique d'annulation, aucun remboursement ne peut être accordé dans ce délai.</p>`;
+  }
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:4px;overflow:hidden;border:1px solid #e8e8e8">
+  <tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
+    <div style="font-family:Georgia,serif;font-size:1.5rem;color:#c9a96e;letter-spacing:.1em">IsmaDrive</div>
+    <div style="font-size:.68rem;color:#9a9185;letter-spacing:.2em;text-transform:uppercase;margin-top:4px">Confirmation d'annulation</div>
+  </td></tr>
+  <tr><td style="padding:28px 32px 24px">
+    <p style="margin:0 0 14px;font-size:15px">Bonjour <strong>${client}</strong>,</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#555;line-height:1.65">Votre course IsmaDrive a bien été annulée.</p>
+    <div style="background:#f9f7f4;border:1px solid #e8e0d0;border-radius:3px;padding:16px 20px;margin-bottom:22px">
+      <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Course annulée</div>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr><td style="padding:5px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Référence</td><td style="padding:5px 0;border-bottom:1px solid #f0ece4;text-align:right;font-weight:bold;color:#080808;font-size:13px">${ref}</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Départ</td><td style="padding:5px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${dep}</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Destination</td><td style="padding:5px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${arr}</td></tr>
+        <tr><td style="padding:5px 0;border-bottom:1px solid #f0ece4;color:#888;font-size:13px">Date &amp; Heure</td><td style="padding:5px 0;border-bottom:1px solid #f0ece4;text-align:right;font-size:13px">${escHtml(fmtDateFr(r.date))} à ${escHtml(r.time || '—')}</td></tr>
+        <tr><td style="padding:8px 0 0;color:#333;font-size:14px;font-weight:bold">Montant payé</td><td style="padding:8px 0 0;text-align:right;font-size:16px;font-weight:bold;color:#c9a96e">${price} €</td></tr>
+      </table>
+    </div>
+    ${refundMsg}
+    <p style="margin:16px 0 0;font-size:13px;color:#666;line-height:1.65">Une question ? Contactez-nous sur <a href="https://wa.me/33623889717" style="color:#c9a96e;text-decoration:none">WhatsApp (+33 6 23 88 97 17)</a> ou à <a href="mailto:contact@ismadrive.fr" style="color:#c9a96e;text-decoration:none">contact@ismadrive.fr</a>.</p>
+    <p style="margin:16px 0 0;font-size:12px;color:#999;line-height:1.5">À bientôt,<br/>L'équipe IsmaDrive</p>
+  </td></tr>
+  <tr><td style="background:#fafafa;border-top:1px solid #eee;padding:14px 32px;text-align:center">
+    <div style="font-size:11px;color:#aaa">Réf. ${ref} · IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France · <a href="${site}" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+  </td></tr>
+</table></td></tr></table>
+</body></html>`;
+}
+
+function buildCancellationAdminEmailHtml(r, refundAmount, tier, cancelledAt, stripeError) {
+  const price = Number(r.price) || 0;
+  const dep = escHtml(r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—');
+  const arr = escHtml(r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—');
+  const refundLabel = tier === 'none'
+    ? 'Aucun remboursement — annulation tardive (&lt;12h)'
+    : `${refundAmount} € (${tier === 'full' ? '100%' : '50%'})`;
+  const cancelledAtFr = new Date(cancelledAt).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+
+  let stripeNote = '';
+  if (stripeError) {
+    stripeNote = `<p style="margin:12px 0 0;font-size:13px;color:#e05454;background:#fff5f5;border:1px solid #fca5a5;padding:10px 12px;border-radius:3px">⚠️ Erreur Stripe : ${escHtml(stripeError)}</p>`;
+  } else if (refundAmount > 0 && r.stripePaymentIntentId) {
+    stripeNote = `<p style="margin:12px 0 0;font-size:13px;color:#27ae60">✅ Remboursement Stripe émis. Vérifier le dashboard Stripe si un remboursement partiel a été émis.</p>`;
+  } else if (refundAmount > 0) {
+    stripeNote = `<p style="margin:12px 0 0;font-size:13px;color:#e6a817;background:#fffbeb;border:1px solid #fcd34d;padding:10px 12px;border-radius:3px">⚠️ Remboursement manuel requis — aucun stripePaymentIntentId trouvé en base.</p>`;
+  }
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head>
+<body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
+<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
+<tr><td style="background:#080808;padding:20px 26px;border-bottom:2px solid #c9a96e">
+  <div style="font-family:Georgia,serif;font-size:1.25rem;color:#c9a96e;letter-spacing:.08em">IsmaDrive</div>
+  <div style="font-size:.62rem;color:#9a9185;letter-spacing:.18em;text-transform:uppercase;margin-top:4px">⚠️ Alerte annulation de course</div>
+</td></tr>
+<tr><td style="padding:22px 26px">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:3px;margin-bottom:16px">
+  <tr><td style="padding:14px 16px;background:#fffbf2;border-bottom:1px solid #f0ece4">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Client</div>
+    <div style="font-size:.95rem;font-weight:bold">${escHtml(r.client || '—')}</div>
+    <div style="font-size:.85rem;color:#555;margin-top:3px">${escHtml(r.email || '—')} · ${escHtml(r.tel || '—')}</div>
+  </td></tr>
+  <tr><td style="padding:14px 16px;border-bottom:1px solid #f0ece4">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Course annulée</div>
+    <div style="font-size:.92rem"><strong>Réf. :</strong> ${escHtml(r.ref || r.id || '—')}</div>
+    <div style="font-size:.92rem;margin-top:4px"><strong>Départ :</strong> ${dep}</div>
+    <div style="font-size:.92rem;margin-top:4px"><strong>Destination :</strong> ${arr}</div>
+    <div style="font-size:.92rem;margin-top:4px"><strong>Date :</strong> ${fmtDateFr(r.date)} à ${escHtml(r.time || '—')}</div>
+  </td></tr>
+  <tr><td style="padding:14px 16px;border-bottom:1px solid #f0ece4">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Montants</div>
+    <div style="font-size:.92rem"><strong>Payé :</strong> <span style="color:#c9a96e;font-weight:bold">${price} €</span></div>
+    <div style="font-size:.92rem;margin-top:4px"><strong>Remboursement :</strong> ${refundLabel}</div>
+  </td></tr>
+  <tr><td style="padding:14px 16px">
+    <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px">Horodatage</div>
+    <div style="font-size:.92rem"><strong>Annulé le :</strong> ${cancelledAtFr}</div>
+  </td></tr>
+  </table>
+  ${stripeNote}
+</td></tr>
+</table></td></tr></table>
+</body></html>`;
 }
 
 function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, driverPlate, driverEmailTo) {
@@ -455,6 +601,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         status: 'confirmed',
         paymentStatus: 'paid',
         stripeSessionId: session.id,
+        stripePaymentIntentId: session.payment_intent || null,
         paidAt: new Date().toISOString()
       }).catch(e => console.error('DB update webhook error:', e.message));
       const r = await dbGetById(reservationId).catch(() => null);
@@ -763,6 +910,7 @@ app.post('/api/reservations', publicLimiter, async (req, res) => {
     const reservation = {
       ...body,
       id: body.ref || ('ISMA-' + Date.now().toString(36).toUpperCase().slice(-6)),
+      cancellationToken: crypto.randomBytes(32).toString('hex'),
       createdAt: new Date().toISOString()
     };
 
@@ -887,6 +1035,7 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
     id,
     status: 'pending_payment',
     paymentStatus: 'unpaid',
+    cancellationToken: crypto.randomBytes(32).toString('hex'),
     createdAt: new Date().toISOString()
   };
 
@@ -938,6 +1087,7 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
         status: 'confirmed',
         paymentStatus: 'paid',
         stripeSessionId: session.id,
+        stripePaymentIntentId: session.payment_intent || null,
         paidAt: r.paidAt || paidNow
       });
       r = await dbGetById(reservationId);
@@ -972,6 +1122,108 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
     console.error('sync-booking-after-payment:', e.message);
     res.status(500).json({ ok: false, error: e.message });
   }
+});
+
+/* ── Annulation client ── */
+
+app.get('/api/cancel-info', publicLimiter, async (req, res) => {
+  const token = String(req.query.token || '').trim();
+  if (!token) return res.status(400).json({ error: 'Token manquant' });
+
+  const r = await dbGetByCancellationToken(token).catch(() => null);
+  if (!r) return res.status(404).json({ error: 'Lien d\'annulation invalide ou expiré.' });
+  if (r.status === 'cancelled') {
+    return res.status(410).json({ error: 'already_cancelled', message: 'Cette réservation a déjà été annulée.' });
+  }
+  if (Date.now() > parisDateTimeToMs(r.date, r.time)) {
+    return res.status(410).json({ error: 'course_passed', message: 'Cette course est déjà passée.' });
+  }
+
+  const { hoursUntil, tier, refundAmount, price } = computeCancellationPolicy(r);
+  const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
+  const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
+
+  res.json({
+    ref: r.ref || r.id,
+    client: r.client,
+    date: r.date,
+    time: r.time,
+    dep,
+    arr,
+    price,
+    vehicleName: r.vehicleName || r.vehicle || '—',
+    hoursUntil: Math.round(hoursUntil * 10) / 10,
+    tier,
+    refundAmount,
+    refundPct: tier === 'full' ? 100 : tier === 'half' ? 50 : 0,
+  });
+});
+
+app.post('/api/cancel-reservation', publicLimiter, async (req, res) => {
+  const token = String(req.body?.token || '').trim();
+  if (!token) return res.status(400).json({ error: 'Token manquant' });
+
+  const r = await dbGetByCancellationToken(token).catch(() => null);
+  if (!r) return res.status(404).json({ error: 'Lien d\'annulation invalide.' });
+  if (r.status === 'cancelled') return res.status(410).json({ error: 'already_cancelled' });
+  if (Date.now() > parisDateTimeToMs(r.date, r.time)) {
+    return res.status(410).json({ error: 'course_passed' });
+  }
+
+  const { tier, refundAmount } = computeCancellationPolicy(r);
+
+  let stripeRefundId = null;
+  let stripeError = null;
+  if (stripe && refundAmount > 0 && r.stripePaymentIntentId) {
+    try {
+      const refund = await stripe.refunds.create({
+        payment_intent: r.stripePaymentIntentId,
+        amount: Math.round(refundAmount * 100),
+      });
+      stripeRefundId = refund.id;
+      console.log('[Cancel] Stripe refund:', stripeRefundId, refundAmount + '€');
+    } catch (e) {
+      stripeError = e.message;
+      console.error('[Cancel] Stripe refund error:', e.message);
+    }
+  } else if (refundAmount > 0 && !r.stripePaymentIntentId) {
+    console.log('[Cancel] Remboursement simulé (pas de stripePaymentIntentId):', refundAmount + '€');
+  }
+
+  const cancelledAt = new Date().toISOString();
+  await dbUpdate(r.id, {
+    status: 'cancelled',
+    cancelledAt,
+    refundAmount,
+    stripeRefundId: stripeRefundId || null,
+  }).catch(e => console.error('[Cancel] DB update:', e.message));
+
+  const email = String(r.email || '').trim();
+  if (email && RESEND_API_KEY && RESEND_FROM) {
+    const resend = new Resend(RESEND_API_KEY);
+    resend.emails.send({
+      from: RESEND_FROM,
+      to: email,
+      subject: `IsmaDrive — Votre course a été annulée · Réf. ${r.ref || r.id}`,
+      html: buildCancellationClientEmailHtml(r, refundAmount, tier),
+    }).catch(e => console.error('[Cancel] Email client:', e.message));
+  }
+
+  if (RESEND_API_KEY && RESEND_FROM && ADMIN_PAYMENT_NOTIFY_EMAIL) {
+    const resend = new Resend(RESEND_API_KEY);
+    resend.emails.send({
+      from: RESEND_FROM,
+      to: ADMIN_PAYMENT_NOTIFY_EMAIL,
+      subject: `⚠️ Annulation de course — ${r.client || '—'} — ${fmtDateFr(r.date)}`,
+      html: buildCancellationAdminEmailHtml(r, refundAmount, tier, cancelledAt, stripeError),
+    }).catch(e => console.error('[Cancel] Email admin:', e.message));
+  }
+
+  res.json({ ok: true, tier, refundAmount });
+});
+
+app.get('/annuler-reservation', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'vtc-project', 'public', 'annuler-reservation.html'));
 });
 
 app.get('/mission-order/:id', adminLimiter, async (req, res) => {

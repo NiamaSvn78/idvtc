@@ -725,6 +725,16 @@ function openTrip(id){
   const statusClass = r.status === 'cancelled' ? 'status-cancelled' : r.status === 'done' ? 'status-done' : 'status-confirmed';
   const statusLabel = r.status === 'cancelled' ? 'Annulé' : r.status === 'done' ? 'Terminé' : 'Confirmé';
   document.getElementById('tm-title').textContent = r.trajet || 'Course';
+  /* Séparer les [Prestation N: ...] des notes libres */
+  const prestBlocks = [], notesRaw = r.notes || '';
+  const notesClean = notesRaw.replace(/\[Prestation \d+:[^\]]*\]/g, m => { prestBlocks.push(m); return ''; }).trim();
+  const prestRows = prestBlocks.map(b => {
+    const inner = b.slice(1, -1); /* retire [ et ] */
+    const colon = inner.indexOf(':');
+    const label = colon > -1 ? inner.slice(0, colon).trim() : 'Prestation';
+    const detail = colon > -1 ? inner.slice(colon+1).trim() : inner;
+    return `<div class="detail-row" style="border-bottom:1px solid rgba(201,169,110,.12)"><span class="dr-k" style="color:var(--gold)">${escHtml(label)}</span><span class="dr-v" style="font-size:.78rem;white-space:pre-wrap">${escHtml(detail)}</span></div>`;
+  }).join('');
   document.getElementById('tm-body').innerHTML = `
     <span class="modal-status ${statusClass}">${statusLabel}</span>
     <div style="height:.8rem"></div>
@@ -736,8 +746,9 @@ function openTrip(id){
     ${row('Client', r.client||'—')}
     ${row('Téléphone', r.tel||'—')}
     ${row('Email', r.email||'—')}
-    ${row('Prix', (r.price||0)+' €')}
-    ${r.notes ? row('Notes', r.notes) : ''}
+    ${row('Prix total', (r.price||0)+' €')}
+    ${prestRows}
+    ${notesClean ? row('Notes', escHtml(notesClean)) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
     ${r.driverOrderSentAt ? row('Collègue assigné', '<strong style="color:var(--gold)">'+escHtml(colleagueDisplayName(r) || r.driverOrderSentTo || '—')+'</strong>') : ''}
     ${r.driverOrderSentAt && r.assignedDriverPlate ? row('Plaque collègue', escHtml(r.assignedDriverPlate)) : ''}
