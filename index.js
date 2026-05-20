@@ -156,10 +156,22 @@ function timeToMin(t) {
 }
 
 async function dbListByDate(date) {
-  if (!supabase) return _mem.filter(r => r.date === date && r.status !== 'cancelled');
+  const ACTIVE = ['confirmed', 'assigned', 'completed'];
+  // Les sessions Stripe expirent après 30 min — un pending_payment plus vieux est mort
+  const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+  if (!supabase) {
+    return _mem.filter(r => r.date === date && (
+      ACTIVE.includes(r.status) ||
+      (r.status === 'pending_payment' && (r.createdAt || '') >= cutoff)
+    ));
+  }
   const { data } = await supabase.from('reservations').select('*')
-    .eq('date', date).neq('status', 'cancelled');
-  return data || [];
+    .eq('date', date).not('status', 'eq', 'cancelled');
+  if (!data) return [];
+  return data.filter(r =>
+    ACTIVE.includes(r.status) ||
+    (r.status === 'pending_payment' && (r.createdAt || '') >= cutoff)
+  );
 }
 
 async function checkConflict(date, time, durationMin, excludeId = null) {
@@ -602,7 +614,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         paymentStatus: 'paid',
         stripeSessionId: session.id,
         stripePaymentIntentId: session.payment_intent || null,
-        paidAt: new Date().toISOString()
+        paidAt: before?.paidAt || new Date().toISOString()
       }).catch(e => console.error('DB update webhook error:', e.message));
       const r = await dbGetById(reservationId).catch(() => null);
       console.log('[Stripe] Paiement confirmé réservation', reservationId);
@@ -621,6 +633,17 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
       }
     }
   }
+
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    const reservationId = session.metadata?.reservationId;
+    if (reservationId) {
+      await dbUpdate(reservationId, { status: 'cancelled', cancelledAt: new Date().toISOString() })
+        .catch(e => console.error('[Webhook] cancel expired reservation:', e.message));
+      console.log('[Stripe] Session expirée — réservation annulée:', reservationId);
+    }
+  }
+
   res.json({ received: true });
 });
 
@@ -1026,40 +1049,57 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
     return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans les variables d\'environnement.' });
   }
   const { date, time, durationMin, price, trajet, email } = req.body || {};
+
+  if (!date || !time) {
+    return res.status(400).json({ error: 'Date et heure de la course requis.' });
+  }
+  if (!price || Number(price) <= 0) {
+    return res.status(400).json({ error: 'Montant invalide.' });
+  }
+
   const conflict = await checkConflict(date, time, durationMin || 60);
   if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
 
   const id = Date.now().toString(36).toUpperCase().slice(-8);
+  // ref généré côté serveur — ne pas faire confiance au client
+  const ref = `ISMA-${id.slice(-6)}`;
   const newRes = {
     ...req.body,
     id,
+    ref,
     status: 'pending_payment',
     paymentStatus: 'unpaid',
     cancellationToken: crypto.randomBytes(32).toString('hex'),
     createdAt: new Date().toISOString()
   };
 
+  let inserted = false;
   try {
     await dbInsert(newRes);
+    inserted = true;
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
           currency: 'eur',
           product_data: { name: `IsmaDrive — ${trajet || 'Course'}` },
-          unit_amount: Math.round((price || 0) * 100),
+          unit_amount: Math.round(Number(price) * 100),
         },
         quantity: 1,
       }],
       mode: 'payment',
       customer_email: email || undefined,
-      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(newRes.ref || id)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(newRes.lang || 'fr')}`,
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(ref)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(newRes.lang || 'fr')}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
       metadata: { reservationId: id },
     });
     res.json({ url: session.url, id });
   } catch (err) {
     console.error('Checkout error:', err.message);
+    if (inserted) {
+      await dbUpdate(id, { status: 'cancelled', cancelledAt: new Date().toISOString() }).catch(() => {});
+    }
     res.status(500).json({ error: 'Erreur lors de la création de la session de paiement.' });
   }
 });
