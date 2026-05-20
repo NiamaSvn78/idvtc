@@ -485,6 +485,15 @@
       'extra.round_trip_x2': '(aller-retour ×2)',
       'extra.aller': 'aller',
       'extra.retour': 'retour',
+
+      /* ── Véhicules (noms courts pour cartes) ── */
+      'veh.van_name': 'Van Premium',
+      'veh.van_model': 'Van · 7 places',
+      'veh.bus_name': 'Berline',
+      'veh.bus_model': 'Mercedes Classe E',
+
+      /* ── CGV ── */
+      'modal.cgv_html': 'J\'ai lu et j\'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d\'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.',
     },
 
     en: {
@@ -969,6 +978,15 @@
       'extra.round_trip_x2': '(round trip ×2)',
       'extra.aller': 'outbound',
       'extra.retour': 'return',
+
+      /* ── Vehicles (short names for cards) ── */
+      'veh.van_name': 'Premium Van',
+      'veh.van_model': 'Van · 7 seats',
+      'veh.bus_name': 'Saloon',
+      'veh.bus_model': 'Mercedes E-Class',
+
+      /* ── T&Cs ── */
+      'modal.cgv_html': 'I have read and accept the <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Terms &amp; Conditions</a> and the <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Privacy Policy</a> of IsmaDrive. I acknowledge that the driver\'s liability is limited under the T&amp;Cs.',
     }
   };
 

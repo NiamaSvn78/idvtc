@@ -893,8 +893,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
         </div>
         <div class="fg2 fg-dt">
-          <div><label class="fl">Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
-          <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
+          <div><label class="fl" data-i18n="airport.date">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
+          <div><label class="fl" data-i18n="airport.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
         </div>
         <div class="avail" id="avail-p"><div class="avail-dot"></div><span id="avail-p-txt"></span></div>
         <div class="dispo-timeline" id="dt-p" style="display:none"><div class="dispo-now" id="dtn-p"></div></div>
@@ -914,16 +914,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-card on" id="wiz-vp-van" onclick="selWizVeh('p','van')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
-            <div class="v-name">Van Premium</div>
-            <div class="v-model">Van · 7 places</div>
-            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+            <div class="v-name" data-i18n="veh.van_name">Van Premium</div>
+            <div class="v-model" data-i18n="veh.van_model">Van · 7 places</div>
+            <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span data-i18n="spec.family">👶 Famille ✓</span></div>
           </div>
           <div class="v-card" id="wiz-vp-bus" onclick="selWizVeh('p','business')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
-            <div class="v-name">Berline</div>
-            <div class="v-model">Mercedes Classe E</div>
-            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+            <div class="v-name" data-i18n="veh.bus_name">Berline</div>
+            <div class="v-model" data-i18n="veh.bus_model">Mercedes Classe E</div>
+            <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
           </div>
         </div>
         <!-- ── Sous-total étape 1 ── -->
@@ -998,16 +998,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-card on" id="wiz-vt-van" onclick="selWizVeh('t','van')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
-            <div class="v-name">Van Premium</div>
-            <div class="v-model">Van · 7 places</div>
-            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+            <div class="v-name" data-i18n="veh.van_name">Van Premium</div>
+            <div class="v-model" data-i18n="veh.van_model">Van · 7 places</div>
+            <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span data-i18n="spec.family">👶 Famille ✓</span></div>
           </div>
           <div class="v-card" id="wiz-vt-bus" onclick="selWizVeh('t','business')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
-            <div class="v-name">Berline</div>
-            <div class="v-model">Mercedes Classe E</div>
-            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+            <div class="v-name" data-i18n="veh.bus_name">Berline</div>
+            <div class="v-model" data-i18n="veh.bus_model">Mercedes Classe E</div>
+            <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
           </div>
         </div>
         <div class="price-box" id="ws1t-price-box" style="margin-top:1rem">
@@ -1051,16 +1051,16 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="v-card on" id="wiz-vm-van" onclick="selWizVeh('m','van')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
-            <div class="v-name">Van Premium</div>
-            <div class="v-model">95 € / h · min. 2h</div>
-            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+            <div class="v-name" data-i18n="veh.van_name">Van Premium</div>
+            <div class="v-model" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
+            <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span data-i18n="spec.family">👶 Famille ✓</span></div>
           </div>
           <div class="v-card" id="wiz-vm-bus" onclick="selWizVeh('m','business')">
             <div class="v-check"><div class="v-dot"></div></div>
             <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
-            <div class="v-name">Berline</div>
-            <div class="v-model">75 € / h · min. 2h</div>
-            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+            <div class="v-name" data-i18n="veh.bus_name">Berline</div>
+            <div class="v-model" data-i18n="mad.bus_rate">75 € / heure · min. 2h</div>
+            <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
           </div>
         </div>
         <div class="price-box show" id="ws1m-price-box" style="margin-top:1rem">
@@ -1100,7 +1100,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="cgv-wrap">
         <label class="cgv-lbl">
           <input type="checkbox" id="cgv-ok">
-          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
+          <span data-i18n-html="modal.cgv_html">J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
         </label>
       </div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
@@ -1191,8 +1191,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
       <!-- ── Date / Heure ── -->
       <div class="fg2 fg-dt">
-        <div><label class="fl">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
-        <div><label class="fl">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
+        <div><label class="fl" data-i18n="airport.date">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
+        <div><label class="fl" data-i18n="airport.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
       </div>
       <!-- Indicateur disponibilité -->
       <div class="avail" id="avail-p">
@@ -1226,24 +1226,24 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="secure-line" data-i18n="airport.secure">Paiement sécurisé par carte · Stripe · QR code envoyé par email</div>
 
       <div style="margin-top:1.8rem;padding-top:1.6rem;border-top:1px solid var(--subtle)">
-        <p class="section-tag" style="margin-bottom:1rem">Tableau des forfaits aéroport</p>
+        <p class="section-tag" style="margin-bottom:1rem" data-i18n="airport.table_tag">Tableau des forfaits aéroport</p>
         <div class="airport-wrap" style="margin-top:0">
           <table class="airport-table" role="table" aria-label="Forfaits aéroports par véhicule">
             <thead>
               <tr>
-                <th scope="col">Trajet</th>
-                <th scope="col">Van Premium</th>
-                <th scope="col">Business</th>
+                <th scope="col" data-i18n="airport.th_route">Trajet</th>
+                <th scope="col" data-i18n="airport.th_van">Van Premium</th>
+                <th scope="col" data-i18n="airport.th_business">Business</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><div class="airport-sub">Aller ou retour</div><span class="airport-dest">Aéroport CDG ↔ Paris</span></td>
+                <td><div class="airport-sub" data-i18n="airport.cdg_sub">Aller ou retour</div><span class="airport-dest" data-i18n="airport.cdg_dest">Aéroport CDG ↔ Paris</span></td>
                 <td><span class="airport-wait">100 €</span></td>
                 <td><span class="airport-wait">100 €</span></td>
               </tr>
               <tr>
-                <td><div class="airport-sub">Aller ou retour</div><span class="airport-dest">Aéroport Orly ↔ Paris</span></td>
+                <td><div class="airport-sub" data-i18n="airport.orly_sub">Aller ou retour</div><span class="airport-dest" data-i18n="airport.orly_dest">Aéroport Orly ↔ Paris</span></td>
                 <td><span class="airport-wait">90 €</span></td>
                 <td><span class="airport-wait">90 €</span></td>
               </tr>
@@ -1276,8 +1276,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         </div>
       </div>
       <div class="fg2 fg-dt">
-        <div><label class="fl">📅 Date</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
-        <div><label class="fl">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
+        <div><label class="fl" data-i18n="transfer.date">📅 Date</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
+        <div><label class="fl" data-i18n="transfer.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
       </div>
       <!-- Indicateur disponibilité -->
       <div class="avail" id="avail-t">
@@ -1296,17 +1296,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="v-grid">
         <div class="v-card on" id="vc-v" onclick="selV('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name">Van Premium</div>
+          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name" data-i18n="veh.van_name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span><span data-i18n="spec.van_bags">🧳 8 bag.</span><span>📶 Wi-Fi</span><span data-i18n="spec.family">👶 Famille ✓</span></div>
-          <div class="v-rate">2,50 €/km (hors Paris)</div>
+          <div class="v-rate" data-i18n="transfer.van_rate">2,50 €/km (hors Paris)</div>
         </div>
         <div class="v-card" id="vc-b" onclick="selV('business')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name">Business</div>
+          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div><div class="v-name" data-i18n="airport.business_name">Business</div>
           <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E et équivalent</div>
           <div class="v-specs"><span data-i18n="spec.bus_pax">👤 3 places</span><span data-i18n="spec.bus_bags">🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
-          <div class="v-rate">2,50 €/km (hors Paris)</div>
+          <div class="v-rate" data-i18n="transfer.bus_rate">2,50 €/km (hors Paris)</div>
         </div>
       </div>
       <!-- ── Options famille ── -->
@@ -1369,25 +1369,25 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <table class="airport-table" role="table" aria-label="Destinations et services inclus">
             <thead>
               <tr>
-                <th scope="col">Destination</th>
-                <th scope="col">Service inclus</th>
-                <th scope="col">Attente offerte</th>
+                <th scope="col" data-i18n="transfer.th_dest">Destination</th>
+                <th scope="col" data-i18n="transfer.th_service">Service inclus</th>
+                <th scope="col" data-i18n="transfer.th_wait">Attente offerte</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><div class="airport-sub">Aéroport</div><span class="airport-dest">Roissy CDG — Terminal 1, 2 &amp; 3</span></td>
-                <td>Pancarte nominative · Aide aux bagages · Suivi du vol</td>
+                <td><div class="airport-sub" data-i18n="transfer.cdg_sub">Aéroport</div><span class="airport-dest" data-i18n="transfer.cdg_dest">Roissy CDG — Terminal 1, 2 &amp; 3</span></td>
+                <td data-i18n="transfer.cdg_service">Pancarte nominative · Aide aux bagages · Suivi du vol</td>
                 <td><span class="airport-wait">60 min</span></td>
               </tr>
               <tr>
-                <td><div class="airport-sub">Aéroport</div><span class="airport-dest">Orly — Sud, Ouest &amp; Terminal 4</span></td>
-                <td>Suivi du vol · Accueil hall d'arrivée · Aide aux bagages</td>
+                <td><div class="airport-sub" data-i18n="transfer.orly_sub">Aéroport</div><span class="airport-dest" data-i18n="transfer.orly_dest">Orly — Sud, Ouest &amp; Terminal 4</span></td>
+                <td data-i18n="transfer.orly_service">Suivi du vol · Accueil hall d'arrivée · Aide aux bagages</td>
                 <td><span class="airport-wait">60 min</span></td>
               </tr>
               <tr>
-                <td><div class="airport-sub">Gares parisiennes</div><span class="airport-dest">Gare du Nord · Gare de Lyon · Gare Montparnasse</span></td>
-                <td>Dépose ou accueil au plus proche des voies · Suivi du train</td>
+                <td><div class="airport-sub" data-i18n="transfer.gares_sub">Gares parisiennes</div><span class="airport-dest" data-i18n="transfer.gares_dest">Gare du Nord · Gare de Lyon · Gare Montparnasse</span></td>
+                <td data-i18n="transfer.gares_service">Dépose ou accueil au plus proche des voies · Suivi du train</td>
                 <td><span class="airport-wait">20 min</span></td>
               </tr>
             </tbody>
@@ -1423,7 +1423,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="v-grid" style="margin-top:1rem">
         <div class="v-card on" id="vc-mv" onclick="selVM('van')">
           <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name" data-i18n="airport.van_name">Van Premium</div>
+          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div><div class="v-name" data-i18n="veh.van_name">Van Premium</div>
           <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
           <div class="v-specs"><span data-i18n="spec.van_pax">👤 7 places</span></div>
           <div class="v-rate" data-i18n="mad.van_rate">95 € / heure · min. 2h</div>
@@ -1890,7 +1890,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="cgv-wrap">
         <label class="cgv-lbl">
           <input type="checkbox" id="cgv-ok">
-          <span>J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
+          <span data-i18n-html="modal.cgv_html">J'ai lu et j'accepte les <a class="cgv-link" href="/cgv" target="_blank" rel="noopener">Conditions Générales de Vente</a> et la <a class="cgv-link" href="/confidentialite" target="_blank" rel="noopener">Politique de Confidentialité</a> d'IsmaDrive. Je reconnais que la responsabilité du chauffeur est limitée aux termes des CGV.</span>
         </label>
       </div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
