@@ -511,8 +511,8 @@
       'nav.wa_num': '+33 6 23 88 97 17',
 
       /* ── Hero ── */
-      'hero.tag': 'Private Chauffeur · Paris & Île-de-France · 24/7',
-      'hero.title_html': 'Private Chauffeur Paris & Île-de-France<br><em>Your Luxury Car Service 24/7</em>',
+      'hero.tag': 'Private Driver · Paris & Île-de-France · 24/7',
+      'hero.title_html': 'Private Driver Paris & Île-de-France<br><em>Your Luxury Car Service 24/7</em>',
       'hero.sub': 'Tourists, families and professionals — CDG & Orly airport transfers, monument tours, Versailles excursions. Child booster & baby seat included, 7-seat Van, fixed price 24/7.',
       'hero.cta': 'GET MY PRICE IN 30 SECONDS',
 

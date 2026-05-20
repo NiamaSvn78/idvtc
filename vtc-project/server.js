@@ -149,6 +149,22 @@ async function dbListResByDate(date) {
   return data || [];
 }
 
+async function dbGetResByCancellationToken(token) {
+  const { data } = await supabase.from('reservations').select('*').eq('cancellationToken', token).maybeSingle();
+  return data || null;
+}
+
+function computeCancellationTier(r) {
+  const [y, mo, d] = (r.date || '').split('-').map(Number);
+  const [h, m] = (r.time || '00:00').split(':').map(Number);
+  if (!y || !mo || !d) return 'none';
+  const courseDate = new Date(y, mo - 1, d, h, m, 0);
+  const diffH = (courseDate.getTime() - Date.now()) / 3600000;
+  if (diffH > 72) return 'full';
+  if (diffH > 12) return 'half';
+  return 'none';
+}
+
 async function dbListDrivers() {
   const { data } = await supabase.from('drivers').select('*').order('createdAt', { ascending: false });
   return data || [];
@@ -594,9 +610,12 @@ function buildClientConfirmationHtml(r, qrDataUrl, prestDetails = [], prestQrs =
     <p style="text-align:center;font-size:.8rem;color:#666;margin:0 0 22px;line-height:1.5">Présentez l'un de ces éléments à votre chauffeur.</p>
 
     <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">Une question ou un changement de dernière minute ?</p>
-    <p style="margin:0 0 0;font-size:.85rem">
+    <p style="margin:0 0 18px;font-size:.85rem">
       <a href="https://wa.me/33623889717" style="color:#c9a96e;text-decoration:none">WhatsApp : +33 6 23 88 97 17</a>
     </p>
+    <div style="padding-top:12px;border-top:1px solid #eee;text-align:center">
+      <a href="https://ismadrive.fr/cgv" style="color:#bbb;font-size:11px;text-decoration:underline">Politique d'annulation</a>${r.cancellationToken ? ` &nbsp;·&nbsp; <a href="${APP_URL}/annuler-reservation?token=${encodeURIComponent(r.cancellationToken)}" style="color:#bbb;font-size:11px;text-decoration:underline">Annuler ma réservation</a>` : ''}
+    </div>
   </td></tr>
 
   <!-- Footer -->
@@ -704,9 +723,12 @@ function buildClientConfirmationHtmlEN(r, qrDataUrl) {
     <p style="text-align:center;font-size:.8rem;color:#666;margin:0 0 22px;line-height:1.5">Present any of these to your driver.</p>
 
     <p style="font-size:.85rem;color:#666;margin:0 0 8px;line-height:1.65">A question or last-minute change?</p>
-    <p style="margin:0 0 0;font-size:.85rem">
+    <p style="margin:0 0 18px;font-size:.85rem">
       <a href="https://wa.me/33623889717" style="color:#c9a96e;text-decoration:none">WhatsApp: +33 6 23 88 97 17</a>
     </p>
+    <div style="padding-top:12px;border-top:1px solid #eee;text-align:center">
+      <a href="https://ismadrive.fr/cgv" style="color:#bbb;font-size:11px;text-decoration:underline">Cancellation policy</a>${r.cancellationToken ? ` &nbsp;·&nbsp; <a href="${APP_URL}/annuler-reservation?token=${encodeURIComponent(r.cancellationToken)}" style="color:#bbb;font-size:11px;text-decoration:underline">Cancel my booking</a>` : ''}
+    </div>
   </td></tr>
 
   <!-- Footer -->
@@ -1001,6 +1023,70 @@ async function notifyAdminEmailPayment(r, sourceTag) {
   if (error) console.error('[Resend] admin paiement:', error.message || error);
 }
 
+async function notifyAdminTelegramCancellation(r, refundAmount, tier) {
+  const token  = String(process.env.TELEGRAM_BOT_TOKEN   || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+  const tierLabel = tier === 'full' ? 'Remboursement intégral' : tier === 'half' ? 'Remboursement 50%' : 'Aucun remboursement';
+  const text = [
+    '🚫 Annulation client — IsmaDrive',
+    '',
+    `Réf: ${r.ref || r.id}`,
+    `Client: ${r.client || '—'}`,
+    `Tél: ${r.tel || '—'}`,
+    `Trajet: ${r.trajet || '—'}`,
+    `Quand: ${r.date || '—'} · ${r.time || '—'}`,
+    `Remboursement: ${refundAmount} € (${tierLabel})`,
+  ].join('\n').slice(0, 3900);
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const ac  = new AbortController();
+  const t   = setTimeout(() => ac.abort(), 12000);
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }), signal: ac.signal });
+    if (!res.ok) console.error('[Telegram] annulation HTTP', res.status);
+  } catch (e) {
+    console.error('[Telegram] annulation:', e.message || e);
+  } finally { clearTimeout(t); }
+}
+
+async function sendCancellationClientEmail(r, refundAmount, tier) {
+  const email = String(r.email || '').trim();
+  if (!email || !RESEND_API_KEY || !RESEND_FROM_EMAIL) return;
+  const ref  = escHtml(r.ref || r.id || '');
+  const lang = r.lang === 'en';
+  const tierMsg = lang
+    ? (tier === 'full'  ? `Full refund of <strong>${refundAmount} €</strong> — visible within 5–10 business days.`
+      : tier === 'half' ? `Partial refund of <strong>${refundAmount} €</strong> (50%) — visible within 5–10 business days.`
+      : 'No refund applicable (cancellation less than 12h before the trip).')
+    : (tier === 'full'  ? `Remboursement intégral de <strong>${refundAmount} €</strong> — visible sous 5 à 10 jours ouvrés.`
+      : tier === 'half' ? `Remboursement partiel de <strong>${refundAmount} €</strong> (50%) — visible sous 5 à 10 jours ouvrés.`
+      : 'Aucun remboursement applicable (annulation moins de 12h avant la course).');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:4px;border:1px solid #e8e8e8">
+<tr><td style="background:#080808;padding:24px 32px;border-bottom:2px solid #c9a96e">
+  <div style="font-family:Georgia,serif;font-size:1.4rem;color:#c9a96e">IsmaDrive</div>
+  <div style="font-size:.65rem;color:#9a9185;text-transform:uppercase;letter-spacing:.2em;margin-top:4px">${lang ? 'Booking cancellation' : 'Annulation de réservation'}</div>
+</td></tr>
+<tr><td style="padding:28px 32px">
+  <p style="margin:0 0 16px;font-size:15px">${lang ? 'Your booking' : 'Votre réservation'} <strong style="font-family:monospace">${ref}</strong> ${lang ? 'has been cancelled.' : 'a bien été annulée.'}</p>
+  <p style="margin:0 0 16px;font-size:14px;color:#555">${tierMsg}</p>
+  <p style="margin:0;font-size:13px;color:#888">${lang ? 'Questions?' : 'Une question ?'} <a href="https://wa.me/33623889717" style="color:#c9a96e">WhatsApp +33 6 23 88 97 17</a></p>
+</td></tr>
+<tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:12px 32px;text-align:center">
+  <div style="font-size:11px;color:#aaa">IsmaDrive · <a href="https://ismadrive.fr" style="color:#c9a96e;text-decoration:none">ismadrive.fr</a></div>
+</td></tr>
+</table></td></tr></table></body></html>`;
+  const subject = lang
+    ? `IsmaDrive — Booking cancelled · Ref. ${r.ref || r.id}`
+    : `IsmaDrive — Réservation annulée · Réf. ${r.ref || r.id}`;
+  const payload = { from: RESEND_FROM, to: email, subject, html };
+  if (RESEND_BCC_EMAIL && RESEND_BCC_EMAIL.toLowerCase() !== email.toLowerCase()) payload.bcc = [RESEND_BCC_EMAIL];
+  const { error } = await resendEmailsSend(payload);
+  if (error) console.error('[Resend] cancellation client email:', error.message || error);
+}
+
 /* ── STRIPE WEBHOOK (raw body — doit être avant express.json()) ── */
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -1024,7 +1110,7 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
         before &&
         before.paymentStatus === 'paid' &&
         before.stripeSessionId === session.id;
-      const updates = { status: 'confirmed', paymentStatus: 'paid', stripeSessionId: session.id, paidAt: new Date().toISOString() };
+      const updates = { status: 'confirmed', paymentStatus: 'paid', stripeSessionId: session.id, stripePaymentIntentId: session.payment_intent || null, paidAt: new Date().toISOString() };
       await dbUpdateRes(reservationId, updates).catch(e => console.error('DB update error:', e.message));
       const r = await dbGetRes(reservationId).catch(() => null);
       console.log(`✅ Paiement confirmé pour réservation ${reservationId}`);
@@ -1143,7 +1229,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       finalRef = generateResRef();
       console.warn('[DB] conflict 23505 tentative %d — nouvel id/ref générés', attempt + 1);
     }
-    const newRes = { ...req.body, id: finalId, ref: finalRef, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion };
+    const newRes = { ...req.body, id: finalId, ref: finalRef, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion, cancellationToken: crypto.randomBytes(32).toString('hex') };
     try {
       await dbInsertRes(newRes);
       insertErr = null;
@@ -1434,7 +1520,7 @@ pages.forEach(slug => {
    PAGE PUBLIQUE — VALIDATION QR CLIENT
    ══════════════════════════════════════════════════════════════ */
 function buildReservationValidationHtml(r) {
-  const isValid = r && (r.status === 'confirmed' || r.paymentStatus === 'paid');
+  const isValid = r && r.status !== 'cancelled' && (r.status === 'confirmed' || r.paymentStatus === 'paid' || !!r.paidAt);
   if (!isValid) {
     return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1991,6 +2077,56 @@ app.post('/admin/reservations/:id/done', requireBasicAuth, async (req, res) => {
 app.post('/admin/reservations/:id/cancel', requireBasicAuth, async (req, res) => {
   await dbUpdateRes(req.params.id, { status: 'cancelled' }).catch(() => {});
   res.redirect('/admin/reservations');
+});
+
+/* ── ANNULATION CLIENT ── */
+app.get('/api/cancel-info', async (req, res) => {
+  const token = String(req.query.token || '').trim();
+  if (!token) return res.status(400).json({ error: 'token_manquant', message: 'Token d\'annulation manquant.' });
+  const r = await dbGetResByCancellationToken(token).catch(() => null);
+  if (!r) return res.status(404).json({ error: 'token_invalide', message: 'Ce lien est invalide ou a expiré.' });
+  if (r.status === 'cancelled') return res.status(410).json({ error: 'already_cancelled' });
+  if (r.paymentStatus !== 'paid') return res.status(409).json({ error: 'payment_not_confirmed', message: 'Paiement non confirmé.' });
+  const tier        = computeCancellationTier(r);
+  const price       = Number(r.price || 0);
+  const refundAmount = tier === 'full' ? price : tier === 'half' ? Math.round(price * 50) / 100 : 0;
+  const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
+  const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
+  res.json({ ref: r.ref || r.id, date: r.date, time: r.time, dep, arr, price, tier, refundAmount });
+});
+
+app.post('/api/cancel-reservation', async (req, res) => {
+  const token = String(req.body?.token || '').trim();
+  if (!token) return res.status(400).json({ error: 'token_manquant' });
+  const r = await dbGetResByCancellationToken(token).catch(() => null);
+  if (!r) return res.status(404).json({ error: 'token_invalide' });
+  if (r.status === 'cancelled') return res.status(410).json({ error: 'already_cancelled' });
+  if (r.paymentStatus !== 'paid') return res.status(409).json({ error: 'payment_not_confirmed' });
+
+  const tier        = computeCancellationTier(r);
+  const price       = Number(r.price || 0);
+  const refundAmount = tier === 'full' ? price : tier === 'half' ? Math.round(price * 50) / 100 : 0;
+
+  let stripeRefundId = null;
+  let stripeError    = null;
+  if (refundAmount > 0 && r.stripePaymentIntentId && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const refund   = await stripe.refunds.create({ payment_intent: r.stripePaymentIntentId, amount: Math.round(refundAmount * 100) });
+      stripeRefundId = refund.id;
+    } catch (e) {
+      stripeError = e.message;
+      console.error('[Stripe] refund error:', e.message);
+    }
+  }
+
+  await dbUpdateRes(r.id, { status: 'cancelled', cancelledAt: new Date().toISOString(), refundAmount, stripeRefundId }).catch(e =>
+    console.error('[DB] cancel update:', e.message)
+  );
+
+  notifyAdminTelegramCancellation(r, refundAmount, tier).catch(() => {});
+  sendCancellationClientEmail(r, refundAmount, tier).catch(() => {});
+
+  res.json({ ok: true, tier, refundAmount, stripeRefundId, stripeError });
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
