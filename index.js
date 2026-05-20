@@ -1319,7 +1319,12 @@ app.get('/api/reservations/:id/qrcode', publicLimiter, async (req, res) => {
   const course = Math.max(1, parseInt(String(req.query.course || '1'), 10) || 1);
   const url = bookingReservationUrl(APP_URL, req.params.id, course);
   try {
-    const png = await QRCode.toBuffer(url, { width: 300, margin: 2, errorCorrectionLevel: 'M' });
+    const png = await QRCode.toBuffer(url, {
+      width: 300,
+      margin: 4,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#000000', light: '#ffffff' },
+    });
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.send(png);
