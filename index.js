@@ -833,8 +833,6 @@ function buildReviewEmailHtml(r, qrDataUrl) {
 app.post('/api/reservations/manual', adminLimiter, async (req, res) => {
   const { pwd, ...data } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  const conflict = await checkConflict(data.date, data.time, data.durationMin || 60);
-  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
   const id = Date.now().toString(36).toUpperCase().slice(-8);
   const ref = `RES-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${id.slice(-4)}`;
   const newRes = { ...data, id, ref, status: 'confirmed', source: 'manual', createdAt: new Date().toISOString() };
@@ -1048,7 +1046,7 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
   if (!stripe) {
     return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans les variables d\'environnement.' });
   }
-  const { date, time, durationMin, price, trajet, email } = req.body || {};
+  const { date, time, price, trajet, email } = req.body || {};
 
   if (!date || !time) {
     return res.status(400).json({ error: 'Date et heure de la course requis.' });
@@ -1056,9 +1054,6 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
   if (!price || Number(price) <= 0) {
     return res.status(400).json({ error: 'Montant invalide.' });
   }
-
-  const conflict = await checkConflict(date, time, durationMin || 60);
-  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
 
   const id = Date.now().toString(36).toUpperCase().slice(-8);
   // ref généré côté serveur — ne pas faire confiance au client
