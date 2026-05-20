@@ -60,6 +60,7 @@ const clientConfirmationMail = createClientConfirmationMailer({
   persistEmail: (id, email) => dbUpdate(id, { email }),
 });
 const sendClientConfirmationAfterPayment = clientConfirmationMail.sendAfterPayment;
+const sendClientConfirmationEmail = clientConfirmationMail.sendClientConfirmationEmail;
 
 /* ── DB helpers (fallback mémoire si Supabase absent) ── */
 let _mem = [];
@@ -1074,6 +1075,31 @@ app.patch('/api/reservations/:id', adminLimiter, async (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+app.post('/api/reservations/:id/resend-confirmation', adminLimiter, async (req, res) => {
+  const { pwd } = req.body || {};
+  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  const r = await dbGetById(req.params.id);
+  if (!r) return res.status(404).json({ error: 'Introuvable' });
+  const email = String(r.email || '').trim();
+  if (!email) {
+    return res.status(400).json({ error: 'no_email', message: 'Aucun email client enregistré.' });
+  }
+  if (r.status === 'cancelled') {
+    return res.status(409).json({ error: 'cancelled', message: 'Réservation annulée.' });
+  }
+  try {
+    const out = await sendClientConfirmationEmail(r, { force: true });
+    if (out.reason === 'no_email') {
+      return res.status(400).json({ error: 'no_email', message: 'Aucun email client.' });
+    }
+    console.log('[Resend] Confirmation renvoyée à', email, '—', r.ref || r.id);
+    res.json({ ok: true, to: email });
+  } catch (e) {
+    console.error('[Resend] confirmation admin:', e.message);
+    res.status(500).json({ error: 'send_failed', message: e.message || 'Envoi impossible' });
+  }
 });
 
 app.post('/api/check-availability', publicLimiter, async (req, res) => {

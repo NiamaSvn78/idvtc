@@ -137,6 +137,9 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
 /* ── MODAL CONDUCTEUR ── */
 .btn-assign{flex:1;background:none;border:1px solid var(--gold-border);color:var(--gold);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:.35rem}
 .btn-assign:hover{background:var(--gold-dim);border-color:var(--gold)}
+.btn-resend-confirm{flex:1;background:none;border:1px solid var(--subtle);color:var(--muted);padding:.6rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.btn-resend-confirm:hover:not(:disabled){border-color:var(--gold-border);color:var(--gold)}
+.btn-resend-confirm:disabled{opacity:.45;cursor:not-allowed}
 .driver-list{display:flex;flex-direction:column;gap:.35rem;max-height:200px;overflow-y:auto;margin-bottom:.6rem}
 .driver-item{display:flex;align-items:center;gap:.6rem;background:var(--dark3);border:1px solid var(--subtle);padding:.55rem .8rem;cursor:pointer;transition:border-color .15s;border-radius:1px}
 .driver-item:hover{border-color:var(--gold-border)}
@@ -774,6 +777,7 @@ function openTrip(id, courseIdx){
     ${r.driverOrderSentAt ? row('Collègue assigné', '<strong style="color:var(--gold)">'+escHtml(colleagueDisplayName(r) || r.driverOrderSentTo || '—')+'</strong>') : ''}
     ${r.driverOrderSentAt && r.assignedDriverPlate ? row('Plaque collègue', escHtml(r.assignedDriverPlate)) : ''}
     ${r.driverOrderSentAt ? row('Bon envoyé le', '✉ '+fmtDriverOrderSent(r.driverOrderSentAt)+' → '+escHtml(r.driverOrderSentTo||'—')) : ''}
+    ${r.email ? row('E-mail confirmation', r.confirmationEmailSent ? '✓ Déjà envoyé' : '— Pas encore envoyé') : ''}
   `;
   const foot = document.getElementById('tm-foot');
   foot.innerHTML = '';
@@ -795,6 +799,14 @@ function openTrip(id, courseIdx){
     btnCall.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 3a1 1 0 0 0-1 1v1a14 14 0 0 0 14 14h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-.553-.894l-3-1.5a1 1 0 0 0-1.136.18l-.92.92a10 10 0 0 1-5.1-5.1l.92-.92a1 1 0 0 0 .18-1.136l-1.5-3A1 1 0 0 0 5 3z"/></svg> Appeler`;
     foot.appendChild(btnCall);
   }
+  if(r.email && r.status !== 'cancelled'){
+    const btnResend = document.createElement('button');
+    btnResend.className = 'btn-resend-confirm';
+    btnResend.style.cssText = 'width:100%;flex:none;margin-top:.2rem';
+    btnResend.innerHTML = '✉ ' + (r.confirmationEmailSent ? 'Renvoyer l\'e-mail client (QR)' : 'Envoyer l\'e-mail client (QR)');
+    btnResend.onclick = () => resendClientConfirmation(id, btnResend);
+    foot.appendChild(btnResend);
+  }
   /* Bouton "Passer à un conducteur" — toujours visible */
   const btnAssign = document.createElement('button');
   btnAssign.className = 'btn-assign';
@@ -803,6 +815,34 @@ function openTrip(id, courseIdx){
   btnAssign.onclick = () => { closeTripModal(); openDriverModal(id); };
   foot.appendChild(btnAssign);
   document.getElementById('trip-ov').classList.add('open');
+}
+async function resendClientConfirmation(id, btn){
+  const r = reservations.find(x => x.id === id);
+  if(!r || !r.email){
+    alert('Aucune adresse email pour cette réservation.');
+    return;
+  }
+  const label = r.confirmationEmailSent ? 'Renvoyer' : 'Envoyer';
+  if(!confirm(label + ' l\'e-mail de confirmation (QR codes) à '+r.email+' ?')) return;
+  const el = btn || null;
+  if(el){ el.disabled = true; el.textContent = 'Envoi en cours…'; }
+  try{
+    const res = await fetch('/api/reservations/'+encodeURIComponent(id)+'/resend-confirmation', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pwd:PWD})
+    });
+    const raw = await res.text();
+    let data = {};
+    try{ data = raw ? JSON.parse(raw) : {}; }catch{}
+    if(!res.ok) throw new Error(data.message || data.error || ('Erreur '+res.status));
+    alert('E-mail envoyé à '+ (data.to || r.email));
+    await reloadRes();
+    openTrip(id, currentCourseIdx);
+  }catch(e){
+    alert('Échec : '+(e.message||'envoi impossible'));
+    if(el){ el.disabled = false; el.innerHTML = '✉ '+(r.confirmationEmailSent ? 'Renvoyer l\'e-mail client (QR)' : 'Envoyer l\'e-mail client (QR)'); }
+  }
 }
 function row(k,v){ return `<div class="detail-row"><span class="dr-k">${k}</span><span class="dr-v">${v}</span></div>`; }
 function fmtDriverOrderSent(iso){
