@@ -778,13 +778,12 @@ async function sendClientConfirmationEmail(r) {
     : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
 
   const attachments = [
-    { content: qrBuffer, filename: 'qr-reservation.png', content_id: qrCid, disposition: 'inline', content_type: 'image/png' },
+    { content: qrBuffer, filename: 'qr-reservation.png', inlineContentId: qrCid, contentType: 'image/png' },
     ...prestQrBuffers.map((buf, i) => ({
       content: buf,
       filename: `qr-course-${i + 2}.png`,
-      content_id: prestQrCids[i],
-      disposition: 'inline',
-      content_type: 'image/png'
+      inlineContentId: prestQrCids[i],
+      contentType: 'image/png'
     }))
   ];
 

@@ -2475,10 +2475,14 @@ function renderPrice(km){
     document.getElementById('d-km').textContent='Forfait fixe '+meta.shortLabel;
     document.getElementById('d-breakdown').innerHTML=mkBR([[i18n('recap.package'),meta.packageLabel],[i18n('recap.vehicle'),VNAME[S.veh]],[i18n('recap.type'),tRound?i18n('wizard.round_trip'):i18n('wizard.one_way')],...extraRows],total);
   } else {
+    const tRound=S.tTripMode==='round-trip'||S.tTripMode==='split';
     const t=CFG.tarifs[S.veh],raw=km*t.km;
-    total=Math.ceil(Math.max(raw,t.min));
+    const base=Math.ceil(Math.max(raw,t.min));
+    total=tRound?base*2:base;
     document.getElementById('d-km').textContent=km.toFixed(1)+' km';
-    document.getElementById('d-breakdown').innerHTML=mkBR([[i18n('recap.vehicle'),VNAME[S.veh]],[`${i18n('recap.distance')} (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €']],total);
+    const brRows=[[i18n('recap.vehicle'),VNAME[S.veh]],[`${i18n('recap.distance')} (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €'],[i18n('recap.type'),tRound?i18n('wizard.round_trip'):i18n('wizard.one_way')]];
+    if(tRound)brRows.push([i18n('extra.round_trip_x2'),base+' € × 2']);
+    document.getElementById('d-breakdown').innerHTML=mkBR(brRows,total);
   }
   S.price=total;
   document.getElementById('d-price').textContent=total;
@@ -2702,17 +2706,17 @@ function buildReservationData(paymentMethod){
       const retDate = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rdate`)?.value || '') : '';
       const retTime = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rtime`)?.value || '') : '';
       const retPart = retAddr ? ` · Retour: ${retAddr}${retDate ? ' ' + retDate : ''}${retTime ? ' ' + retTime : ''}` : '';
-      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal}${timeVal ? ' ' + timeVal : ''} · ${p.price}€]`;
+      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal}${timeVal ? ' ' + timeVal : ''}]`;
     } else if (p.tab === 'm') {
       const mdep = (document.getElementById(`i-pn${p.id}mdep`)?.value || '').substring(0, 40);
-      return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${dateVal} · ${p.price}€]`;
+      return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${VNAME[p.veh||'van']} · ${dateVal}]`;
     } else {
       const dep = (document.getElementById(`i-pn${p.id}dep`)?.value || '').substring(0, 30);
       const arr = (document.getElementById(`i-pn${p.id}arr`)?.value || '').substring(0, 30);
       const retDateT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trdate`)?.value || '') : '';
       const retTimeT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trtime`)?.value || '') : '';
       const retPartT = retDateT ? ` · Retour: ${retDateT}${retTimeT ? ' ' + retTimeT : ''}` : '';
-      return `[Prestation ${num}: Transfert ${dep} → ${arr} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${dateVal}${retPartT} · ${p.price > 0 ? p.price + '€' : 'prix non calculé'}]`;
+      return `[Prestation ${num}: Transfert ${dep} → ${arr} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${dateVal}${retPartT}]`;
     }
   }).join(' ');
   if (prestsInfo) notes = notes ? notes + ' ' + prestsInfo : prestsInfo;
@@ -2812,7 +2816,7 @@ function getPrestHTML(n) {
   return `<div class="prest-panel" id="prest-${n}">
   <div class="prest-header">
     <span class="prest-title"></span>
-    <button class="prest-rm" onclick="removePrest(${n})">✕ ${i18n('wizard.service2_remove')}</button>
+    <button class="prest-rm" onclick="removePrest(${n})">${i18n('wizard.service2_remove')}</button>
   </div>
   <div class="trip-type-grid" id="ttg-pn${n}" style="margin-bottom:1rem">
     <div class="trip-type-btn on" onclick="selTripTypeN(${n},'p',this)"><div class="ttb-ico">✈</div><div class="ttb-name">${i18n('wizard.s2_airport_name')}</div><div class="ttb-sub">${i18n('wizard.s2_airport_sub')}</div></div>
@@ -2958,6 +2962,8 @@ function selTripTypeN(pid, type, el) {
   document.querySelectorAll('#prest-' + pid + ' .trip-fields').forEach(f => f.classList.remove('active'));
   const tf = document.getElementById('tf-pn' + pid + '-' + type);
   if (tf) tf.classList.add('active');
+  const tmg = document.getElementById('tmg-pn' + pid);
+  if (tmg) tmg.style.display = type === 'm' ? 'none' : '';
   calcPrestPrice(pid);
 }
 function selPackN(pid, pack, el) {
