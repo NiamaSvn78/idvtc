@@ -589,6 +589,49 @@ async function notifyAdminTelegramPayment(r, sourceTag) {
   }
 }
 
+async function notifyAdminTelegramCancellation(r, refundAmount, tier) {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = String(process.env.TELEGRAM_ADMIN_CHAT_ID || '').trim();
+  if (!token || !chatId) return;
+
+  const refundLabel = tier === 'full' ? `Remboursement total : ${refundAmount} €`
+    : tier === 'half' ? `Remboursement partiel : ${refundAmount} €`
+    : 'Aucun remboursement';
+
+  const lines = [
+    '❌ Annulation de course — IsmaDrive',
+    '',
+    'Réf: ' + tgPlain(r.ref || r.id, 48),
+    'Client: ' + tgPlain(r.client, 80),
+    'Trajet: ' + tgPlain(r.trajet, 150),
+    'Quand: ' + tgPlain(r.date, 14) + ' · ' + tgPlain(r.time, 8),
+    refundLabel,
+  ];
+  const tel = String(r.tel || '').trim();
+  if (tel) lines.push('Tél: ' + tgPlain(tel, 24));
+
+  let text = lines.join('\n');
+  if (text.length > 3900) text = text.slice(0, 3890) + '…';
+
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 12000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }),
+      signal: ac.signal,
+    });
+    const raw = await res.text();
+    if (!res.ok) console.error('[Telegram] annulation HTTP', res.status, raw.slice(0, 500));
+  } catch (e) {
+    console.error('[Telegram] annulation:', e.message || e);
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /* ── Stripe webhook — doit être AVANT express.json() ── */
 app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   if (!stripe || !STRIPE_WEBHOOK_SECRET) return res.status(500).json({ error: 'Stripe non configuré' });
@@ -1243,6 +1286,10 @@ app.post('/api/cancel-reservation', publicLimiter, async (req, res) => {
       html: buildCancellationClientEmailHtml(r, refundAmount, tier),
     }).catch(e => console.error('[Cancel] Email client:', e.message));
   }
+
+  notifyAdminTelegramCancellation(r, refundAmount, tier).catch(e =>
+    console.error('[Telegram] annulation:', e.message)
+  );
 
   if (RESEND_API_KEY && RESEND_FROM && ADMIN_PAYMENT_NOTIFY_EMAIL) {
     const resend = new Resend(RESEND_API_KEY);
