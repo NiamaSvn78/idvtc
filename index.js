@@ -41,6 +41,10 @@ const supabase = SUPABASE_URL && SUPABASE_SERVICE_KEY
 const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
 
 const { createClientConfirmationMailer } = require('./lib/client-confirmation-email');
+const {
+  buildReservationValidationHtml,
+  reservationUrl: bookingReservationUrl,
+} = require('./lib/booking-courses');
 const clientConfirmationMail = createClientConfirmationMailer({
   appUrl: APP_URL,
   from: RESEND_FROM,
@@ -1302,6 +1306,26 @@ app.post('/api/cancel-reservation', publicLimiter, async (req, res) => {
   }
 
   res.json({ ok: true, tier, refundAmount });
+});
+
+/* Page publique : scan QR → validation (une page par course via ?course=N) */
+app.get('/reservation/:id', publicLimiter, async (req, res) => {
+  const r = await dbGetById(req.params.id).catch(() => null);
+  const course = Math.max(1, parseInt(String(req.query.course || '1'), 10) || 1);
+  res.send(buildReservationValidationHtml(r, course));
+});
+
+app.get('/api/reservations/:id/qrcode', publicLimiter, async (req, res) => {
+  const course = Math.max(1, parseInt(String(req.query.course || '1'), 10) || 1);
+  const url = bookingReservationUrl(APP_URL, req.params.id, course);
+  try {
+    const png = await QRCode.toBuffer(url, { width: 300, margin: 2, errorCorrectionLevel: 'M' });
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(png);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 app.get('/annuler-reservation', (_req, res) => {

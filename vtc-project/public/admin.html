@@ -659,9 +659,12 @@ function renderGrid(){
       col.appendChild(nl);
     }
 
-    /* Blocs de courses */
-    const dayRes = reservations.filter(r => r.date === dk);
-    dayRes.forEach(r => col.appendChild(buildBlock(r)));
+    /* Blocs de courses — une carte par course (multi-prestations) */
+    reservations.forEach(r => {
+      expandReservationToCourses(r).forEach(c => {
+        if (c.date === dk) col.appendChild(buildBlock(c));
+      });
+    });
 
     grid.appendChild(col);
   }
@@ -677,9 +680,13 @@ function colleagueDisplayName(r){
   return '';
 }
 
-function buildBlock(r){
-  const startMin = timeToMin(r.time);
-  const dur = Number(r.durationMin || 60);
+function buildBlock(c){
+  const r = c.reservation || c;
+  const courseIdx = c.courseIdx || 1;
+  const time = c.time || r.time;
+  const trajet = c.trajet || r.trajet;
+  const startMin = timeToMin(time);
+  const dur = Number(c.durationMin || r.durationMin || 60);
   const top = (startMin/60 - DAY_START) * HOUR_H;
   const height = Math.max((dur / 60) * HOUR_H, 22);
   const veh = r.vehicle || 'manual';
@@ -687,21 +694,23 @@ function buildBlock(r){
   const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':clsVeh);
   const coll = r.driverOrderSentAt ? colleagueDisplayName(r) : '';
   const bonTitle = r.driverOrderSentAt ? ('Bon collègue · ' + (r.driverOrderSentTo || '')) : '';
+  const courseTag = courseIdx > 1 ? `<span class="tb-badge" style="right:auto;left:4px;background:rgba(201,169,110,.25)">C${courseIdx}</span>` : '';
 
   const div = document.createElement('div');
   div.className = `tb ${cls}`;
   div.style.cssText = `top:${top}px;height:${height}px`;
   const endMin = startMin + dur;
   div.innerHTML = `
-    <div class="tb-time">${r.time} – ${minToTime(endMin)}</div>
-    <div class="tb-route">${(r.trajet||'').substring(0,26)}</div>
+    <div class="tb-time">${time} – ${minToTime(endMin)}</div>
+    <div class="tb-route">${(trajet||'').substring(0,26)}</div>
     ${r.client ? `<div class="tb-client">${r.client.substring(0,18)}</div>` : ''}
     ${r.driverOrderSentAt ? (coll
       ? `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ ${escHtml(coll.length > 16 ? coll.slice(0,16)+'…' : coll)}</div>`
       : `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ bon envoyé</div>`) : ''}
     <span class="tb-badge">${VEH_LABEL[veh]||veh}</span>
+    ${courseTag}
   `;
-  div.onclick = () => openTrip(r.id);
+  div.onclick = () => openTrip(r.id, courseIdx);
   return div;
 }
 
@@ -722,14 +731,20 @@ function goToday(){ weekStart = getMonday(new Date()); renderCalendar(); updateS
 
 /* ── MODAL DÉTAIL ── */
 let currentTripId = null;
-function openTrip(id){
+let currentCourseIdx = 1;
+function openTrip(id, courseIdx){
+  courseIdx = courseIdx || 1;
   const r = reservations.find(x => x.id === id);
   if(!r) return;
   currentTripId = id;
+  currentCourseIdx = courseIdx;
+  const courses = expandReservationToCourses(r);
+  const cur = courses.find(x => x.courseIdx === courseIdx) || courses[0];
   const equip = [r.equipment].filter(Boolean).join(', ') || 'Aucun';
   const statusClass = r.status === 'cancelled' ? 'status-cancelled' : r.status === 'done' ? 'status-done' : 'status-confirmed';
   const statusLabel = r.status === 'cancelled' ? 'Annulé' : r.status === 'done' ? 'Terminé' : 'Confirmé';
-  document.getElementById('tm-title').textContent = r.trajet || 'Course';
+  const titleSuffix = courseIdx > 1 ? ` (${cur.label || 'Course ' + courseIdx})` : (courses.length > 1 ? ' (Course 1)' : '');
+  document.getElementById('tm-title').textContent = (cur.trajet || r.trajet || 'Course') + titleSuffix;
   /* Séparer les [Prestation N: ...] des notes libres */
   const prestBlocks = [], notesRaw = r.notes || '';
   const notesClean = notesRaw.replace(/\[Prestation \d+:[^\]]*\]/g, m => { prestBlocks.push(m); return ''; }).trim();
@@ -744,7 +759,8 @@ function openTrip(id){
     <span class="modal-status ${statusClass}">${statusLabel}</span>
     <div style="height:.8rem"></div>
     ${row('Référence', r.ref||r.id)}
-    ${row('Date', fmtDate(r.date)+' · '+r.time)}
+    ${courses.length > 1 ? row('Course', cur.label || ('Course '+courseIdx)) : ''}
+    ${row('Date', fmtDate(cur.date || r.date)+' · '+(cur.time || r.time))}
     ${row('Durée estimée', (r.durationMin||60)+' min')}
     ${row('Véhicule', VEH_LABEL[r.vehicle]||r.vehicle||'—')}
     ${row('Équipement', equip)}
@@ -896,6 +912,42 @@ function parsePrestationsClient(notes){
   let m;
   while((m = regex.exec(notes)) !== null) results.push(m[1].trim());
   return results;
+}
+function parsePrestationFieldsClient(detail){
+  const parts = detail.split(' · ').map(p => p.trim());
+  const dateTimeIdx = parts.findIndex(p => /^\d{4}-\d{2}-\d{2}/.test(p));
+  const raw = dateTimeIdx > -1 ? parts[dateTimeIdx] : '';
+  const date = raw.substring(0, 10);
+  const time = raw.length > 10 ? raw.substring(11, 16) : '';
+  const routeEnd = dateTimeIdx > -1 ? dateTimeIdx : parts.length;
+  const route = parts.slice(0, routeEnd).join(' · ');
+  return { date, time, route };
+}
+/** Une carte calendrier par course (principale + chaque prestation). */
+function expandReservationToCourses(r){
+  const courses = [{
+    reservation: r,
+    courseIdx: 1,
+    date: r.date,
+    time: r.time,
+    trajet: r.trajet,
+    durationMin: Number(r.durationMin) || 60,
+    label: 'Course 1'
+  }];
+  parsePrestationsClient(r.notes).forEach((detail, i) => {
+    const pf = parsePrestationFieldsClient(detail);
+    courses.push({
+      reservation: r,
+      courseIdx: i + 2,
+      date: pf.date || r.date,
+      time: pf.time || r.time,
+      trajet: pf.route || r.trajet,
+      durationMin: 60,
+      label: 'Course ' + (i + 2),
+      detail
+    });
+  });
+  return courses;
 }
 async function openDriverModal(id){
   currentDriverTripId = id;
