@@ -82,7 +82,7 @@ function generateResRef() {
     String(now.getDate()).padStart(2, '0');
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let rand = '';
-  for (let i = 0; i < 4; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < 6; i++) rand += chars[Math.floor(Math.random() * chars.length)];
   return `RES-${d}-${rand}`;
 }
 
@@ -108,18 +108,24 @@ function requireBasicAuth(req, res, next) {
 /* ── DB HELPERS ── */
 function wrapSupabaseErr(error) {
   const msg = error?.message || String(error);
+  let fullMsg = msg;
   if (/schema cache|could not find the table/i.test(msg)) {
-    return new Error(
-      msg +
-        ' Vérifiez que SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sur Vercel sont ceux du même projet Supabase où la table public.reservations existe (SQL / migrations).'
-    );
+    fullMsg = msg + ' Vérifiez que SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sur Vercel sont ceux du même projet Supabase où la table public.reservations existe (SQL / migrations).';
   }
-  return new Error(msg);
+  const err = new Error(fullMsg);
+  err.pgCode   = error?.code    || null;
+  err.pgDetail = error?.details || null;
+  err.pgHint   = error?.hint    || null;
+  return err;
 }
 
 async function dbInsertRes(r) {
-  const { error } = await supabase.from('reservations').insert(r);
-  if (error) throw wrapSupabaseErr(error);
+  const { error, status } = await supabase.from('reservations').insert(r);
+  if (error) {
+    const err = wrapSupabaseErr(error);
+    err.supabaseStatus = status;
+    throw err;
+  }
 }
 
 async function dbListRes() {
@@ -220,10 +226,20 @@ function missionToken(id) {
   return crypto.createHmac('sha256', ADMIN_PWD).update(id).digest('hex').slice(0, 20);
 }
 
+const PENDING_LOCK_MS = 15 * 60 * 1000; // 15 min — délai max pour finaliser un paiement Stripe
+
 async function checkConflict(date, time, durationMin, excludeId = null) {
+  const now      = Date.now();
   const newStart = timeToMin(time);
   const newEnd   = newStart + Number(durationMin) + BUFFER_MIN;
-  const dayRes   = (await dbListResByDate(date)).filter(r => r.id !== excludeId);
+  const dayRes   = (await dbListResByDate(date)).filter(r => {
+    if (r.id === excludeId) return false;
+    // Une réservation pending_payment abandonnée (> 15 min) ne bloque plus le créneau
+    if (r.status === 'pending_payment') {
+      return (now - new Date(r.createdAt).getTime()) < PENDING_LOCK_MS;
+    }
+    return true;
+  });
   for (const r of dayRes) {
     const rStart = timeToMin(r.time);
     const rEnd   = rStart + Number(r.durationMin || 60) + BUFFER_MIN;
@@ -712,22 +728,45 @@ async function sendClientConfirmationEmail(r) {
     return { ok: true, skipped: true };
   }
 
-  const qrDataUrl = await buildConfirmationQrDataUrl(r);
+  // CID inline attachment : évite le blocage base64 dans Gmail / Outlook
+  const qrBuffer = await QRCode.toBuffer(`${APP_URL}/reservation/${r.id}`, {
+    width: 260, margin: 2, errorCorrectionLevel: 'M',
+    color: { dark: '#000000', light: '#ffffff' }
+  });
   const prestDetails = parsePrestationsFromNotes(r.notes);
-  const prestQrs = await Promise.all(
+  const prestQrBuffers = await Promise.all(
     prestDetails.map((_, i) =>
-      QRCode.toDataURL(`${APP_URL}/reservation/${r.id}?course=${i + 2}`, {
+      QRCode.toBuffer(`${APP_URL}/reservation/${r.id}?course=${i + 2}`, {
         width: 200, margin: 2, errorCorrectionLevel: 'M',
-        type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
+        color: { dark: '#000000', light: '#ffffff' }
       })
     )
   );
-  const html = buildClientConfirmationHtml(r, qrDataUrl, prestDetails, prestQrs);
+
+  const qrCid = 'qr_main';
+  const prestQrCids = prestDetails.map((_, i) => `qr_course_${i + 2}`);
+  const html = buildClientConfirmationHtml(
+    r,
+    `cid:${qrCid}`,
+    prestDetails,
+    prestQrCids.map(c => `cid:${c}`)
+  );
   const subject = r.lang === 'en'
     ? `IsmaDrive — Booking confirmed · Ref. ${r.ref || r.id}`
     : `IsmaDrive — Réservation confirmée · Réf. ${r.ref || r.id}`;
 
-  const payload = { from: RESEND_FROM, to: email, subject, html };
+  const attachments = [
+    { content: qrBuffer, filename: 'qr-reservation.png', content_id: qrCid, disposition: 'inline', content_type: 'image/png' },
+    ...prestQrBuffers.map((buf, i) => ({
+      content: buf,
+      filename: `qr-course-${i + 2}.png`,
+      content_id: prestQrCids[i],
+      disposition: 'inline',
+      content_type: 'image/png'
+    }))
+  ];
+
+  const payload = { from: RESEND_FROM, to: email, subject, html, attachments };
   if (RESEND_BCC_EMAIL && RESEND_BCC_EMAIL.toLowerCase() !== email.toLowerCase()) {
     payload.bcc = [RESEND_BCC_EMAIL];
   }
@@ -1088,19 +1127,46 @@ app.post('/api/create-checkout-session', async (req, res) => {
     return res.status(503).json({ error: 'Stripe non configuré — ajoutez STRIPE_SECRET_KEY dans vos variables d\'environnement.' });
   }
   const { date, time, durationMin, price, trajet, email } = req.body;
-  const id     = Date.now().toString(36).toUpperCase().slice(-8);
-  const ref    = generateResRef();
+  const conflict = await checkConflict(date, time, Number(durationMin) || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+
   const consentTimestamp = req.body.consentTimestamp || new Date().toISOString();
   const policyVersion    = req.body.policyVersion    || '2025.05';
-  const newRes = { ...req.body, id, ref, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion };
 
-  try {
-    await dbInsertRes(newRes);
-  } catch (err) {
-    console.error('Supabase insert error:', err.message);
-    return res.status(500).json({ error: 'Erreur base de données : ' + err.message });
+  let finalId  = crypto.randomBytes(8).toString('hex').toUpperCase();
+  let finalRef = generateResRef();
+  let insertErr = null;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      finalId  = crypto.randomBytes(8).toString('hex').toUpperCase();
+      finalRef = generateResRef();
+      console.warn('[DB] conflict 23505 tentative %d — nouvel id/ref générés', attempt + 1);
+    }
+    const newRes = { ...req.body, id: finalId, ref: finalRef, status: 'pending_payment', paymentStatus: 'unpaid', createdAt: new Date().toISOString(), consentTimestamp, policyVersion };
+    try {
+      await dbInsertRes(newRes);
+      insertErr = null;
+      break;
+    } catch (err) {
+      insertErr = err;
+      if (err.pgCode !== '23505') break;
+    }
   }
 
+  if (insertErr) {
+    const httpStatus = insertErr.supabaseStatus || 500;
+    console.error('[DB] insert error status=%s code=%s detail=%s msg=%s', httpStatus, insertErr.pgCode, insertErr.pgDetail, insertErr.message);
+    return res.status(httpStatus).json({
+      error: 'Erreur base de données : ' + insertErr.message,
+      pgCode: insertErr.pgCode,
+      pgDetail: insertErr.pgDetail,
+      pgHint: insertErr.pgHint,
+      supabaseStatus: httpStatus,
+    });
+  }
+
+  const lang = req.body.lang || 'fr';
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -1114,12 +1180,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email || undefined,
-      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(ref)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(newRes.lang || 'fr')}`,
+      success_url: `${APP_URL}/payment-success?ref=${encodeURIComponent(finalRef)}&session_id={CHECKOUT_SESSION_ID}&lang=${encodeURIComponent(lang)}`,
       cancel_url: `${APP_URL}/?cancelled=1`,
-      metadata: { reservationId: id },
+      metadata: { reservationId: finalId },
     });
 
-    res.json({ url: session.url, id });
+    res.json({ url: session.url, id: finalId });
   } catch (err) {
     console.error('Stripe error:', err.message);
     res.status(500).json({ error: 'Erreur Stripe : ' + err.message });
@@ -1136,7 +1202,7 @@ app.post('/api/check-availability', async (req, res) => {
     return res.json({
       available: false,
       conflict: { ref: conflict.ref, trajet: conflict.trajet, time: conflict.time },
-      nextSlot: next
+      nextSlot: next,
     });
   }
   res.json({ available: true });
@@ -1149,15 +1215,18 @@ app.get('/api/availability', async (req, res) => {
   const dayRes = await dbListResByDate(date);
   const slots  = dayRes.map(r => ({
     startMin: timeToMin(r.time),
-    endMin:   timeToMin(r.time) + Number(r.durationMin || 60) + BUFFER_MIN
+    endMin:   timeToMin(r.time) + Number(r.durationMin || 60) + BUFFER_MIN,
   }));
   res.json({ date, slots });
 });
 
 /* ── API : SAUVEGARDER RÉSERVATION ── */
 app.post('/api/reservations', async (req, res) => {
-  const id     = Date.now().toString(36).toUpperCase().slice(-8);
-  const ref    = generateResRef();
+  const { date, time, durationMin } = req.body;
+  const conflict = await checkConflict(date, time, durationMin || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+  const id  = crypto.randomBytes(8).toString('hex').toUpperCase();
+  const ref = generateResRef();
   const newRes = { ...req.body, id, ref, createdAt: new Date().toISOString() };
   await dbInsertRes(newRes);
   res.json({ ok: true, id, ref, urlValidation: `${APP_URL}/reservation/${id}` });
@@ -1173,7 +1242,9 @@ app.get('/api/reservations', async (req, res) => {
 app.post('/api/reservations/manual', async (req, res) => {
   const { pwd, ...data } = req.body;
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  const id     = Date.now().toString(36).toUpperCase().slice(-8);
+  const conflict = await checkConflict(data.date, data.time, data.durationMin || 60);
+  if (conflict) return res.status(409).json({ error: 'Créneau indisponible', conflict });
+  const id  = crypto.randomBytes(8).toString('hex').toUpperCase();
   const newRes = { ...data, id, status: 'confirmed', source: 'manual', createdAt: new Date().toISOString() };
   await dbInsertRes(newRes);
   res.json({ ok: true, id });
@@ -1450,43 +1521,77 @@ body{font-family:Arial,Helvetica,sans-serif;background:#f0f0f0;color:#111;min-he
    ADMIN — LISTE DES RÉSERVATIONS
    ══════════════════════════════════════════════════════════════ */
 function buildAdminListHtml(reservations, search, pwd) {
-  const today    = new Date().toISOString().split('T')[0];
-  const q        = (search || '').toLowerCase().trim();
-  const filtered = reservations
-    .filter(r => {
-      if (q) {
-        return (r.ref || '').toLowerCase().includes(q) ||
-               (r.id  || '').toLowerCase().includes(q) ||
-               (r.client || '').toLowerCase().includes(q);
-      }
-      return r.date === today && r.status !== 'cancelled';
-    })
-    .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const today = new Date().toISOString().split('T')[0];
+  const q     = (search || '').toLowerCase().trim();
 
-  const cards = filtered.map(r => {
+  // Éclater chaque réservation en une carte par course (principale + prestations)
+  const items = [];
+  reservations.forEach(r => {
+    const matchSearch = !q ||
+      (r.ref    || '').toLowerCase().includes(q) ||
+      (r.id     || '').toLowerCase().includes(q) ||
+      (r.client || '').toLowerCase().includes(q);
+    if (!matchSearch) return;
+
+    // Course 1 — champs principaux de la réservation
+    const showMain = q ? true : (r.date === today && r.status !== 'cancelled');
+    if (showMain) {
+      items.push({ r, date: r.date, time: r.time, trajet: r.trajet, price: r.price, courseIdx: null });
+    }
+
+    // Courses 2+ — extraites des notes
+    const prestDetails = parsePrestationsFromNotes(r.notes);
+    prestDetails.forEach((detail, i) => {
+      const pf = parsePrestationFields(detail);
+      const showPrest = q ? true : (pf.date === today && r.status !== 'cancelled');
+      if (showPrest) {
+        items.push({
+          r,
+          date:    pf.date  || r.date,
+          time:    pf.time  || '',
+          trajet:  pf.route || r.trajet,
+          price:   pf.price ? Number(pf.price) : r.price,
+          courseIdx: i + 2
+        });
+      }
+    });
+  });
+
+  // Tri global par date puis heure
+  items.sort((a, b) => {
+    const da = (a.date || '') + 'T' + (a.time || '00:00');
+    const db = (b.date || '') + 'T' + (b.time || '00:00');
+    return da.localeCompare(db);
+  });
+
+  const cards = items.map(({ r, date, time, trajet, price, courseIdx }) => {
     const ref         = escHtml(r.ref || r.id || '');
     const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
     const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
-    const collStrong =
+    const collStrong  =
       String(r.assignedDriverName || '').trim() ||
       emailLocalPart(r.driverOrderSentTo) ||
       String(r.driverOrderSentTo || '').trim() ||
       '—';
+    const courseBadge = courseIdx
+      ? `<span style="background:#1a4a6a22;color:#1a4a6a;padding:1px 7px;border-radius:10px;font-size:.66rem;font-weight:bold;margin-left:6px">Course ${courseIdx}</span>`
+      : '';
+    const bonUrl = `/admin/reservations/${escHtml(r.id)}${pwd ? '?pwd=' + encodeURIComponent(pwd) : ''}`;
     return `<div style="background:#fff;border-radius:6px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 8px rgba(0,0,0,.08);border-left:4px solid ${statusColor}">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-    <div style="font-family:monospace;font-size:.82rem;color:#555">${ref}</div>
+    <div style="display:flex;align-items:center"><span style="font-family:monospace;font-size:.82rem;color:#555">${ref}</span>${courseBadge}</div>
     <span style="background:${statusColor}22;color:${statusColor};padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:bold">${statusLabel}</span>
   </div>
   <div style="font-size:1rem;font-weight:bold;margin-bottom:4px">${escHtml(r.client || '—')}</div>
   ${r.tel ? `<div style="margin-bottom:4px"><a href="tel:${escHtml(r.tel)}" style="color:#c9a96e;text-decoration:none;font-size:.85rem">📞 ${escHtml(r.tel)}</a></div>` : ''}
-  <div style="font-size:.83rem;color:#555;margin-bottom:2px">🕐 ${escHtml(r.time || '—')}${r.date && r.date !== today ? ' — ' + escHtml(fmtDateFr(r.date)) : ''}</div>
-  <div style="font-size:.83rem;color:#555;margin-bottom:8px">📍 ${escHtml(r.trajet || '—')}</div>
+  <div style="font-size:.83rem;color:#555;margin-bottom:2px">🕐 ${escHtml(time || '—')}${date && date !== today ? ' — ' + escHtml(fmtDateFr(date)) : ''}</div>
+  <div style="font-size:.83rem;color:#555;margin-bottom:8px">📍 ${escHtml(trajet || '—')}</div>
   ${r.driverOrderSentAt ? `<div style="font-size:.78rem;color:#6a5f4a;margin-bottom:6px">✉ Collègue : <strong>${escHtml(collStrong)}</strong>${r.driverOrderSentTo ? ' <span style="color:#888">· ' + escHtml(r.driverOrderSentTo) + '</span>' : ''}</div>` : ''}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <span style="font-size:.8rem;color:#888">${escHtml(vehicleDisplayName(r))}</span>
-    <span style="font-weight:bold;color:#c9a96e">${Number(r.price || 0).toFixed(2)} €</span>
+    <span style="font-weight:bold;color:#c9a96e">${Number(price || 0).toFixed(2)} €</span>
   </div>
-  <a href="/admin/reservations/${escHtml(r.id)}${pwd ? '?pwd=' + encodeURIComponent(pwd) : ''}" style="display:block;background:#080808;color:#c9a96e;text-align:center;padding:9px;text-decoration:none;font-size:.8rem;border-radius:4px;letter-spacing:.04em">Voir le bon complet →</a>
+  <a href="${bonUrl}" style="display:block;background:#080808;color:#c9a96e;text-align:center;padding:9px;text-decoration:none;font-size:.8rem;border-radius:4px;letter-spacing:.04em">Voir le bon complet →</a>
 </div>`;
   }).join('');
 
@@ -1519,8 +1624,8 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;min-height:100vh}
     <input type="text" name="q" value="${escHtml(q)}" placeholder="Rechercher par numéro RES ou nom client…" autofocus>
   </form>
 </div>
-<div class="date-lbl">${q ? `Résultats pour "${escHtml(q)}"` : `Courses du jour — ${fmtDateFr(today)}`} (${filtered.length})</div>
-<div class="content">${filtered.length === 0 ? '<div class="empty">Aucune course trouvée</div>' : cards}</div>
+<div class="date-lbl">${q ? `Résultats pour "${escHtml(q)}"` : `Courses du jour — ${fmtDateFr(today)}`} (${items.length})</div>
+<div class="content">${items.length === 0 ? '<div class="empty">Aucune course trouvée</div>' : cards}</div>
 </body></html>`;
 }
 

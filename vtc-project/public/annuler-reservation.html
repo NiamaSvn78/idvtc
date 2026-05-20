@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Annulation de réservation — IsmaDrive</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:#e8e4dc;font-family:Arial,sans-serif;min-height:100vh;padding:32px 16px 48px}
+.wrap{max-width:540px;margin:0 auto}
+
+.logo{font-family:Georgia,serif;font-size:1.55rem;color:#c9a96e;letter-spacing:.1em}
+.logo-sub{font-size:.65rem;color:#9a9185;letter-spacing:.22em;text-transform:uppercase;margin-top:3px;margin-bottom:32px}
+
+.st{display:none}
+.st.on{display:block}
+
+.spinner{width:36px;height:36px;border:3px solid #1e1b17;border-top-color:#c9a96e;border-radius:50%;animation:spin .75s linear infinite;margin:48px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.card{background:#111;border:1px solid #252018;border-radius:3px;overflow:hidden;margin-bottom:14px}
+.card-hd{padding:14px 18px;border-bottom:1px solid #1e1b17;background:#0d0d0d}
+.card-lbl{font-size:.6rem;color:#9a9185;text-transform:uppercase;letter-spacing:.16em}
+.card-bd{padding:16px 18px}
+
+.info-t{width:100%;border-collapse:collapse}
+.info-t td{padding:7px 0;font-size:13px;border-bottom:1px solid #1a1916;vertical-align:top}
+.info-t td:first-child{color:#9a9185;width:40%}
+.info-t td:last-child{text-align:right;color:#e8e4dc}
+.info-t tr:last-child td{border-bottom:none}
+.price-val{font-size:15px;font-weight:bold;color:#c9a96e}
+
+.policy-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:2px;margin-bottom:6px;border:1px solid transparent;font-size:13px;transition:border-color .2s,background .2s}
+.policy-row.current{border-color:#c9a96e;background:#160f02}
+.policy-row.dim{opacity:.38}
+.policy-icon{font-size:14px;flex-shrink:0}
+.policy-label{flex:1;line-height:1.4}
+.policy-pct{font-weight:bold;flex-shrink:0}
+.policy-pct.g{color:#3dbe71}
+.policy-pct.y{color:#d4a017}
+.policy-pct.r{color:#d94f4f}
+.current-badge{font-size:.58rem;color:#c9a96e;border:1px solid #c9a96e33;border-radius:2px;padding:1px 5px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;display:none}
+.current .current-badge{display:inline}
+
+.refund-box{padding:14px 16px;border-radius:3px;margin-bottom:14px;font-size:14px;line-height:1.55}
+.refund-box.full{background:#04140a;border:1px solid #27ae60;color:#4ade80}
+.refund-box.half{background:#130e02;border:1px solid #c9860a;color:#f5c842}
+.refund-box.none{background:#130404;border:1px solid #a83232;color:#f87171}
+.refund-box small{font-size:12px;opacity:.75;display:block;margin-top:5px}
+
+.btn-cancel{display:block;width:100%;padding:14px;background:#b83232;color:#fff;border:none;border-radius:3px;font-size:15px;font-weight:bold;cursor:pointer;letter-spacing:.04em;margin-bottom:10px;transition:background .2s}
+.btn-cancel:hover:not(:disabled){background:#a02828}
+.btn-cancel:disabled{opacity:.55;cursor:not-allowed}
+.btn-keep{display:block;width:100%;padding:12px;background:transparent;color:#9a9185;border:1px solid #252018;border-radius:3px;font-size:14px;cursor:pointer;text-align:center;text-decoration:none;transition:border-color .2s,color .2s}
+.btn-keep:hover{border-color:#c9a96e;color:#c9a96e}
+
+.alert{padding:14px 16px;border-radius:3px;font-size:14px;line-height:1.55;margin-bottom:14px}
+.alert.err{background:#130404;border:1px solid #a83232;color:#f87171}
+.alert.ok{background:#04140a;border:1px solid #27ae60;color:#4ade80}
+
+.footer{margin-top:32px;padding-top:16px;border-top:1px solid #181510;text-align:center;font-size:11px;color:#444}
+.footer a{color:#c9a96e;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">IsmaDrive</div>
+  <div class="logo-sub">Annulation de réservation</div>
+
+  <!-- État : chargement -->
+  <div id="s-loading" class="st on">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- État : erreur -->
+  <div id="s-error" class="st">
+    <div class="alert err" id="err-msg">Lien invalide ou expiré.</div>
+    <a href="https://ismadrive.fr" class="btn-keep">← Retour au site</a>
+  </div>
+
+  <!-- État : déjà annulée -->
+  <div id="s-cancelled" class="st">
+    <div class="alert err">Cette réservation a déjà été annulée.</div>
+    <a href="https://ismadrive.fr" class="btn-keep">← Retour au site</a>
+  </div>
+
+  <!-- État : principal -->
+  <div id="s-main" class="st">
+
+    <div class="card">
+      <div class="card-hd"><div class="card-lbl">Votre course</div></div>
+      <div class="card-bd">
+        <table class="info-t">
+          <tr><td>Référence</td><td id="i-ref">—</td></tr>
+          <tr><td>Date &amp; Heure</td><td id="i-date">—</td></tr>
+          <tr><td>Départ</td><td id="i-dep">—</td></tr>
+          <tr><td>Destination</td><td id="i-arr">—</td></tr>
+          <tr><td>Montant payé</td><td><span id="i-price" class="price-val">—</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-lbl">Politique d'annulation</div></div>
+      <div class="card-bd">
+        <div id="p-full" class="policy-row">
+          <span class="policy-icon">✅</span>
+          <span class="policy-label">Plus de 72h avant la course<span class="current-badge">Applicable</span></span>
+          <span class="policy-pct g">100%</span>
+        </div>
+        <div id="p-half" class="policy-row">
+          <span class="policy-icon">🟡</span>
+          <span class="policy-label">Entre 72h et 12h avant<span class="current-badge">Applicable</span></span>
+          <span class="policy-pct y">50%</span>
+        </div>
+        <div id="p-none" class="policy-row">
+          <span class="policy-icon">❌</span>
+          <span class="policy-label">Moins de 12h avant<span class="current-badge">Applicable</span></span>
+          <span class="policy-pct r">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="refund-box" class="refund-box full">
+      <div id="refund-msg"></div>
+    </div>
+
+    <button id="btn-cancel" class="btn-cancel" onclick="doCancel()">Confirmer l'annulation</button>
+    <a href="https://ismadrive.fr" class="btn-keep">Garder ma réservation →</a>
+  </div>
+
+  <!-- État : succès -->
+  <div id="s-success" class="st">
+    <div class="alert ok" id="ok-msg">Votre réservation a bien été annulée. Un email de confirmation vous a été envoyé.</div>
+    <a href="https://ismadrive.fr" class="btn-keep">← Retour au site</a>
+  </div>
+
+  <div class="footer">
+    IsmaDrive — Chauffeur Privé Paris &amp; Île-de-France ·
+    <a href="https://ismadrive.fr">ismadrive.fr</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var token = new URLSearchParams(window.location.search).get('token') || '';
+
+  function show(id) {
+    ['s-loading','s-error','s-cancelled','s-main','s-success'].forEach(function(s){
+      document.getElementById(s).classList.remove('on');
+    });
+    document.getElementById(id).classList.add('on');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var p = iso.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  if (!token) {
+    document.getElementById('err-msg').textContent = 'Lien d\'annulation manquant.';
+    show('s-error');
+    return;
+  }
+
+  fetch('/api/cancel-info?token=' + encodeURIComponent(token))
+    .then(function(r){ return r.json().then(function(d){ return {s: r.status, d: d}; }); })
+    .then(function(res) {
+      if (res.s === 410 && res.d.error === 'already_cancelled') { show('s-cancelled'); return; }
+      if (res.s !== 200) {
+        document.getElementById('err-msg').textContent = res.d.message || res.d.error || 'Lien invalide ou expiré.';
+        show('s-error');
+        return;
+      }
+      var d = res.d;
+
+      document.getElementById('i-ref').textContent  = d.ref   || '—';
+      document.getElementById('i-date').textContent = fmtDate(d.date) + ' à ' + (d.time || '—');
+      document.getElementById('i-dep').textContent  = d.dep   || '—';
+      document.getElementById('i-arr').textContent  = d.arr   || '—';
+      document.getElementById('i-price').textContent = (d.price || 0) + ' €';
+
+      ['full','half','none'].forEach(function(t) {
+        var row = document.getElementById('p-' + t);
+        if (t === d.tier) { row.classList.add('current'); }
+        else              { row.classList.add('dim'); }
+      });
+
+      var box = document.getElementById('refund-box');
+      var msg = document.getElementById('refund-msg');
+      if (d.tier === 'full') {
+        box.className = 'refund-box full';
+        msg.innerHTML = '<strong>Si vous annulez maintenant, vous serez remboursé(e) de ' + d.refundAmount + ' € (100 % du montant payé).</strong><small>Le remboursement sera visible sur votre compte sous 5 à 10 jours ouvrés.</small>';
+      } else if (d.tier === 'half') {
+        box.className = 'refund-box half';
+        msg.innerHTML = '<strong>Si vous annulez maintenant, vous serez remboursé(e) de ' + d.refundAmount + ' € (50 % du montant payé).</strong><small>L\'annulation intervient entre 72h et 12h avant votre course — les frais partiels s\'appliquent.</small>';
+      } else {
+        box.className = 'refund-box none';
+        msg.innerHTML = '<strong>Aucun remboursement ne sera effectué.</strong><small>Votre course est dans moins de 12h. Conformément à notre politique d\'annulation, aucun remboursement n\'est possible dans ce délai.</small>';
+      }
+
+      show('s-main');
+    })
+    .catch(function() {
+      document.getElementById('err-msg').textContent = 'Erreur de connexion. Réessayez plus tard.';
+      show('s-error');
+    });
+
+  window.doCancel = function() {
+    var btn = document.getElementById('btn-cancel');
+    btn.disabled = true;
+    btn.textContent = 'Annulation en cours…';
+
+    fetch('/api/cancel-reservation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token })
+    })
+      .then(function(r){ return r.json().then(function(d){ return {s: r.status, d: d}; }); })
+      .then(function(res) {
+        if (res.s === 200 && res.d.ok) {
+          var msg = document.getElementById('ok-msg');
+          if (res.d.refundAmount > 0) {
+            msg.textContent = 'Votre réservation a bien été annulée. '
+              + (res.d.tier === 'full' ? 'Un remboursement intégral de ' : 'Un remboursement de ')
+              + res.d.refundAmount + ' € sera visible sur votre compte sous 5 à 10 jours ouvrés.'
+              + ' Un email de confirmation vous a été envoyé.';
+          }
+          show('s-success');
+        } else {
+          document.getElementById('err-msg').textContent = (res.d && res.d.error) || 'Erreur lors de l\'annulation. Contactez-nous.';
+          show('s-error');
+        }
+      })
+      .catch(function() {
+        document.getElementById('err-msg').textContent = 'Erreur de connexion. Contactez-nous si le problème persiste.';
+        show('s-error');
+      });
+  };
+}());
+</script>
+</body>
+</html>

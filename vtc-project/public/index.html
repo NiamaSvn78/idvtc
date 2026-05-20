@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -165,6 +165,9 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .d-h{font-size:.95rem;font-weight:500}.d-l{font-size:.6rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .status{text-align:center;padding:.5rem;font-size:.8rem;min-height:24px;color:var(--muted)}
 .status.loading{color:var(--gold)}.status.err{color:#e07070}
+.status.airport-block{background:rgba(201,169,110,.08);border:1px solid var(--gold-border);border-radius:8px;padding:.9rem 1rem;color:var(--text);line-height:1.5;text-align:left}
+.airport-block-btn{display:inline-block;margin-top:.7rem;padding:.45rem 1.1rem;background:var(--gold);color:#111;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:none;border-radius:6px;cursor:pointer}
+.airport-block-btn:hover{opacity:.88}
 .price-box{display:none;margin-top:1.2rem;border:1px solid var(--gold)}.price-box.show{display:block}
 .mad-box{border:1px solid var(--gold);margin-top:1.2rem}
 .price-top{background:var(--gold);padding:1.4rem 1.6rem;display:flex;justify-content:space-between;align-items:center}
@@ -734,8 +737,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .return-date-block{padding:.9rem;background:rgba(201,169,110,.05);border:1px solid var(--gold-border);margin-top:.6rem;margin-bottom:.2rem}
 .return-date-block>.fl{color:var(--gold);font-size:.72rem;margin-bottom:.5rem}
 /* ── 2ÈME PRESTATION ── */
-.add-prest-btn{display:flex;align-items:center;justify-content:center;gap:.55rem;background:none;border:1px dashed var(--subtle);color:var(--muted);padding:.72rem 1rem;font-family:'DM Sans',sans-serif;font-size:.79rem;cursor:pointer;transition:all .22s;width:100%;margin:.9rem 0 0;letter-spacing:.03em}
-.add-prest-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+.add-prest-btn{display:flex;align-items:center;justify-content:center;gap:.55rem;background:rgba(201,169,110,0.08);border:1px solid var(--gold-border);color:var(--gold);padding:.72rem 1rem;font-family:'DM Sans',sans-serif;font-size:.79rem;cursor:pointer;transition:all .22s;width:100%;margin:.9rem 0 0;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.add-prest-btn:hover{background:rgba(201,169,110,0.16);border-color:var(--gold);transform:translateY(-1px)}
 .prest-panel{margin-top:.9rem;border:1px solid var(--gold-border);background:rgba(201,169,110,.04);padding:1.2rem}
 .prest-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
 .prest-title{font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
@@ -811,19 +814,17 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
   <div class="wizard-wrap" id="booking-wizard">
     <!-- Barre de progression -->
     <div class="wiz-progress">
-      <div class="wp-step active" id="wps-1"><div class="wp-dot">1</div><div class="wp-lbl">Trajet</div></div>
+      <div class="wp-step active" id="wps-1"><div class="wp-dot">1</div><div class="wp-lbl" data-i18n="wizard.step1_label">Trajet</div></div>
       <div class="wp-bar" id="wpb-1"></div>
-      <div class="wp-step" id="wps-2"><div class="wp-dot">2</div><div class="wp-lbl">Véhicule</div></div>
+      <div class="wp-step" id="wps-2"><div class="wp-dot">2</div><div class="wp-lbl" data-i18n="wizard.step2_label">Coordonnées</div></div>
       <div class="wp-bar" id="wpb-2"></div>
-      <div class="wp-step" id="wps-3"><div class="wp-dot">3</div><div class="wp-lbl">Coordonnées</div></div>
-      <div class="wp-bar" id="wpb-3"></div>
-      <div class="wp-step" id="wps-4"><div class="wp-dot">4</div><div class="wp-lbl">Paiement</div></div>
+      <div class="wp-step" id="wps-3"><div class="wp-dot">3</div><div class="wp-lbl" data-i18n="wizard.step3_label">Paiement</div></div>
     </div>
 
     <!-- ── STEP 1 : TRAJET ── -->
     <div class="wiz-pane active" id="wpane-1">
-      <p class="section-tag" style="margin-bottom:1rem">Quel type de trajet ?</p>
-      <div class="trip-type-grid">
+      <p class="section-tag" style="margin-bottom:1rem" data-i18n="wizard.your_trip">Quel type de trajet ?</p>
+      <div class="trip-type-grid" id="main-ttg">
         <div class="trip-type-btn on" id="ttb-p" onclick="selTripType('p',this)">
           <div class="ttb-ico">✈</div>
           <div class="ttb-name">Forfait Aéroport</div>
@@ -907,6 +908,37 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
             <div><label class="fl" data-i18n="wizard.return_time_lbl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-prtime-h" onchange="syncTimeVal('i-prtime')"></select><span class="time-sep">:</span><select class="ts" id="i-prtime-m" onchange="syncTimeVal('i-prtime')"></select><input type="hidden" id="i-prtime"></div></div>
           </div>
         </div>
+        <!-- ── Choix du véhicule ── -->
+        <p class="section-tag" style="margin:.9rem 0 .5rem;font-size:.62rem" data-i18n="wizard.your_vehicle">Votre véhicule</p>
+        <div class="v-grid" style="margin:0 0 .8rem">
+          <div class="v-card on" id="wiz-vp-van" onclick="selWizVeh('p','van')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
+            <div class="v-name">Van Premium</div>
+            <div class="v-model">Van · 7 places</div>
+            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+          </div>
+          <div class="v-card" id="wiz-vp-bus" onclick="selWizVeh('p','business')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
+            <div class="v-name">Berline</div>
+            <div class="v-model">Mercedes Classe E</div>
+            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+          </div>
+        </div>
+        <!-- ── Sous-total étape 1 ── -->
+        <div class="price-box show" id="ws1-price-box" style="margin-top:1rem">
+          <div class="price-top">
+            <div>
+              <div class="price-lbl" data-i18n="airport.price_label">Forfait fixe garanti</div>
+              <div class="price-num"><sup>€</sup><span id="ws1-price">100</span></div>
+              <div class="price-veh" id="ws1-veh">Van Premium</div>
+            </div>
+            <div class="price-km" id="ws1-tag">Aéroport CDG ↔ Paris</div>
+          </div>
+          <div class="price-body" id="ws1-breakdown"></div>
+          <div class="price-note" data-i18n="airport.price_note">Tarif fixe · Aucun supplément · Réhausseur &amp; siège bébé inclus sur demande</div>
+        </div>
       </div>
 
       <!-- Champs Transfert -->
@@ -960,6 +992,36 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
         </div>
         <div class="status" id="status-t"></div>
+        <!-- ── Choix du véhicule ── -->
+        <p class="section-tag" style="margin:.9rem 0 .5rem;font-size:.62rem" data-i18n="wizard.your_vehicle">Votre véhicule</p>
+        <div class="v-grid" style="margin:0 0 .8rem">
+          <div class="v-card on" id="wiz-vt-van" onclick="selWizVeh('t','van')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
+            <div class="v-name">Van Premium</div>
+            <div class="v-model">Van · 7 places</div>
+            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+          </div>
+          <div class="v-card" id="wiz-vt-bus" onclick="selWizVeh('t','business')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
+            <div class="v-name">Berline</div>
+            <div class="v-model">Mercedes Classe E</div>
+            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+          </div>
+        </div>
+        <div class="price-box" id="ws1t-price-box" style="margin-top:1rem">
+          <div class="price-top">
+            <div>
+              <div class="price-lbl" data-i18n="transfer.price_label">Prix estimé — tarif fixe garanti</div>
+              <div class="price-num"><sup>€</sup><span id="ws1t-price">—</span></div>
+              <div class="price-veh" id="ws1t-veh">Van Premium</div>
+            </div>
+            <div class="price-km" id="ws1t-tag">—</div>
+          </div>
+          <div class="price-body" id="ws1t-breakdown"></div>
+          <div class="price-note" data-i18n="transfer.price_note">Tarif fixe · Aucun supplément · Toutes charges incluses</div>
+        </div>
       </div>
 
       <!-- Champs Mise à disposition -->
@@ -983,47 +1045,49 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="d-btn" onclick="selD(10,this)"><div class="d-h">10h</div><div class="d-l"></div></div>
           <div class="d-btn" onclick="selD(12,this)"><div class="d-h">12h</div><div class="d-l" data-i18n="d.day">Jour</div></div>
         </div>
+        <!-- ── Choix du véhicule ── -->
+        <p class="section-tag" style="margin:.9rem 0 .5rem;font-size:.62rem" data-i18n="wizard.your_vehicle">Votre véhicule</p>
+        <div class="v-grid" style="margin:0 0 .8rem">
+          <div class="v-card on" id="wiz-vm-van" onclick="selWizVeh('m','van')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
+            <div class="v-name">Van Premium</div>
+            <div class="v-model">95 € / h · min. 2h</div>
+            <div class="v-specs"><span>👤 7 places</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+          </div>
+          <div class="v-card" id="wiz-vm-bus" onclick="selWizVeh('m','business')">
+            <div class="v-check"><div class="v-dot"></div></div>
+            <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
+            <div class="v-name">Berline</div>
+            <div class="v-model">75 € / h · min. 2h</div>
+            <div class="v-specs"><span>👤 3 places</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+          </div>
+        </div>
+        <div class="price-box show" id="ws1m-price-box" style="margin-top:1rem">
+          <div class="price-top">
+            <div>
+              <div class="price-lbl" data-i18n="mad.price_label">Forfait mise à disposition</div>
+              <div class="price-num"><sup>€</sup><span id="ws1m-price">—</span></div>
+              <div class="price-veh" id="ws1m-veh">Van Premium</div>
+            </div>
+            <div class="price-km" id="ws1m-tag">2h</div>
+          </div>
+          <div class="price-body" id="ws1m-breakdown"></div>
+          <div class="price-note" data-i18n="mad.price_note">Kilométrage illimité · Carburant inclus · Chauffeur dédié</div>
+        </div>
       </div>
 
+      <div id="prestations-container"></div>
       <button class="add-prest-btn" id="add-prest-btn" onclick="addPrestation()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         <span data-i18n="wizard.add_service">Ajouter une prestation</span>
       </button>
-      <div id="prestations-container"></div>
       <div class="wiz-footer">
-        <button class="btn-pay" onclick="wizardNext()">Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        <button class="btn-pay" onclick="wizardNext()"><span data-i18n="btn.next">Suivant</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
       </div>
     </div>
 
-    <!-- ── STEP 2 : VÉHICULE ── -->
-    <div class="wiz-pane" id="wpane-2">
-      <p class="section-tag" style="margin-bottom:.4rem">Choisissez votre véhicule</p>
-      <p class="wiz-step-sub" id="wiz-price-hint">Les tarifs varient selon le véhicule choisi.</p>
-      <div class="v-grid" style="margin:1rem 0">
-        <div class="v-card on" id="wvc-van" onclick="selWizVehicle('van')">
-          <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
-          <div class="v-name">Van Premium</div>
-          <div class="v-model" data-i18n="airport.van_model">Van Premium · 7 places</div>
-          <div class="v-specs"><span data-i18n="spec.van_pax">7 places</span><span data-i18n="spec.van_bags">8 bagages</span><span data-i18n="spec.baby_seat">Famille ✓</span></div>
-          <div class="wiz-veh-price" id="w-price-van">—</div>
-        </div>
-        <div class="v-card" id="wvc-bus" onclick="selWizVehicle('business')">
-          <div class="v-check"><div class="v-dot"></div></div>
-          <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline Business" loading="lazy"></div>
-          <div class="v-name">Business</div>
-          <div class="v-model" data-i18n="airport.business_model">Mercedes Classe E</div>
-          <div class="v-specs"><span data-i18n="spec.bus_pax">3 places</span><span data-i18n="spec.bus_bags">3 bagages</span><span>Wi-Fi</span></div>
-          <div class="wiz-veh-price" id="w-price-bus">—</div>
-        </div>
-      </div>
-      <div class="wiz-footer">
-        <button class="btn-calc wiz-back-btn" onclick="wizardBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</button>
-        <button class="btn-pay" onclick="wizardNext()">Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-      </div>
-    </div>
-
-    <!-- ── STEP 3 : COORDONNÉES ── -->
+    <!-- ── STEP 2 : COORDONNÉES ── -->
     <div class="wiz-pane" id="wpane-3">
       <div class="m-recap" id="wiz-recap"></div>
       <div class="m-total" style="margin-bottom:1.2rem"><div><div class="mt-lbl" data-i18n="modal.total">Total à régler</div></div><div class="mt-price" id="wiz-total">—</div></div>
@@ -1041,10 +1105,10 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       </div>
       <div class="lbar" id="lbar"><div class="lbar-fill"></div></div>
       <div class="wiz-footer" style="margin-top:.9rem">
-        <button class="btn-calc wiz-back-btn" onclick="wizardBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour</button>
+        <button class="btn-calc wiz-back-btn" onclick="wizardBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> <span data-i18n="btn.back">Retour</span></button>
         <button class="btn-ok" id="btn-ok" onclick="doPay()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 7l3.5 3.5L12 2"/></svg> <span data-i18n="modal.confirm">Confirmer et payer</span></button>
       </div>
-      <div class="secure-line">Paiement sécurisé · Stripe · Confirmation par email</div>
+      <div class="secure-line" data-i18n="wizard.secure_line">Paiement sécurisé · Stripe · Confirmation par email</div>
     </div>
   </div>
 
@@ -1870,10 +1934,65 @@ const CFG = {
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
   }
 };
-const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tAirportKey:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[], paddressCoord:null };
+const S = { tab:'p', veh:'van', mveh:'van', fveh:'van', fpack:'cdg', fdir:'from', mdur:2, dep:null, arr:null, price:null, km:null, tAirportKey:null, tOtherCoord:null, tripMode:'round-trip', tTripMode:'round-trip', prestations:[], paddressCoord:null, preturnAddrCoord:null };
 let _prestCounter = 0;
 let _pendingModalType = null;
 const acT={}, acBT={};
+
+/* ── LOCALSTORAGE PERSISTENCE ── */
+const LS_KEY='idvtc_v1';
+function saveFormState(){
+  const g=id=>{const e=document.querySelector('#'+id);return e?e.value:null};
+  const c=id=>{const e=document.querySelector('#'+id);return e?e.checked:false};
+  try{localStorage.setItem(LS_KEY,JSON.stringify({
+    tab:S.tab,tripMode:S.tripMode,tTripMode:S.tTripMode,
+    fpack:S.fpack,fdir:S.fdir,mdur:S.mdur,
+    depCoord:S.dep,arrCoord:S.arr,paddressCoord:S.paddressCoord,preturnAddrCoord:S.preturnAddrCoord,
+    paddress:g('i-paddress'),pdate:g('i-pdate'),ptimeH:g('i-ptime-h'),ptimeM:g('i-ptime-m'),
+    preturnaddr:g('i-preturnaddr'),prdate:g('i-prdate'),prtimeH:g('i-prtime-h'),prtimeM:g('i-prtime-m'),
+    fRehausseur:c('f-rehausseur'),fSiege:c('f-siege'),
+    depLabel:g('i-dep'),arrLabel:g('i-arr'),
+    date:g('i-date'),timeH:g('i-time-h'),timeM:g('i-time-m'),
+    trdate:g('i-trdate'),trtimeH:g('i-trtime-h'),trtimeM:g('i-trtime-m'),
+    pax:g('i-pax'),bag:g('i-bag'),tRehausseur:c('t-rehausseur'),tSiege:c('t-siege'),
+    mdep:g('i-mdep'),mdate:g('i-mdate'),mtimeH:g('i-mtime-h'),mtimeM:g('i-mtime-m'),
+    name:g('mn'),tel:g('mt-tel'),email:g('me'),
+  }));}catch(e){}
+}
+function restoreFormState(){
+  let st;try{st=JSON.parse(localStorage.getItem(LS_KEY));}catch(e){}
+  if(!st)return;
+  const s=(id,v)=>{if(v==null)return;document.querySelectorAll('#'+id).forEach(e=>e.value=v)};
+  const ck=(id,v)=>{document.querySelectorAll('#'+id).forEach(e=>e.checked=!!v)};
+  const mid=m=>m==='round-trip'?'rt':m==='one-way'?'ow':'sp';
+  if(st.depCoord)S.dep=st.depCoord;
+  if(st.arrCoord)S.arr=st.arrCoord;
+  if(st.paddressCoord)S.paddressCoord=st.paddressCoord;
+  if(st.preturnAddrCoord)S.preturnAddrCoord=st.preturnAddrCoord;
+  if(st.fpack)selPack(st.fpack,document.getElementById('pk-'+st.fpack));
+  if(st.fdir)selDir(st.fdir,document.getElementById('dir-'+st.fdir));
+  if(st.tripMode)selTripMode(st.tripMode,'p',document.getElementById('tm-p-'+mid(st.tripMode)));
+  if(st.tTripMode)selTripMode(st.tTripMode,'t',document.getElementById('tm-t-'+mid(st.tTripMode)));
+  if(st.mdur){const db=[...document.querySelectorAll('.d-btn')].find(b=>b.querySelector('.d-h')?.textContent.trim()===`${st.mdur}h`);if(db)selD(st.mdur,db);}
+  s('i-paddress',st.paddress);s('i-pdate',st.pdate);
+  s('i-ptime-h',st.ptimeH);s('i-ptime-m',st.ptimeM);
+  s('i-preturnaddr',st.preturnaddr);s('i-prdate',st.prdate);
+  s('i-prtime-h',st.prtimeH);s('i-prtime-m',st.prtimeM);
+  ck('f-rehausseur',st.fRehausseur);ck('f-siege',st.fSiege);
+  s('i-dep',st.depLabel);s('i-arr',st.arrLabel);
+  s('i-date',st.date);s('i-time-h',st.timeH);s('i-time-m',st.timeM);
+  s('i-trdate',st.trdate);s('i-trtime-h',st.trtimeH);s('i-trtime-m',st.trtimeM);
+  s('i-pax',st.pax);s('i-bag',st.bag);
+  ck('t-rehausseur',st.tRehausseur);ck('t-siege',st.tSiege);
+  s('i-mdep',st.mdep);s('i-mdate',st.mdate);
+  s('i-mtime-h',st.mtimeH);s('i-mtime-m',st.mtimeM);
+  ['i-ptime','i-prtime','i-time','i-trtime','i-mtime'].forEach(syncTimeVal);
+  updatePackPrice();
+  if(S.dep&&S.arr)doCalc();
+  s('mn',st.name);s('mt-tel',st.tel);s('me',st.email);
+  if(st.tab)selTripType(st.tab,document.getElementById('ttb-'+st.tab));
+}
+
 function syncTimeVal(id){const h=(document.getElementById(id+'-h')||{}).value||'00',m=(document.getElementById(id+'-m')||{}).value||'00',el=document.getElementById(id);if(el)el.value=h+':'+m;}
 
 /* Mobile : place date/heure sous la nav pour laisser la hauteur au picker natif (bouton « Définir » en bas) */
@@ -1930,6 +2049,16 @@ window.addEventListener('DOMContentLoaded', ()=>{
   updateMAD();
   updatePackPrice();
   ['f-rehausseur','f-siege'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',updatePackPrice);});
+  // Auto-save on any interaction in the booking wizard or the contact modal
+  const _wiz=document.getElementById('booking-wizard');
+  if(_wiz){
+    _wiz.addEventListener('input',saveFormState,{passive:true});
+    _wiz.addEventListener('change',saveFormState,{passive:true});
+    _wiz.addEventListener('click',()=>setTimeout(saveFormState,80),{passive:true});
+  }
+  document.getElementById('ov')?.addEventListener('input',saveFormState,{passive:true});
+  document.getElementById('ov')?.addEventListener('change',saveFormState,{passive:true});
+  restoreFormState();
 });
 
 function goTab(t,btn){
@@ -1967,17 +2096,18 @@ function toggleNav(){
 const VID={van:'vc-v',business:'vc-b'};
 const MVID={van:'vc-mv',business:'vc-mb'};
 const VNAME={van:'Van Premium',business:'Berline'};
-const MVNAME={van:'Van Premium',business:'Berline'};
-const VMNAME={van:'Van Premium',business:'Berline'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.tAirportKey||S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}
 function updateMAD(){
   const t=CFG.tarifs[S.mveh],tot=S.mdur*t.h; S.price=tot;
   document.getElementById('d-mp').textContent=tot;
-  document.getElementById('d-mv').textContent=MVNAME[S.mveh]+' · '+S.mdur+' heure'+(S.mdur>1?'s':'');
+  document.getElementById('d-mv').textContent=VNAME[S.mveh]+' · '+S.mdur+' heure'+(S.mdur>1?'s':'');
   document.getElementById('d-mr').textContent=t.h+'€/h';
-  document.getElementById('d-mb').innerHTML=mkBR([['Véhicule',VMNAME[S.mveh]],['Tarif horaire',t.h+' €/h'],['Durée',S.mdur+' heure'+(S.mdur>1?'s':'')]],tot);
+  const bHTML=mkBR([[i18n('recap.vehicle'),VNAME[S.mveh]],[i18n('recap.hourly_rate'),t.h+' €/h'],[i18n('recap.duration'),S.mdur+' '+(S.mdur>1?i18n('recap.hours'):i18n('recap.hour'))]],tot);
+  document.getElementById('d-mb').innerHTML=bHTML;
+  const ws1mp=document.getElementById('ws1m-price');
+  if(ws1mp){ws1mp.textContent=tot;document.getElementById('ws1m-veh').textContent=VNAME[S.mveh];document.getElementById('ws1m-tag').textContent=S.mdur+'h · '+t.h+' €/h';document.getElementById('ws1m-breakdown').innerHTML=bHTML;}
 }
 
 /* ── DURÉES FORFAITS (estimation pour check dispo) ── */
@@ -1985,72 +2115,9 @@ const PACK_DURATION={'cdg':55,'orly':45};
 
 /* ── DISPONIBILITÉ ── */
 const availTimers = {};
-function scheduleAvailCheck(tab){
-  clearTimeout(availTimers[tab]);
-  availTimers[tab] = setTimeout(() => checkAvailability(tab), 500);
-}
-async function checkAvailability(tab){
-  const dateEl = document.getElementById(tab==='p'?'i-pdate':'i-date');
-  const timeEl = document.getElementById(tab==='p'?'i-ptime':'i-time');
-  const indicator = document.getElementById('avail-'+tab);
-  const txtEl = document.getElementById('avail-'+tab+'-txt');
-  if(!dateEl?.value || !timeEl?.value){ indicator.className='avail'; return; }
-  const date = dateEl.value, time = timeEl.value;
-  const dur = tab==='p' ? PACK_DURATION[S.fpack]||55 : (S.durationMin||60);
-  indicator.className='avail checking show';
-  txtEl.textContent='Vérification…';
-  try{
-    const r = await fetch('/api/check-availability',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,time,durationMin:dur})});
-    const data = await r.json();
-    if(data.available){
-      indicator.className='avail ok show';
-      txtEl.textContent='Créneau disponible';
-      if(tab==='p') document.getElementById('btn-pay-p').disabled=false;
-      if(tab==='t') document.getElementById('btn-pay-t').disabled = !S.price;
-    } else {
-      indicator.className='avail busy show';
-      txtEl.textContent='Créneau occupé' + (data.nextSlot?' — Prochain dispo : '+data.nextSlot:'');
-      if(tab==='p') document.getElementById('btn-pay-p').disabled=true;
-      if(tab==='t') document.getElementById('btn-pay-t').disabled=true;
-    }
-    await renderTimeline(tab, date);
-  }catch(e){
-    indicator.className='avail checking show';
-    txtEl.textContent='Vérification impossible';
-  }
-}
-async function renderTimeline(tab, date){
-  const timeline = document.getElementById('dt-'+tab);
-  const nowLine  = document.getElementById('dtn-'+tab);
-  const legend   = document.getElementById('dl-'+tab);
-  if(!timeline) return;
-  try{
-    const r = await fetch('/api/availability?date='+date);
-    const data = await r.json();
-    /* Effacer les anciens blocs */
-    timeline.querySelectorAll('.dispo-block').forEach(b=>b.remove());
-    const total = (23-5)*60; /* 05:00 → 23:00 */
-    (data.slots||[]).forEach(sl => {
-      const left  = Math.max(0, (sl.startMin - 5*60) / total * 100);
-      const width = Math.min(100-left, (sl.endMin - sl.startMin) / total * 100);
-      const block = document.createElement('div');
-      block.className = 'dispo-block';
-      block.style.left = left+'%';
-      block.style.width = width+'%';
-      timeline.appendChild(block);
-    });
-    /* Ligne heure actuelle (seulement si date = aujourd'hui) */
-    const today = new Date().toISOString().split('T')[0];
-    if(date === today){
-      const nowMin = new Date().getHours()*60 + new Date().getMinutes();
-      const nowPct = Math.max(0,Math.min(100,(nowMin-5*60)/total*100));
-      nowLine.style.left = nowPct+'%';
-      nowLine.style.display = 'block';
-    } else { nowLine.style.display='none'; }
-    timeline.style.display='block';
-    legend.style.display='flex';
-  }catch{}
-}
+function scheduleAvailCheck(tab){}
+async function checkAvailability(tab){}
+async function renderTimeline(tab, date){}
 
 /* ── FORFAITS ── */
 const PVID={van:'pvc-v',business:'pvc-b'};
@@ -2074,38 +2141,55 @@ function haversineKm(lat1,lon1,lat2,lon2){const R=6371,toR=Math.PI/180,dLat=(lat
 function updatePackPrice(){
   const f=CFG.forfaits[S.fpack],basePrice=f[S.fveh];
   const isRound=S.tripMode==='round-trip'||S.tripMode==='split';
-  let price=isRound?basePrice*2:basePrice;
-  /* Surcharge IDF : +1€/km au-delà des 5 km de rayon parisien (hors 75) */
-  const pc=S.paddressCoord;
-  if(pc&&pc.postcode){
-    const dept=pc.postcode.slice(0,2);
-    if(['77','78','91','92','93','94','95'].includes(dept)){
-      const extra=Math.max(0,Math.ceil(haversineKm(pc.lat,pc.lon,48.853,2.350)-5));
-      if(extra>0)price+=isRound?extra*2:extra;
-    }
-  }
+  /* Surcharge hors Paris : +1€/km au-delà du rayon parisien (≈5 km du centre) pour tout dept ≠ 75 */
+  const extraAller=calcParisExtraKm(S.paddressCoord);
+  const retCoord=isRound?(S.preturnAddrCoord||S.paddressCoord):null;
+  const extraRetour=isRound?calcParisExtraKm(retCoord):0;
+  const price=(basePrice+extraAller)+(isRound?(basePrice+extraRetour):0);
   S.price=price;
-  document.getElementById('pp-price').textContent=price;
-  document.getElementById('pp-veh').textContent=VNAME[S.fveh];
-  document.getElementById('pp-tag').textContent=f.label;
   const rehausseur=document.getElementById('f-rehausseur')?.checked;
   const siege=document.getElementById('f-siege')?.checked;
   const extras=[];
-  if(rehausseur)extras.push(['Réhausseur enfant','Inclus']);
-  if(siege)extras.push(['Siège bébé','Inclus']);
-  const modeLabel=isRound?'Aller-retour':'Aller simple';
-  document.getElementById('pp-breakdown').innerHTML=mkBR(
-    [['Trajet',f.label],['Type',modeLabel],['Véhicule',VMNAME[S.fveh]],...extras],
-    price
-  );
+  if(isRound){
+    if(extraAller>0&&extraRetour>0&&extraAller===extraRetour){
+      extras.push([i18n('extra.outside_paris')+' '+i18n('extra.round_trip_x2')+' ('+extraAller+' km)','+'+( extraAller*2)+' €']);
+    }else{
+      if(extraAller>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.aller')+' ('+extraAller+' km)','+'+extraAller+' €']);
+      if(extraRetour>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.retour')+' ('+extraRetour+' km)','+'+extraRetour+' €']);
+    }
+  }else{
+    if(extraAller>0)extras.push([i18n('extra.outside_paris')+' ('+extraAller+' km)','+'+extraAller+' €']);
+  }
+  if(rehausseur)extras.push([i18n('recap.booster'),i18n('airport.included').split('·')[0].trim()]);
+  if(siege)extras.push([i18n('recap.baby_seat'),i18n('airport.included').split('·')[0].trim()]);
+  const modeLabel=isRound?i18n('wizard.round_trip'):i18n('wizard.one_way');
+  const fLabelOld=i18n(S.fpack==='cdg'?'tarifs.cdg_dest':'tarifs.orly_dest');
+  const breakdownHTML=mkBR([[i18n('recap.route'),fLabelOld],[i18n('recap.type'),modeLabel],[i18n('recap.vehicle'),VNAME[S.fveh]],...extras],price);
+  /* Section SEO cachée */
+  document.getElementById('pp-price').textContent=price;
+  document.getElementById('pp-veh').textContent=VNAME[S.fveh];
+  document.getElementById('pp-tag').textContent=f.label;
+  document.getElementById('pp-breakdown').innerHTML=breakdownHTML;
+  /* Sous-total visible étape 1 */
+  const ws1p=document.getElementById('ws1-price');
+  if(ws1p){
+    ws1p.textContent=price;
+    document.getElementById('ws1-veh').textContent=VNAME[S.fveh];
+    document.getElementById('ws1-tag').textContent=f.label;
+    document.getElementById('ws1-breakdown').innerHTML=breakdownHTML;
+  }
 }
 
 /* ── AUTOCOMPLETE — api-adresse.data.gouv.fr ✅ ── */
 async function acSearch(inp,lid){
   const q=inp.value.trim(),list=document.getElementById(lid);
-  if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null; if(lid==='ac-paddress'){S.paddressCoord=null;updatePackPrice();}
-  const pm=lid.match(/^ac-pn(\d+)(dep|arr)$/);
-  if(pm){const pid=parseInt(pm[1]),pf=pm[2],p=S.prestations.find(x=>x.id===pid);if(p){p[pf]=null;p.km=null;}}
+  if(lid==='ac-dep')S.dep=null; if(lid==='ac-arr')S.arr=null; if(lid==='ac-paddress'){S.paddressCoord=null;updatePackPrice();} if(lid==='ac-preturnaddr'){S.preturnAddrCoord=null;updatePackPrice();}
+  const pm=lid.match(/^ac-pn(\d+)(dep|arr|addr|retaddr)$/);
+  if(pm){const pid=parseInt(pm[1]),pf=pm[2],p=S.prestations.find(x=>x.id===pid);if(p){
+    if(pf==='addr'){p.addrCoord=null;}
+    else if(pf==='retaddr'){p.retAddrCoord=null;}
+    else{p[pf]=null;p.km=null;}
+  }}
   clearTimeout(acT[lid]);
   if(q.length<3){list.classList.remove('open');return;}
   list.innerHTML='<div class="ac-item msg"><span>Recherche…</span></div>';
@@ -2117,20 +2201,30 @@ async function acSearch(inp,lid){
       const data=await res.json();
       let features=data.features||[];
       list.innerHTML='';
-      // Suggestions aéroports en tête si le champ est dep ou arr
-      if(lid==='ac-dep'||lid==='ac-arr'){
+      // Suggestions aéroports en tête si le champ est dep/arr (principal ou prestation transfert)
+      const pmIsTransfer=!!(pm&&(pm[2]==='dep'||pm[2]==='arr'));
+      if(lid==='ac-dep'||lid==='ac-arr'||pmIsTransfer){
         const apSugg=airportSuggestions(q);
         apSugg.forEach(ap=>{
-          const coord={lat:ap.lat,lon:ap.lon,label:ap.label};
           const item=document.createElement('div');item.className='ac-item';
-          item.innerHTML=`<div class="ac-dot" style="background:#c9a96e"></div><div><div class="ac-main">✈ ${ap.label}</div><div class="ac-sec">Forfait fixe · ${CFG.forfaits[ap.key].van}€</div></div>`;
+          const isTransferField=lid==='ac-dep'||lid==='ac-arr';
+          const isPrestTransfer=pmIsTransfer;
+          const showRedirect=isTransferField||isPrestTransfer;
+          item.innerHTML=`<div class="ac-dot" style="background:#c9a96e"></div><div><div class="ac-main">✈ ${ap.label}</div><div class="ac-sec">${showRedirect?'→ '+i18n('transfer.airport_block_cta'):'Forfait fixe · '+CFG.forfaits[ap.forfaitKey||ap.key][S.veh]+' €'}</div></div>`;
           item.addEventListener('mousedown',e=>{
             e.preventDefault();
-            const inp=document.getElementById(lid==='ac-dep'?'i-dep':'i-arr');
-            if(inp){inp.value=ap.label;inp.classList.add('ok');}
-            if(lid==='ac-dep')S.dep=coord; else S.arr=coord;
             list.classList.remove('open');
-            if(S.dep&&S.arr)doCalc();
+            if(isTransferField){navTab('p');setTimeout(()=>document.getElementById('booking-wizard')?.scrollIntoView({behavior:'smooth',block:'start'}),50);return;}
+            if(isPrestTransfer){
+              const pid=parseInt(pm[1]);
+              ['dep','arr'].forEach(f=>{const el=document.getElementById('i-pn'+pid+f);if(el){el.value='';el.classList.remove('ok');}});
+              const apBtn=document.querySelector('#ttg-pn'+pid+' .trip-type-btn');
+              selTripTypeN(pid,'p',apBtn);
+              setTimeout(()=>document.getElementById('prest-'+pid)?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+              return;
+            }
+            inp.value=ap.label;inp.classList.add('ok');
+            setStatus('','');
           });
           list.appendChild(item);
         });
@@ -2144,12 +2238,27 @@ async function acSearch(inp,lid){
         item.innerHTML=`<div class="ac-dot"></div><div><div class="ac-main">${label}</div>${city&&p.type!=='municipality'?`<div class="ac-sec">${city}</div>`:''}</div>`;
         item.addEventListener('mousedown',e=>{
           e.preventDefault();
+          const coord={lat,lon,label,postcode:p.postcode||'',city:city||''};
+          if((lid==='ac-dep'||lid==='ac-arr')&&detectAirportZone(coord)){list.classList.remove('open');navTab('p');setTimeout(()=>document.getElementById('booking-wizard')?.scrollIntoView({behavior:'smooth',block:'start'}),50);return;}
+          if(pm&&detectAirportZoneStrict(coord)){
+            const pid=parseInt(pm[1]);
+            list.classList.remove('open');
+            ['dep','arr'].forEach(f=>{const el=document.getElementById('i-pn'+pid+f);if(el){el.value='';el.classList.remove('ok');}});
+            const apBtn=document.querySelector('#ttg-pn'+pid+' .trip-type-btn');
+            selTripTypeN(pid,'p',apBtn);
+            setTimeout(()=>document.getElementById('prest-'+pid)?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+            return;
+          }
           inp.value=label;inp.classList.add('ok');
-          const coord={lat,lon,label};
           if(lid==='ac-dep')S.dep=coord;
           if(lid==='ac-arr')S.arr=coord;
           if(lid==='ac-paddress'){S.paddressCoord={lat,lon,label,postcode:p.postcode||''};updatePackPrice();}
-          if(pm){const pid=parseInt(pm[1]),pf=pm[2],pr=S.prestations.find(x=>x.id===pid);if(pr){pr[pf]=coord;if(pr.dep&&pr.arr)doCalcPrestN(pid);}}
+          if(lid==='ac-preturnaddr'){S.preturnAddrCoord={lat,lon,label,postcode:p.postcode||''};updatePackPrice();}
+          if(pm){const pid=parseInt(pm[1]),pf=pm[2],pr=S.prestations.find(x=>x.id===pid);if(pr){
+            if(pf==='addr'){pr.addrCoord=coord;calcPrestPrice(pid);}
+            else if(pf==='retaddr'){pr.retAddrCoord=coord;calcPrestPrice(pid);}
+            else{pr[pf]=coord;if(pr.dep&&pr.arr)doCalcPrestN(pid);}
+          }}
           list.classList.remove('open');
           if(S.dep&&S.arr)doCalc();
         });
@@ -2160,53 +2269,157 @@ async function acSearch(inp,lid){
 }
 function acBlur(lid){acBT[lid]=setTimeout(()=>document.getElementById(lid).classList.remove('open'),200);}
 
-/* ── DÉTECTION AÉROPORT ── */
+/* ── REDIRECTION AÉROPORT (mode transfert) ── */
+function showAirportRedirect(apKey){
+  ['i-dep','i-arr'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.classList.remove('ok');}});
+  S.dep=null;S.arr=null;S.tAirportKey=null;S.tOtherCoord=null;
+  document.getElementById('rv-tag').style.display='none';
+  document.getElementById('rv-bar').style.width='0%';
+  const st=document.getElementById('status-t');
+  st.className='status airport-block';
+  st.innerHTML=`<strong>${i18n('transfer.airport_block_title')}</strong><br>${i18n('transfer.airport_block_body')}<br><button class="airport-block-btn" onclick="navTab('p')">${i18n('transfer.airport_block_cta')}</button>`;
+  document.getElementById('price-box').classList.remove('show');
+}
+
+/* ── DÉTECTION AÉROPORT (forfaits CDG / Orly + adresses BAN) ── */
 const AIRPORTS_T = [
-  { key:'cdg',  lat:49.0097, lon:2.5479, label:'Aéroport Paris CDG', shortLabel:'CDG' },
-  { key:'orly', lat:48.7233, lon:2.3794, label:'Aéroport Paris Orly', shortLabel:'Orly' }
+  { key:'cdg',     forfaitKey:'cdg',  lat:49.0097, lon:2.5479, label:'Aéroport Paris-Charles de Gaulle (CDG)', shortLabel:'CDG', postcode:'95700' },
+  { key:'orly',    forfaitKey:'orly', lat:48.7233, lon:2.3794, label:'Aéroport Paris-Orly', shortLabel:'Orly', postcode:'94390' },
+  { key:'bourget', forfaitKey:'cdg',  lat:48.9694, lon:2.4414, label:'Aéroport de Paris-Le Bourget', shortLabel:'Le Bourget', postcode:'93350' },
+  { key:'beauvais',forfaitKey:'cdg',  lat:49.4544, lon:2.1128, label:'Aéroport Paris-Beauvais', shortLabel:'Beauvais', postcode:'60110' }
 ];
-function detectAirport(coord){
-  if(!coord) return null;
+const AIRPORT_PC = {
+  cdg:['93290','95700','77990','93410','95380','95500','95715'],
+  orly:['94390','94290','91550','91700','94800','94600','94400'],
+  bourget:['93350','93440'],
+  beauvais:['60110','60000','60120']
+};
+const IDF_DEPTS = new Set(['75','77','78','91','92','93','94','95','60']);
+function normalizeAddrLabel(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function isExcludedAirportGuess(coord,lbl,city){
+  const blob=lbl+' '+city+' '+(coord.postcode||'');
+  if(/caraibe|guadeloupe|martinique|reunion|polynesie|97139|les abymes/.test(blob))return true;
+  const d=(coord.postcode||'').slice(0,3);
+  if(['971','972','973','974','976'].includes(d))return true;
+  if(/\baeroport\b/.test(lbl)&&/coings|36130/.test(blob))return true;
+  if(/\baeroport\b/.test(lbl)&&!IDF_DEPTS.has((coord.postcode||'').slice(0,2))&&!/beauvais|60110|60000/.test(blob))return true;
+  return false;
+}
+function detectAirportZone(coord){
+  if(!coord)return null;
+  const lbl=normalizeAddrLabel(coord.label);
+  const city=normalizeAddrLabel(coord.city);
+  const blob=lbl+' '+city;
+  if(isExcludedAirportGuess(coord,lbl,city))return null;
+  const pc=coord.postcode||'';
+  if(AIRPORT_PC.orly.includes(pc))return 'orly';
+  if(AIRPORT_PC.cdg.includes(pc))return 'cdg';
+  if(AIRPORT_PC.bourget.includes(pc)&&/aeroport|bourget|dugny/.test(blob))return 'bourget';
+  if(AIRPORT_PC.beauvais.includes(pc)||/beauvais|paris-beauvais/.test(blob))return 'beauvais';
+  if(/roissy|\bcdg\b/.test(blob))return 'cdg';
+  if(/tremblay/.test(blob)&&IDF_DEPTS.has(pc.slice(0,2)))return 'cdg';
+  if(/charles de gaulle/.test(blob)&&/aeroport|airport|terminal/.test(blob))return 'cdg';
+  if(/paris orly/.test(blob))return 'orly';
+  if(/\borly\b/.test(blob)&&/aeroport|airport|terminal/.test(blob))return 'orly';
+  if(/le bourget|le bourg|paris-le-bourget|aeroport.*bourget|bourget.*aeroport/.test(blob))return 'bourget';
+  if(/beauvais|paris-beauvais/.test(blob))return 'beauvais';
   for(const ap of AIRPORTS_T){
-    const dLat=(coord.lat-ap.lat)*Math.PI/180, dLon=(coord.lon-ap.lon)*Math.PI/180;
-    const a=Math.sin(dLat/2)**2+Math.cos(coord.lat*Math.PI/180)*Math.cos(ap.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-    if(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))<6) return ap.key;
+    if(coord.lat!=null&&haversineKm(coord.lat,coord.lon,ap.lat,ap.lon)<14)return ap.key;
   }
-  const lbl=(coord.label||'').toLowerCase();
-  if(/roissy|charles.de.gaulle|\bcdg\b/.test(lbl)) return 'cdg';
-  if(/\borly\b/.test(lbl)) return 'orly';
+  if(/\baeroport\b|\bairport\b/.test(blob)&&IDF_DEPTS.has(pc.slice(0,2))){
+    if(/orly|villeneuve/.test(blob))return 'orly';
+    if(/bourget|dugny/.test(blob))return 'bourget';
+    if(/beauvais/.test(blob))return 'beauvais';
+    if(coord.lat!=null&&haversineKm(coord.lat,coord.lon,48.7233,2.3794)<14)return 'orly';
+    if(coord.lat!=null&&haversineKm(coord.lat,coord.lon,49.0097,2.5479)<22)return 'cdg';
+  }
   return null;
 }
+function detectAirport(coord){
+  const zone=detectAirportZone(coord);
+  if(!zone)return null;
+  const ap=AIRPORTS_T.find(a=>a.key===zone);
+  return ap?(ap.forfaitKey||ap.key):null;
+}
+function detectAirportStrict(coord){
+  const zone=detectAirportZoneStrict(coord);
+  if(!zone)return null;
+  const ap=AIRPORTS_T.find(a=>a.key===zone);
+  return ap?(ap.forfaitKey||ap.key):null;
+}
+/* Version stricte : uniquement label explicite, sans détection par proximité géographique */
+function detectAirportZoneStrict(coord){
+  if(!coord)return null;
+  const lbl=normalizeAddrLabel(coord.label);
+  const city=normalizeAddrLabel(coord.city);
+  const blob=lbl+' '+city;
+  if(isExcludedAirportGuess(coord,lbl,city))return null;
+  const pc=coord.postcode||'';
+  if(AIRPORT_PC.cdg.includes(pc)&&/aeroport|airport|terminal|cdg|roissy/.test(blob))return 'cdg';
+  if(AIRPORT_PC.orly.includes(pc)&&/aeroport|airport|terminal|orly/.test(blob))return 'orly';
+  if(AIRPORT_PC.bourget.includes(pc)&&/aeroport|bourget/.test(blob))return 'bourget';
+  if(AIRPORT_PC.beauvais.includes(pc)&&/aeroport|airport/.test(blob))return 'beauvais';
+  if(/roissy|\bcdg\b/.test(blob))return 'cdg';
+  if(/charles de gaulle/.test(blob)&&/aeroport|airport|terminal/.test(blob))return 'cdg';
+  if(/paris orly/.test(blob))return 'orly';
+  if(/\borly\b/.test(blob)&&/aeroport|airport|terminal/.test(blob))return 'orly';
+  if(/le bourget|paris-le-bourget|aeroport.*bourget|bourget.*aeroport/.test(blob))return 'bourget';
+  if(/beauvais|paris-beauvais/.test(blob)&&/aeroport|airport/.test(blob))return 'beauvais';
+  return null;
+}
+function getAirportMeta(forfaitKey,dep,arr){
+  const zone=detectAirportZone(dep)||detectAirportZone(arr);
+  const ap=zone?AIRPORTS_T.find(a=>a.key===zone):AIRPORTS_T.find(a=>(a.forfaitKey||a.key)===forfaitKey);
+  if(ap)return {shortLabel:ap.shortLabel,packageLabel:CFG.forfaits[forfaitKey].label};
+  return {shortLabel:forfaitKey==='orly'?'Orly':'CDG',packageLabel:CFG.forfaits[forfaitKey].label};
+}
+function calcParisExtraKm(coord){
+  if(!coord||coord.lat==null)return 0;
+  if(coord.postcode&&coord.postcode.slice(0,2)==='75')return 0;
+  return Math.max(0,Math.ceil(haversineKm(coord.lat,coord.lon,48.853,2.350)-5));
+}
+function getTransferAirportExtraKm(dep,arr,isRound){
+  const depAp=detectAirport(dep),arrAp=detectAirport(arr);
+  let extra=0;
+  if(!depAp)extra+=calcParisExtraKm(dep);
+  if(!arrAp)extra+=calcParisExtraKm(arr);
+  return isRound?extra*2:extra;
+}
+function buildTransferAirportExtraRows(dep,arr,isRound){
+  const rows=[];
+  const depAp=detectAirport(dep),arrAp=detectAirport(arr);
+  const eDep=!depAp?calcParisExtraKm(dep):0,eArr=!arrAp?calcParisExtraKm(arr):0;
+  const totalKm=eDep+eArr;
+  if(!totalKm)return rows;
+  const rtSuffix=isRound?' '+i18n('extra.round_trip_x2'):'';
+  const totalEur=isRound?totalKm*2:totalKm;
+  rows.push([i18n('extra.outside_paris')+rtSuffix+' ('+totalKm+' km)','+'+totalEur+' €']);
+  return rows;
+}
 function airportSuggestions(q){
-  const lq=q.toLowerCase();
-  return AIRPORTS_T.filter(ap=>
-    lq.includes(ap.key)||lq.includes('aeroport')||lq.includes('aéroport')||
-    (ap.key==='cdg'&&(lq.includes('roissy')||lq.includes('charles')))||
-    (ap.key==='orly'&&lq.includes('orly'))
-  );
+  const lq=normalizeAddrLabel(q);
+  if(!lq.includes('aeroport')&&!lq.includes('airport')&&!lq.includes('roissy')&&!lq.includes('orly')&&!lq.includes('bourget')&&!lq.includes('beauvais')&&!lq.includes('charles')&&!lq.includes('cdg'))return [];
+  return AIRPORTS_T.filter(ap=>{
+    if(lq.includes('aeroport')||lq.includes('airport'))return true;
+    if(ap.key==='cdg'&&(lq.includes('roissy')||lq.includes('charles')||lq.includes('cdg')))return true;
+    if(ap.key==='orly'&&lq.includes('orly'))return true;
+    if(ap.key==='bourget'&&lq.includes('bourget'))return true;
+    if(ap.key==='beauvais'&&lq.includes('beauvais'))return true;
+    return false;
+  });
 }
 
 /* ── CALCUL OSRM ── */
 async function doCalc(){
   if(!S.dep||!S.arr){setStatus('Sélectionnez vos adresses dans les suggestions.','err');return;}
-  // Détection forfait aéroport
-  const depAp=detectAirport(S.dep), arrAp=detectAirport(S.arr);
-  const apKey=depAp||arrAp;
-  if(apKey){
-    S.km=null; S.tAirportKey=apKey;
-    const ap=AIRPORTS_T.find(a=>a.key===apKey);
-    document.getElementById('rv-tag').textContent='Forfait '+ap.shortLabel+' appliqué';
-    document.getElementById('rv-tag').style.display='block';
-    document.getElementById('rv-bar').style.width='100%';
-    setStatus('','');
-    renderPrice(null);
-    document.getElementById('price-box').scrollIntoView({behavior:'smooth',block:'nearest'});
-    return;
-  }
-  S.tAirportKey=null;
+  const depAp=detectAirport(S.dep),arrAp=detectAirport(S.arr);
+  const apKey=(depAp||arrAp)&&!(depAp&&arrAp)?(depAp||arrAp):null;
+  if(apKey){S.tAirportKey=apKey;S.tOtherCoord=depAp?S.arr:S.dep;}
+  else{S.tAirportKey=null;S.tOtherCoord=null;}
   const btn=document.getElementById('btn-calc');
-  btn.classList.add('busy');btn.innerHTML='<div class="spin"></div> Calcul en cours…';
-  setStatus('Calcul de l\'itinéraire…','loading');
+  const _isEn=getLang()==='en';
+  if(btn){btn.classList.add('busy');btn.innerHTML='<div class="spin"></div> '+(_isEn?'Calculating…':'Calcul en cours…');}
+  setStatus(_isEn?'Calculating route…':'Calcul de l\'itinéraire…','loading');
   try{
     const res=await fetch(`https://router.project-osrm.org/route/v1/driving/${S.dep.lon},${S.dep.lat};${S.arr.lon},${S.arr.lat}?overview=false`);
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -2214,19 +2427,30 @@ async function doCalc(){
     if(data.code!=='Ok')throw new Error('Itinéraire introuvable');
     const km=data.routes[0].distance/1000,mins=Math.round(data.routes[0].duration/60);
     S.km=km;S.durationMin=mins;
-    document.getElementById('rv-tag').textContent=`${km.toFixed(1)} km · ~${mins} min`;
-    document.getElementById('rv-tag').style.display='block';
+    const rvTag=document.getElementById('rv-tag');
+    if(apKey){
+      const meta=getAirportMeta(apKey,S.dep,S.arr);
+      rvTag.textContent='Forfait '+meta.shortLabel+' · '+km.toFixed(1)+' km · ~'+mins+' min';
+    }else{
+      rvTag.textContent=km.toFixed(1)+' km · ~'+mins+' min';
+    }
+    rvTag.style.display='block';
     document.getElementById('rv-bar').style.width='100%';
     setStatus('','');
     renderPrice(km);
-    document.getElementById('price-box').scrollIntoView({behavior:'smooth',block:'nearest'});
-  }catch(err){setStatus('Calcul impossible : '+err.message,'err');}
-  finally{btn.classList.remove('busy');btn.innerHTML='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg> Recalculer';}
+    updateWizardVehiclePrices();
+    const pb=document.getElementById('price-box');
+    if(pb)pb.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){setStatus((_isEn?'Route unavailable: ':'Calcul impossible : ')+err.message,'err');}
+  finally{if(btn){btn.classList.remove('busy');btn.innerHTML='<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg> '+i18n('btn.recalculate');}}
 }
 function setStatus(msg,type){const el=document.getElementById('status-t');el.textContent=msg;el.className='status'+(type?' '+type:'');}
 async function doCalcPrestN(pid){
   const pr=S.prestations.find(x=>x.id===pid);
   if(!pr||!pr.dep||!pr.arr)return;
+  // Si un aéroport est détecté, pas besoin d'OSRM — le forfait s'applique directement
+  const depAp=detectAirportStrict(pr.dep),arrAp=detectAirportStrict(pr.arr);
+  if((depAp||arrAp)&&!(depAp&&arrAp)){calcPrestPrice(pid);return;}
   const el=document.getElementById('pv-pn'+pid);
   if(el)el.textContent='Calcul…';
   try{
@@ -2243,66 +2467,142 @@ function renderPrice(km){
   if(S.tAirportKey){
     const tRound=S.tTripMode==='round-trip'||S.tTripMode==='split';
     const f=CFG.forfaits[S.tAirportKey];
-    total=tRound?f[S.veh]*2:f[S.veh];
-    const ap=AIRPORTS_T.find(a=>a.key===S.tAirportKey);
-    document.getElementById('d-km').textContent='Forfait fixe '+ap.shortLabel;
-    document.getElementById('d-breakdown').innerHTML=mkBR([['Forfait',ap.label],['Véhicule',VMNAME[S.veh]],['Type',tRound?'Aller-retour':'Aller simple']],total);
+    const extraKm=getTransferAirportExtraKm(S.dep,S.arr,tRound);
+    const baseForfait=tRound?f[S.veh]*2:f[S.veh];
+    total=baseForfait+extraKm;
+    const meta=getAirportMeta(S.tAirportKey,S.dep,S.arr);
+    const extraRows=buildTransferAirportExtraRows(S.dep,S.arr,tRound);
+    document.getElementById('d-km').textContent='Forfait fixe '+meta.shortLabel;
+    document.getElementById('d-breakdown').innerHTML=mkBR([[i18n('recap.package'),meta.packageLabel],[i18n('recap.vehicle'),VNAME[S.veh]],[i18n('recap.type'),tRound?i18n('wizard.round_trip'):i18n('wizard.one_way')],...extraRows],total);
   } else {
     const t=CFG.tarifs[S.veh],raw=km*t.km;
     total=Math.ceil(Math.max(raw,t.min));
     document.getElementById('d-km').textContent=km.toFixed(1)+' km';
-    document.getElementById('d-breakdown').innerHTML=mkBR([['Véhicule',VMNAME[S.veh]],[`Distance (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €']],total);
+    document.getElementById('d-breakdown').innerHTML=mkBR([[i18n('recap.vehicle'),VNAME[S.veh]],[`${i18n('recap.distance')} (${km.toFixed(1)} km × ${t.km} €/km)`,(km*t.km).toFixed(2)+' €']],total);
   }
   S.price=total;
   document.getElementById('d-price').textContent=total;
   document.getElementById('d-veh').textContent=VNAME[S.veh];
   document.getElementById('price-box').classList.add('show');
   document.getElementById('btn-pay-t').disabled=false;
+  const ws1tp=document.getElementById('ws1t-price');
+  if(ws1tp){ws1tp.textContent=total;document.getElementById('ws1t-veh').textContent=VNAME[S.veh];document.getElementById('ws1t-tag').textContent=document.getElementById('d-km').textContent;document.getElementById('ws1t-breakdown').innerHTML=document.getElementById('d-breakdown').innerHTML;document.getElementById('ws1t-price-box').classList.add('show');}
+  updateWizardVehiclePrices();
 }
-function mkBR(rows,total){return rows.map(([k,v])=>`<div class="brow"><span class="bk">${k}</span><span class="bv">${v}</span></div>`).join('')+`<div class="brow tot"><span class="bk">Total TTC</span><span class="bv">${total} €</span></div>`;}
+function mkBR(rows,total){return rows.map(([k,v])=>`<div class="brow"><span class="bk">${k}</span><span class="bv">${v}</span></div>`).join('')+`<div class="brow tot"><span class="bk">${i18n('recap.total_ttc')}</span><span class="bv">${total} €</span></div>`;}
 
 /* ── MODAL ── */
 function openModal(type){
+  const _en=getLang()==='en';
   if(type==='p'){
     syncTimeVal('i-ptime');
-    if(!document.getElementById('i-paddress').value.trim()){
-      toast(getLang()==='en'?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.');return;
-    }
-    if(!document.getElementById('i-pdate').value){
-      toast('Veuillez sélectionner une date.');return;
-    }
+    if(!document.getElementById('i-paddress').value.trim()){toast(_en?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.');return;}
+    if(!document.getElementById('i-pdate').value){toast(_en?'Please select a date.':'Veuillez sélectionner une date.');return;}
   } else if(type==='t'){
-    if(!S.dep){toast('Veuillez sélectionner une adresse de départ dans les suggestions.');return;}
-    if(!S.arr){toast('Veuillez sélectionner une adresse d\'arrivée dans les suggestions.');return;}
-    if(!document.getElementById('i-date').value){toast('Veuillez sélectionner une date.');return;}
-    if(S.price===null){toast('Veuillez calculer le prix avant de réserver.');return;}
+    if(!S.dep){toast(_en?'Please select a departure address from the suggestions.':'Veuillez sélectionner une adresse de départ dans les suggestions.');return;}
+    if(!S.arr){toast(_en?'Please select a drop-off address from the suggestions.':'Veuillez sélectionner une adresse d\'arrivée dans les suggestions.');return;}
+    if(!document.getElementById('i-date').value){toast(_en?'Please select a date.':'Veuillez sélectionner une date.');return;}
+    if(S.price===null){toast(_en?'Please calculate the price before booking.':'Veuillez calculer le prix avant de réserver.');return;}
   } else if(type==='m'){
     syncTimeVal('i-mtime');
-    if(!document.getElementById('i-mdep').value.trim()){
-      toast('Veuillez indiquer une adresse de prise en charge.');return;
-    }
-    if(!document.getElementById('i-mdate').value){toast('Veuillez sélectionner une date.');return;}
+    if(!document.getElementById('i-mdep').value.trim()){toast(_en?'Please enter a pick-up address.':'Veuillez indiquer une adresse de prise en charge.');return;}
+    if(!document.getElementById('i-mdate').value){toast(_en?'Please select a date.':'Veuillez sélectionner une date.');return;}
   }
   fillAndShowBookingModal(type);
 }
 function fillAndShowBookingModal(type){
   document.getElementById('modal-form').style.display='block';
   document.getElementById('modal-suc').classList.remove('show');
-  let rows='';
+  const r = (k, v) => `<div class="mr"><span class="mrk">${k}</span><span class="mrv">${v}</span></div>`;
+  const rGold = (k, v) => `<div class="mr"><span class="mrk" style="color:var(--gold);font-weight:600">${k}</span><span class="mrv" style="color:var(--gold);font-weight:600">${v}</span></div>`;
+  const sep = (num, label) => `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.4rem;padding-top:.5rem"><span class="mrk" style="color:var(--gold)">${i18n('wizard.s2_service_label')} ${num}</span><span class="mrv" style="color:var(--gold)">${label}</span></div>`;
+  let rows = '';
+
   if(type==='p'){
-    const f=CFG.forfaits[S.fpack];
+    const isRound=S.tripMode==='round-trip'||S.tripMode==='split';
+    const modeW=isRound?i18n('wizard.round_trip'):i18n('wizard.one_way');
+    const fLabelModal=i18n(S.fpack==='cdg'?'tarifs.cdg_dest':'tarifs.orly_dest');
+    const addr=(document.getElementById('i-paddress')?.value||'').substring(0,55);
+    const trajetLabel=S.fdir==='from'?fLabelModal+' → '+addr:addr+' → '+fLabelModal;
+    const retAddrModal=isRound?(document.getElementById('i-preturnaddr')?.value||'').trim().substring(0,55):'';
+    const rdateModal=isRound?(document.getElementById('i-prdate')?.value||''):'';
+    const rtimeModal=isRound?(document.getElementById('i-prtime')?.value||''):'';
     const reh=document.getElementById('f-rehausseur')?.checked;
     const sieg=document.getElementById('f-siege')?.checked;
-    const extras=(reh?'Réhausseur enfant':'')+(reh&&sieg?' · ':'')+(sieg?'Siège bébé':'');
-    const addr=(document.getElementById('i-paddress')?.value||'').substring(0,55);
-    const trajetLabel=S.fdir==='from'?f.label+' → '+addr:addr+' → '+f.label;
-    const isRoundModal=S.tripMode==='round-trip'||S.tripMode==='split';
-    const retAddrModal=isRoundModal?(document.getElementById('i-preturnaddr')?.value||'').trim():'';
-    rows=`<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetLabel}</span></div>${retAddrModal?`<div class="mr"><span class="mrk">Adresse retour</span><span class="mrv">${retAddrModal.substring(0,55)}</span></div>`:''}<div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${extras?`<div class="mr"><span class="mrk">Équipement famille</span><span class="mrv">${extras}</span></div>`:''}`;
-  } else if(type==='t'){rows=`<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div><div class="mr"><span class="mrk">Distance</span><span class="mrv">${S.km?S.km.toFixed(1)+' km':'—'}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;}
-  else{rows=`<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heures</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;}
+    const extras=(reh?i18n('recap.booster'):'')+(reh&&sieg?' · ':'')+( sieg?i18n('recap.baby_seat'):'');
+    rows+=sep(1,fLabelModal+' · '+modeW);
+    rows+=r(i18n('recap.vehicle'),VNAME[S.fveh]);
+    rows+=r(i18n('recap.route'),trajetLabel);
+    if(retAddrModal)rows+=r(i18n('recap.return_addr'),retAddrModal);
+    rows+=r(i18n('recap.outbound_date'),document.getElementById('i-pdate').value+' · '+document.getElementById('i-ptime').value);
+    if(isRound&&rdateModal)rows+=r(i18n('recap.return_date'),rdateModal+' · '+rtimeModal);
+    if(extras)rows+=r(i18n('recap.equipment'),extras);
+  } else if(type==='t'){
+    const tRound=S.tTripMode==='round-trip'||S.tTripMode==='split';
+    const modeW=tRound?i18n('wizard.round_trip'):i18n('wizard.one_way');
+    const typeLabel=i18n('recap.transfer')+' · '+modeW;
+    const rdateT=tRound?(document.getElementById('i-trdate')?.value||''):'';
+    const rtimeT=tRound?(document.getElementById('i-trtime')?.value||''):'';
+    rows+=sep(1,typeLabel);
+    rows+=r(i18n('recap.vehicle'),VNAME[S.veh]);
+    rows+=r(i18n('recap.departure'),(S.dep?.label||'—').substring(0,55));
+    rows+=r(i18n('recap.arrival'),(S.arr?.label||'—').substring(0,55));
+    rows+=r(i18n('recap.outbound_date'),document.getElementById('i-date').value+' · '+document.getElementById('i-time').value);
+    if(tRound&&rdateT)rows+=r(i18n('recap.return_date'),rdateT+' · '+rtimeT);
+    if(S.km)rows+=r(i18n('recap.distance'),S.km.toFixed(1)+' km');
+  } else {
+    rows+=sep(1,i18n('wizard.s2_mad_recap')+' '+S.mdur+'h');
+    rows+=r(i18n('recap.vehicle'),VNAME[S.mveh]);
+    rows+=r(i18n('recap.pickup'),(document.getElementById('i-mdep').value||'—').substring(0,55));
+    rows+=r(i18n('recap.datetime'),document.getElementById('i-mdate').value+' · '+document.getElementById('i-mtime').value);
+    rows+=r(i18n('recap.duration'),S.mdur+' '+(S.mdur>1?i18n('recap.hours'):i18n('recap.hour')));
+  }
+  if(S.price>0)rows+=rGold(i18n('recap.price'),S.price+' €');
+
+  S.prestations.forEach((p,i)=>{
+    const num=i+2;
+    const modeLabel=p.tripMode==='round-trip'?i18n('wizard.round_trip'):i18n('wizard.one_way');
+    if(p.tab==='p'){
+      const fLabelN=i18n((p.fpack||'cdg')==='cdg'?'tarifs.cdg_dest':'tarifs.orly_dest');
+      const addrN=(document.getElementById(`i-pn${p.id}addr`)?.value||'').substring(0,55);
+      const routeN=p.fdir==='from'?fLabelN+' → '+addrN:addrN+' → '+fLabelN;
+      const retAddrN=p.tripMode==='round-trip'?(document.getElementById(`i-pn${p.id}retaddr`)?.value||'').substring(0,55):'';
+      const dateN=document.getElementById(`i-pn${p.id}date`)?.value||'';
+      const timeN=document.getElementById(`i-pn${p.id}time`)?.value||'';
+      const rdateN=p.tripMode==='round-trip'?(document.getElementById(`i-pn${p.id}rdate`)?.value||''):'';
+      const rtimeN=p.tripMode==='round-trip'?(document.getElementById(`i-pn${p.id}rtime`)?.value||''):'';
+      rows+=sep(num,fLabelN+' · '+modeLabel);
+      rows+=r(i18n('recap.vehicle'),VNAME[p.veh||'van']);
+      rows+=r(i18n('recap.route'),routeN);
+      if(retAddrN)rows+=r(i18n('recap.return_addr'),retAddrN);
+      rows+=r(i18n('recap.outbound_date'),dateN+(timeN?' · '+timeN:''));
+      if(p.tripMode==='round-trip'&&rdateN)rows+=r(i18n('recap.return_date'),rdateN+(rtimeN?' · '+rtimeN:''));
+    } else if(p.tab==='m'){
+      const mdepN=(document.getElementById(`i-pn${p.id}mdep`)?.value||'—').substring(0,55);
+      const dateN=document.getElementById(`i-pn${p.id}mdate`)?.value||'';
+      const timeN=document.getElementById(`i-pn${p.id}mtime`)?.value||'';
+      rows+=sep(num,i18n('wizard.s2_mad_recap')+' '+p.mdur+'h · '+modeLabel);
+      rows+=r(i18n('recap.vehicle'),VNAME[p.veh||'van']);
+      rows+=r(i18n('recap.pickup'),mdepN);
+      rows+=r(i18n('recap.datetime'),dateN+(timeN?' · '+timeN:''));
+      rows+=r(i18n('recap.duration'),p.mdur+' '+(p.mdur>1?i18n('recap.hours'):i18n('recap.hour')));
+    } else {
+      const dep2=(p.dep?.label||document.getElementById(`i-pn${p.id}dep`)?.value||'—').substring(0,55);
+      const arr2=(p.arr?.label||document.getElementById(`i-pn${p.id}arr`)?.value||'—').substring(0,55);
+      const dateN=document.getElementById(`i-pn${p.id}tdate`)?.value||'';
+      const timeN=document.getElementById(`i-pn${p.id}ttime`)?.value||'';
+      rows+=sep(num,i18n('recap.transfer')+' · '+modeLabel);
+      rows+=r(i18n('recap.vehicle'),VNAME[p.veh||'van']);
+      rows+=r(i18n('recap.departure'),dep2);
+      rows+=r(i18n('recap.arrival'),arr2);
+      rows+=r(i18n('recap.outbound_date'),dateN+(timeN?' · '+timeN:''));
+    }
+    if(p.price>0)rows+=rGold(i18n('recap.price'),p.price+' €');
+  });
+
   document.getElementById('m-recap').innerHTML=rows;
-  document.getElementById('mt-p').textContent=(S.price||0)+' €';
+  const totalPrice=(S.price||0)+S.prestations.reduce((sum,p)=>sum+(p.price||0),0);
+  document.getElementById('mt-p').textContent=totalPrice+' €';
   document.getElementById('ov').classList.add('open');
 }
 function closeModal(){document.getElementById('ov').classList.remove('open');}
@@ -2314,16 +2614,22 @@ function buildPaymentLabel(method){
   return 'Espèces';
 }
 async function doPay(){
+  const _en=getLang()==='en';
   const nom=document.getElementById('mn').value.trim(),tel=document.getElementById('mt-tel').value.trim(),email=document.getElementById('me').value.trim();
-  if(!nom||!tel||!email){toast('Renseignez tous les champs *');return;}
-  if(!document.getElementById('cgv-ok').checked){toast('Veuillez accepter les Conditions Générales de Vente pour continuer.');return;}
+  if(!nom||!tel||!email){toast(_en?'Please fill in all required fields.':'Renseignez tous les champs *');return;}
+  if(!document.getElementById('cgv-ok').checked){toast(_en?'Please accept the Terms and Conditions to continue.':'Veuillez accepter les Conditions Générales de Vente pour continuer.');return;}
   const btn=document.getElementById('btn-ok'),bar=document.getElementById('lbar');
   btn.disabled=true;bar.classList.add('go');
   try{
     const resData = buildReservationData('carte');
     const sessionRes=await fetch('/api/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resData)});
     const sessionData=await sessionRes.json().catch(()=>({}));
-    if(!sessionRes.ok||!sessionData.url){toast(sessionData.error||'Erreur lors de la création du paiement Stripe');bar.classList.remove('go');btn.disabled=false;return;}
+    if(!sessionRes.ok||!sessionData.url){
+      console.error('[doPay] Erreur paiement HTTP '+sessionRes.status+':', sessionData);
+      const detail=sessionData.pgDetail?(' — '+sessionData.pgDetail):'';
+      toast((sessionData.error||'Erreur lors de la création du paiement Stripe')+detail);
+      bar.classList.remove('go');btn.disabled=false;return;
+    }
     window.location.href=sessionData.url;
   }catch(err){bar.classList.remove('go');btn.disabled=false;toast('Validation impossible : '+err.message);}
 }
@@ -2387,7 +2693,7 @@ function buildReservationData(paymentMethod){
   const prestsInfo = S.prestations.map((p, i) => {
     const num = i + 2;
     const dateVal = document.getElementById(`i-pn${p.id}date`)?.value || document.getElementById(`i-pn${p.id}tdate`)?.value || document.getElementById(`i-pn${p.id}mdate`)?.value || '';
-    const modeLabel = p.tripMode === 'round-trip' ? 'Aller-retour' : 'Aller simple';
+    const modeLabel = p.tripMode === 'round-trip' ? i18n('wizard.round_trip') : i18n('wizard.one_way');
     if (p.tab === 'p') {
       const f = CFG.forfaits[p.fpack || 'cdg'];
       const addr = (document.getElementById(`i-pn${p.id}addr`)?.value || '').substring(0, 40);
@@ -2396,14 +2702,17 @@ function buildReservationData(paymentMethod){
       const retDate = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rdate`)?.value || '') : '';
       const retTime = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rtime`)?.value || '') : '';
       const retPart = retAddr ? ` · Retour: ${retAddr}${retDate ? ' ' + retDate : ''}${retTime ? ' ' + retTime : ''}` : '';
-      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal}${timeVal ? ' ' + timeVal : ''} · ${p.price}€]`;
+      return `[Prestation ${num}: ${f.label} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${p.fdir === 'from' ? 'Depuis' : 'Vers'} aéroport · ${addr}${retPart} · ${dateVal}${timeVal ? ' ' + timeVal : ''} · ${p.price}€]`;
     } else if (p.tab === 'm') {
       const mdep = (document.getElementById(`i-pn${p.id}mdep`)?.value || '').substring(0, 40);
-      return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${dateVal} · ${p.price}€]`;
+      return `[Prestation ${num}: Mise à disposition ${p.mdur}h depuis ${mdep} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${dateVal} · ${p.price}€]`;
     } else {
       const dep = (document.getElementById(`i-pn${p.id}dep`)?.value || '').substring(0, 30);
       const arr = (document.getElementById(`i-pn${p.id}arr`)?.value || '').substring(0, 30);
-      return `[Prestation ${num}: Transfert ${dep} → ${arr} · ${modeLabel} · ${dateVal} · ${p.price > 0 ? p.price + '€' : 'prix non calculé'}]`;
+      const retDateT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trdate`)?.value || '') : '';
+      const retTimeT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trtime`)?.value || '') : '';
+      const retPartT = retDateT ? ` · Retour: ${retDateT}${retTimeT ? ' ' + retTimeT : ''}` : '';
+      return `[Prestation ${num}: Transfert ${dep} → ${arr} · ${modeLabel} · ${VNAME[p.veh||'van']} · ${dateVal}${retPartT} · ${p.price > 0 ? p.price + '€' : 'prix non calculé'}]`;
     }
   }).join(' ');
   if (prestsInfo) notes = notes ? notes + ' ' + prestsInfo : prestsInfo;
@@ -2503,58 +2812,82 @@ function getPrestHTML(n) {
   return `<div class="prest-panel" id="prest-${n}">
   <div class="prest-header">
     <span class="prest-title"></span>
-    <button class="prest-rm" onclick="removePrest(${n})">✕ Supprimer</button>
+    <button class="prest-rm" onclick="removePrest(${n})">✕ ${i18n('wizard.service2_remove')}</button>
   </div>
   <div class="trip-type-grid" id="ttg-pn${n}" style="margin-bottom:1rem">
-    <div class="trip-type-btn on" onclick="selTripTypeN(${n},'p',this)"><div class="ttb-ico">✈</div><div class="ttb-name">Forfait Aéroport</div><div class="ttb-sub">CDG · Orly · Prix fixe</div></div>
-    <div class="trip-type-btn" onclick="selTripTypeN(${n},'t',this)"><div class="ttb-ico">🚗</div><div class="ttb-name">Transfert</div><div class="ttb-sub">Prix au km</div></div>
-    <div class="trip-type-btn" onclick="selTripTypeN(${n},'m',this)"><div class="ttb-ico">⏱</div><div class="ttb-name">Mise à dispo</div><div class="ttb-sub">À l'heure</div></div>
+    <div class="trip-type-btn on" onclick="selTripTypeN(${n},'p',this)"><div class="ttb-ico">✈</div><div class="ttb-name">${i18n('wizard.s2_airport_name')}</div><div class="ttb-sub">${i18n('wizard.s2_airport_sub')}</div></div>
+    <div class="trip-type-btn" onclick="selTripTypeN(${n},'t',this)"><div class="ttb-ico">🚗</div><div class="ttb-name">${i18n('wizard.s2_transfer_name')}</div><div class="ttb-sub">${i18n('wizard.s2_transfer_sub')}</div></div>
+    <div class="trip-type-btn" onclick="selTripTypeN(${n},'m',this)"><div class="ttb-ico">⏱</div><div class="ttb-name">${i18n('wizard.s2_mad_name')}</div><div class="ttb-sub">${i18n('wizard.s2_mad_sub')}</div></div>
   </div>
   <div class="trip-mode-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem" id="tmg-pn${n}">
-    <button type="button" class="trip-mode-btn on" onclick="selTripModeN(${n},'one-way',this)"><div class="tmb-ico">→</div><div class="tmb-name">Aller simple</div></button>
-    <button type="button" class="trip-mode-btn" onclick="selTripModeN(${n},'round-trip',this)"><div class="tmb-ico">⇄</div><div class="tmb-name">Aller-retour</div></button>
+    <button type="button" class="trip-mode-btn on" onclick="selTripModeN(${n},'round-trip',this)"><div class="tmb-ico">⇄</div><div class="tmb-name">${i18n('wizard.round_trip')}</div></button>
+    <button type="button" class="trip-mode-btn" onclick="selTripModeN(${n},'one-way',this)"><div class="tmb-ico">→</div><div class="tmb-name">${i18n('wizard.one_way')}</div></button>
+  </div>
+  <p class="section-tag" style="margin:.6rem 0 .4rem;font-size:.62rem">Votre véhicule</p>
+  <div class="v-grid" style="margin:0 0 .8rem" id="vmg-pn${n}">
+    <div class="v-card on" id="pn${n}-van" onclick="selVehN(${n},'van')">
+      <div class="v-check"><div class="v-dot"></div></div>
+      <div class="v-ico"><img src="/dessin_van_noir_sans_fond_.png" alt="Van Premium" loading="lazy"></div>
+      <div class="v-name">Van Premium</div>
+      <div class="v-model">Van · 7 places</div>
+      <div class="v-specs"><span>👤 7p</span><span>🧳 8 bag.</span><span>👶 Famille ✓</span></div>
+    </div>
+    <div class="v-card" id="pn${n}-bus" onclick="selVehN(${n},'business')">
+      <div class="v-check"><div class="v-dot"></div></div>
+      <div class="v-ico"><img src="/dessin_berline_noir.png" alt="Berline" loading="lazy"></div>
+      <div class="v-name">Berline</div>
+      <div class="v-model">Mercedes Classe E</div>
+      <div class="v-specs"><span>👤 3p</span><span>🧳 3 bag.</span><span>📶 Wi-Fi</span></div>
+    </div>
   </div>
   <div class="trip-fields active" id="tf-pn${n}-p">
-    <label class="fl" style="margin-bottom:.5rem">Aéroport</label>
+    <label class="fl" style="margin-bottom:.5rem">${i18n('wizard.s2_airport_label')}</label>
     <div class="pack-grid">
-      <div class="pack-card on" id="pk-pn${n}-cdg" onclick="selPackN(${n},'cdg',this)"><div class="pack-ico">✈</div><div class="pack-name">Aéroport CDG</div><div class="pack-badge">Aller ou retour</div><div class="pack-prices"><span class="pack-price-tag">100 €</span></div></div>
-      <div class="pack-card" id="pk-pn${n}-orly" onclick="selPackN(${n},'orly',this)"><div class="pack-ico">✈</div><div class="pack-name">Aéroport Orly</div><div class="pack-badge">Aller ou retour</div><div class="pack-prices"><span class="pack-price-tag">90 €</span></div></div>
+      <div class="pack-card on" id="pk-pn${n}-cdg" onclick="selPackN(${n},'cdg',this)"><div class="pack-ico">✈</div><div class="pack-name">${i18n('wizard.s2_cdg_name')}</div><div class="pack-badge">${i18n('airport.oneway')}</div><div class="pack-prices"><span class="pack-price-tag">100 €</span></div></div>
+      <div class="pack-card" id="pk-pn${n}-orly" onclick="selPackN(${n},'orly',this)"><div class="pack-ico">✈</div><div class="pack-name">${i18n('wizard.s2_orly_name')}</div><div class="pack-badge">${i18n('airport.oneway')}</div><div class="pack-prices"><span class="pack-price-tag">90 €</span></div></div>
     </div>
     <div class="dir-toggle">
-      <button type="button" class="dir-btn on" onclick="selDirN(${n},'from',this)">✈ Depuis l'aéroport</button>
-      <button type="button" class="dir-btn" onclick="selDirN(${n},'to',this)">🏠 Vers l'aéroport</button>
+      <button type="button" class="dir-btn on" onclick="selDirN(${n},'from',this)">${i18n('wizard.s2_from_airport')}</button>
+      <button type="button" class="dir-btn" onclick="selDirN(${n},'to',this)">${i18n('wizard.s2_to_airport')}</button>
     </div>
-    <div class="ac-wrap"><input class="fi" id="i-pn${n}addr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}addr')" onfocus="acSearch(this,'ac-pn${n}addr')" onblur="acBlur('ac-pn${n}addr')"><div class="ac-list" id="ac-pn${n}addr"></div></div>
+    <div class="ac-wrap"><input class="fi" id="i-pn${n}addr" type="text" placeholder="${i18n('airport.addr_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}addr')" onfocus="acSearch(this,'ac-pn${n}addr')" onblur="acBlur('ac-pn${n}addr')"><div class="ac-list" id="ac-pn${n}addr"></div></div>
     <div class="fg2 fg-dt">
-      <div><label class="fl">Date aller</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">Heure aller</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
+      <div><label class="fl">${i18n('wizard.outbound_date')}</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
     </div>
-    <div class="return-date-block" id="rdb-pn${n}" style="display:none">
-      <label class="fl" style="margin-bottom:.4rem">Adresse de retour</label>
-      <div class="ac-wrap" style="margin-bottom:.8rem"><input class="fi" id="i-pn${n}retaddr" type="text" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}retaddr')" onfocus="acSearch(this,'ac-pn${n}retaddr')" onblur="acBlur('ac-pn${n}retaddr')"><div class="ac-list" id="ac-pn${n}retaddr"></div></div>
-      <label class="fl">↩ Date et heure de retour</label>
+    <div class="return-date-block" id="rdb-pn${n}">
+      <label class="fl" style="margin-bottom:.4rem">${i18n('airport.return_addr_label')}</label>
+      <div class="ac-wrap" style="margin-bottom:.8rem"><input class="fi" id="i-pn${n}retaddr" type="text" placeholder="${i18n('airport.return_addr_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}retaddr')" onfocus="acSearch(this,'ac-pn${n}retaddr')" onblur="acBlur('ac-pn${n}retaddr')"><div class="ac-list" id="ac-pn${n}retaddr"></div></div>
+      <label class="fl">${i18n('wizard.return_datetime')}</label>
       <div class="fg2 fg-dt">
-        <div><label class="fl">Date retour</label><input class="fi" id="i-pn${n}rdate" type="date" style="padding-left:.75rem"></div>
-        <div><label class="fl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}rtime-h" onchange="syncTimeVal('i-pn${n}rtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}rtime-m" onchange="syncTimeVal('i-pn${n}rtime')"></select><input type="hidden" id="i-pn${n}rtime"></div></div>
+        <div><label class="fl">${i18n('wizard.return_date_lbl')}</label><input class="fi" id="i-pn${n}rdate" type="date" style="padding-left:.75rem"></div>
+        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}rtime-h" onchange="syncTimeVal('i-pn${n}rtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}rtime-m" onchange="syncTimeVal('i-pn${n}rtime')"></select><input type="hidden" id="i-pn${n}rtime"></div></div>
       </div>
     </div>
   </div>
   <div class="trip-fields" id="tf-pn${n}-t">
-    <div class="fg1"><label class="fl">Adresse de départ</label><div class="ac-wrap"><input class="fi" id="i-pn${n}dep" type="text" placeholder="Ex : 1 rue de Rivoli, Paris" autocomplete="off" oninput="acSearch(this,'ac-pn${n}dep')" onfocus="acSearch(this,'ac-pn${n}dep')" onblur="acBlur('ac-pn${n}dep')"><div class="ac-list" id="ac-pn${n}dep"></div></div></div>
-    <div class="fg1"><label class="fl">Adresse d'arrivée</label><div class="ac-wrap"><input class="fi" id="i-pn${n}arr" type="text" placeholder="Ex : Aéroport CDG Terminal 2E" autocomplete="off" oninput="acSearch(this,'ac-pn${n}arr')" onfocus="acSearch(this,'ac-pn${n}arr')" onblur="acBlur('ac-pn${n}arr')"><div class="ac-list" id="ac-pn${n}arr"></div></div></div>
+    <div class="fg1"><label class="fl">${i18n('wizard.s2_dep_label')}</label><div class="ac-wrap"><input class="fi" id="i-pn${n}dep" type="text" placeholder="${i18n('transfer.dep_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}dep')" onfocus="acSearch(this,'ac-pn${n}dep')" onblur="acBlur('ac-pn${n}dep')"><div class="ac-list" id="ac-pn${n}dep"></div></div></div>
+    <div class="fg1"><label class="fl">${i18n('wizard.s2_arr_label')}</label><div class="ac-wrap"><input class="fi" id="i-pn${n}arr" type="text" placeholder="${i18n('transfer.arr_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}arr')" onfocus="acSearch(this,'ac-pn${n}arr')" onblur="acBlur('ac-pn${n}arr')"><div class="ac-list" id="ac-pn${n}arr"></div></div></div>
     <div class="fg2 fg-dt">
-      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}tdate" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}ttime-h" onchange="syncTimeVal('i-pn${n}ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}ttime-m" onchange="syncTimeVal('i-pn${n}ttime')"></select><input type="hidden" id="i-pn${n}ttime"></div></div>
+      <div><label class="fl">${i18n('wizard.outbound_date')}</label><input class="fi" id="i-pn${n}tdate" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}ttime-h" onchange="syncTimeVal('i-pn${n}ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}ttime-m" onchange="syncTimeVal('i-pn${n}ttime')"></select><input type="hidden" id="i-pn${n}ttime"></div></div>
     </div>
-    <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem">Prix calculé au km après saisie des adresses</p>
+    <div class="return-date-block" id="rdb-pn${n}-t">
+      <label class="fl">${i18n('wizard.return_datetime')}</label>
+      <div class="fg2 fg-dt">
+        <div><label class="fl">${i18n('wizard.return_date_lbl')}</label><input class="fi" id="i-pn${n}trdate" type="date" style="padding-left:.75rem"></div>
+        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}trtime-h" onchange="syncTimeVal('i-pn${n}trtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}trtime-m" onchange="syncTimeVal('i-pn${n}trtime')"></select><input type="hidden" id="i-pn${n}trtime"></div></div>
+      </div>
+    </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem">${i18n('wizard.s2_km_note')}</p>
   </div>
   <div class="trip-fields" id="tf-pn${n}-m">
-    <div class="fg1"><label class="fl">Adresse de prise en charge</label><div class="ac-wrap"><input class="fi" id="i-pn${n}mdep" type="text" placeholder="Adresse de départ" autocomplete="off" oninput="acSearch(this,'ac-pn${n}mdep')" onfocus="acSearch(this,'ac-pn${n}mdep')" onblur="acBlur('ac-pn${n}mdep')"><div class="ac-list" id="ac-pn${n}mdep"></div></div></div>
+    <div class="fg1"><label class="fl">${i18n('wizard.s2_pickup_label')}</label><div class="ac-wrap"><input class="fi" id="i-pn${n}mdep" type="text" placeholder="${i18n('mad.dep_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}mdep')" onfocus="acSearch(this,'ac-pn${n}mdep')" onblur="acBlur('ac-pn${n}mdep')"><div class="ac-list" id="ac-pn${n}mdep"></div></div></div>
     <div class="fg2 fg-dt">
-      <div><label class="fl">Date</label><input class="fi" id="i-pn${n}mdate" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}mtime-h" onchange="syncTimeVal('i-pn${n}mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}mtime-m" onchange="syncTimeVal('i-pn${n}mtime')"></select><input type="hidden" id="i-pn${n}mtime"></div></div>
+      <div><label class="fl">${i18n('wizard.s2_date_label')}</label><input class="fi" id="i-pn${n}mdate" type="date" style="padding-left:.75rem"></div>
+      <div><label class="fl">${i18n('wizard.s2_time_label')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}mtime-h" onchange="syncTimeVal('i-pn${n}mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}mtime-m" onchange="syncTimeVal('i-pn${n}mtime')"></select><input type="hidden" id="i-pn${n}mtime"></div></div>
     </div>
-    <label class="fl" style="margin:.6rem 0 .4rem">Durée</label>
+    <label class="fl" style="margin:.6rem 0 .4rem">${i18n('mad.duration_label')}</label>
     <div class="d-grid">
       <div class="d-btn on" onclick="selDurN(${n},2,this)"><div class="d-h">2h</div></div>
       <div class="d-btn" onclick="selDurN(${n},3,this)"><div class="d-h">3h</div></div>
@@ -2565,14 +2898,15 @@ function getPrestHTML(n) {
     </div>
   </div>
   <div class="prest-price-line">
-    <span style="color:var(--muted)">Prestation</span>
+    <span style="color:var(--muted)">${i18n('wizard.s2_service_label')}</span>
     <span id="pv-pn${n}" style="color:var(--gold)">—</span>
   </div>
+  <div class="price-body" id="ppbody-pn${n}" style="display:none;padding:.7rem 1rem;border-top:1px solid var(--border)"></div>
 </div>`;
 }
 function addPrestation() {
   const n = _prestCounter++;
-  S.prestations.push({ id:n, tab:'p', fpack:'cdg', fdir:'from', mdur:2, price:0, dep:null, arr:null, km:null, tripMode:'one-way' });
+  S.prestations.push({ id:n, tab:'p', fpack:'cdg', fdir:'from', mdur:2, price:0, dep:null, arr:null, km:null, tripMode:'round-trip', veh:'van', addrCoord:null, retAddrCoord:null });
   const container = document.getElementById('prestations-container');
   const div = document.createElement('div');
   div.innerHTML = getPrestHTML(n);
@@ -2581,13 +2915,13 @@ function addPrestation() {
   const ds = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
   const hOpts = Array.from({length:24},(_,i)=>{const v=pad2(i);return `<option value="${v}">${v}</option>`;}).join('');
   const mOpts = [0,5,10,15,20,25,30,35,40,45,50,55].map(m=>{const v=pad2(m);return `<option value="${v}">${v}</option>`;}).join('');
-  [`i-pn${n}time`,`i-pn${n}ttime`,`i-pn${n}mtime`,`i-pn${n}rtime`].forEach(id=>{
+  [`i-pn${n}time`,`i-pn${n}ttime`,`i-pn${n}mtime`,`i-pn${n}rtime`,`i-pn${n}trtime`].forEach(id=>{
     const hEl=document.getElementById(id+'-h'),mEl=document.getElementById(id+'-m');
     if(hEl){hEl.innerHTML=hOpts;hEl.value=pad2(now.getHours());}
     if(mEl){mEl.innerHTML=mOpts;mEl.value='00';}
     syncTimeVal(id);
   });
-  [`i-pn${n}date`,`i-pn${n}tdate`,`i-pn${n}mdate`,`i-pn${n}rdate`].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
+  [`i-pn${n}date`,`i-pn${n}tdate`,`i-pn${n}mdate`,`i-pn${n}rdate`,`i-pn${n}trdate`].forEach(id=>{const el=document.getElementById(id);if(el)el.value=ds;});
   renumberPrestLabels();
   calcPrestPrice(n);
 }
@@ -2601,7 +2935,7 @@ function removePrest(pid) {
 function renumberPrestLabels() {
   S.prestations.forEach((p, i) => {
     const lbl = document.querySelector('#prest-' + p.id + ' .prest-title');
-    if (lbl) lbl.textContent = (i + 2) + 'ème prestation';
+    if (lbl) lbl.textContent = i18n('wizard.s2_service_label') + ' ' + (i + 2);
   });
 }
 function selTripModeN(pid, mode, el) {
@@ -2610,8 +2944,9 @@ function selTripModeN(pid, mode, el) {
   p.tripMode = mode;
   document.querySelectorAll('#tmg-pn' + pid + ' .trip-mode-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
-  const rdbN = document.getElementById('rdb-pn' + pid);
-  if (rdbN) rdbN.style.display = (mode === 'round-trip') ? '' : 'none';
+  const isRound = mode === 'round-trip';
+  document.getElementById('rdb-pn' + pid)?.style.setProperty('display', isRound ? '' : 'none');
+  document.getElementById('rdb-pn' + pid + '-t')?.style.setProperty('display', isRound ? '' : 'none');
   calcPrestPrice(pid);
 }
 function selTripTypeN(pid, type, el) {
@@ -2648,38 +2983,128 @@ function selDurN(pid, h, el) {
   if (el) el.classList.add('on');
   calcPrestPrice(pid);
 }
+function selVehN(pid, veh) {
+  const p = S.prestations.find(x => x.id === pid);
+  if (!p) return;
+  p.veh = veh;
+  document.querySelectorAll('#vmg-pn' + pid + ' .v-card').forEach(c => c.classList.remove('on'));
+  document.getElementById('pn' + pid + '-van')?.classList.toggle('on', veh === 'van');
+  document.getElementById('pn' + pid + '-bus')?.classList.toggle('on', veh === 'business');
+  calcPrestPrice(pid);
+}
 function calcPrestPrice(pid) {
   const p = S.prestations.find(x => x.id === pid);
   if (!p) return;
-  let base = 0;
-  const veh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
+  const isRound = p.tripMode === 'round-trip';
+  const pvEl = document.getElementById('pv-pn' + pid);
+  const bodyEl = document.getElementById('ppbody-pn' + pid);
+
+  // Calcule le prix pour un véhicule donné
+  function priceForVeh(veh) {
+    if (p.tab === 'p') {
+      const f = CFG.forfaits[p.fpack || 'cdg'];
+      const base = f[veh] || f.van;
+      const extraA = calcParisExtraKm(p.addrCoord);
+      const retC = isRound ? (p.retAddrCoord || p.addrCoord) : null;
+      const extraR = isRound ? calcParisExtraKm(retC) : 0;
+      return (base + extraA) + (isRound ? (base + extraR) : 0);
+    }
+    if (p.tab === 'm') {
+      const t = CFG.tarifs[veh] || CFG.tarifs.van;
+      return (p.mdur || 2) * t.h;
+    }
+    if (p.tab === 't') {
+      const depAp = p.dep ? detectAirportStrict(p.dep) : null;
+      const arrAp = p.arr ? detectAirportStrict(p.arr) : null;
+      const apKey = (depAp || arrAp) && !(depAp && arrAp) ? (depAp || arrAp) : null;
+      if (apKey) {
+        const f = CFG.forfaits[apKey];
+        const extra = (p.dep && p.arr) ? getTransferAirportExtraKm(p.dep, p.arr, isRound) : 0;
+        return (isRound ? f[veh] * 2 : f[veh]) + extra;
+      }
+      if (p.dep && p.arr && p.km !== null) {
+        const t = CFG.tarifs[veh] || CFG.tarifs.van;
+        const baseOne = Math.ceil(Math.max(p.km * t.km, t.min));
+        return isRound ? baseOne * 2 : baseOne;
+      }
+    }
+    return 0;
+  }
+
+  // Détection aéroport pour le transfert (une seule fois)
+  let tApKey = null, tHasKm = false;
+  if (p.tab === 't') {
+    const depAp = p.dep ? detectAirportStrict(p.dep) : null;
+    const arrAp = p.arr ? detectAirportStrict(p.arr) : null;
+    tApKey = (depAp || arrAp) && !(depAp && arrAp) ? (depAp || arrAp) : null;
+    tHasKm = !!(p.dep && p.arr && p.km !== null);
+    if (!tApKey && !tHasKm) {
+      if (pvEl) pvEl.textContent = (p.dep && p.arr) ? i18n('wizard.s2_price_calculating') : i18n('wizard.s2_price_enter_addr');
+      if (bodyEl) { bodyEl.innerHTML = ''; bodyEl.style.display = 'none'; }
+      return;
+    }
+  }
+
+  const selectedVeh = p.veh || 'van';
+  p.price = priceForVeh(selectedVeh);
+
+  // Affichage en-tête : prix du véhicule sélectionné
+  if (pvEl) {
+    pvEl.textContent = p.price ? p.price + ' €' : '—';
+  }
+
+  if (!bodyEl || !p.price) { if (bodyEl) { bodyEl.innerHTML = ''; bodyEl.style.display = 'none'; } return; }
+
+  const r = (k, v, gold) => `<div class="brow"><span class="bk">${k}</span><span class="bv"${gold ? ' style="color:var(--gold)"' : ''}>${v}</span></div>`;
+  const vehLabel = VNAME[selectedVeh];
+  let html = '';
+
   if (p.tab === 'p') {
     const f = CFG.forfaits[p.fpack || 'cdg'];
-    base = f[veh] || f.van;
+    html += r(i18n('recap.package'), f.label);
+    html += r(i18n('recap.type'), isRound ? i18n('wizard.round_trip') : i18n('wizard.one_way'));
+    const extraA = calcParisExtraKm(p.addrCoord);
+    const retC = isRound ? (p.retAddrCoord || p.addrCoord) : null;
+    const extraR = isRound ? calcParisExtraKm(retC) : 0;
+    if (isRound && extraA > 0 && extraR > 0 && extraA === extraR) {
+      html += r(i18n('extra.outside_paris') + ' ' + i18n('extra.round_trip_x2') + ' (' + extraA + ' km)', '+' + (extraA * 2) + ' €');
+    } else {
+      if (extraA > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.aller') + ' (' + extraA + ' km)', '+' + extraA + ' €');
+      if (extraR > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.retour') + ' (' + extraR + ' km)', '+' + extraR + ' €');
+    }
+    html += r(vehLabel, p.price + ' €', true);
   } else if (p.tab === 'm') {
-    base = (p.mdur || 2) * (CFG.tarifs[veh] || CFG.tarifs.van).h;
-  } else if (p.tab === 't' && p.km !== null) {
-    const t = CFG.tarifs[veh] || CFG.tarifs.van;
-    base = Math.ceil(Math.max(p.km * t.km, t.min));
+    const dur = p.mdur || 2;
+    const tRate = CFG.tarifs[selectedVeh].h;
+    html += r(i18n('recap.duration'), dur + 'h' + (isRound ? ' × 2' : ''));
+    html += r(vehLabel + ' — ' + tRate + ' €/h', p.price + ' €', true);
+  } else if (p.tab === 't') {
+    if (tApKey) {
+      const f = CFG.forfaits[tApKey];
+      html += r(i18n('recap.package'), f.label);
+      html += r(i18n('recap.type'), isRound ? i18n('wizard.round_trip') : i18n('wizard.one_way'));
+      buildTransferAirportExtraRows(p.dep, p.arr, isRound).forEach(([k, v]) => { html += r(k, v); });
+      html += r(vehLabel, p.price + ' €', true);
+    } else if (tHasKm) {
+      const tRate = CFG.tarifs[selectedVeh];
+      html += r(i18n('recap.distance') + ' (' + p.km.toFixed(1) + ' km × ' + tRate.km + ' €/km)', (p.km * tRate.km).toFixed(2) + ' €');
+      if (isRound) html += r(i18n('wizard.round_trip') + ' (×2)', '');
+      html += r(vehLabel, p.price + ' €', true);
+    }
   }
-  const price = (p.tripMode === 'round-trip' && base > 0) ? base * 2 : base;
-  p.price = price;
-  const el = document.getElementById('pv-pn' + pid);
-  if (p.tab === 't') {
-    if (el) el.textContent = price > 0 ? price + ' €' : (p.dep && p.arr ? 'Calcul…' : 'Saisissez les adresses');
-  } else {
-    if (el) el.textContent = price > 0 ? price + ' €' : '—';
-  }
+
+  bodyEl.innerHTML = html;
+  bodyEl.style.display = '';
 }
 
 function selTripType(type, el) {
   S.tab = type;
-  document.querySelectorAll('.trip-type-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#main-ttg .trip-type-btn').forEach(b => b.classList.remove('on'));
   if (el) el.classList.add('on');
-  document.querySelectorAll('.trip-fields').forEach(f => f.classList.remove('active'));
+  ['tf-p','tf-t','tf-m'].forEach(id => { const f=document.getElementById(id); if(f)f.classList.remove('active'); });
   const tf = document.getElementById('tf-' + type);
   if (tf) tf.classList.add('active');
-  /* Sync avec l'ancien S.veh selon le contexte */
+  if(type==='m')updateMAD();
 }
 
 function updateWizardVehiclePrices() {
@@ -2688,16 +3113,20 @@ function updateWizardVehiclePrices() {
   const tRound = S.tTripMode === 'round-trip' || S.tTripMode === 'split';
   if (S.tab === 'p') {
     const f = CFG.forfaits[S.fpack];
-    vanPrice = pRound ? f.van * 2 : f.van;
-    busPrice = pRound ? f.business * 2 : f.business;
+    const extraAller = calcParisExtraKm(S.paddressCoord);
+    const retCoord = pRound ? (S.preturnAddrCoord || S.paddressCoord) : null;
+    const extraRetour = pRound ? calcParisExtraKm(retCoord) : 0;
+    vanPrice = (f.van + extraAller) + (pRound ? (f.van + extraRetour) : 0);
+    busPrice = (f.business + extraAller) + (pRound ? (f.business + extraRetour) : 0);
   } else if (S.tab === 'm') {
     vanPrice = S.mdur * CFG.tarifs.van.h;
     busPrice = S.mdur * CFG.tarifs.business.h;
   } else if (S.tab === 't') {
     if (S.tAirportKey) {
       const f = CFG.forfaits[S.tAirportKey];
-      vanPrice = tRound ? f.van * 2 : f.van;
-      busPrice = tRound ? f.business * 2 : f.business;
+      const extra = getTransferAirportExtraKm(S.dep, S.arr, tRound);
+      vanPrice = (tRound ? f.van * 2 : f.van) + extra;
+      busPrice = (tRound ? f.business * 2 : f.business) + extra;
     } else if (S.km !== null) {
       const rawVan = Math.ceil(Math.max(S.km * CFG.tarifs.van.km, CFG.tarifs.van.min));
       const rawBus = Math.ceil(Math.max(S.km * CFG.tarifs.business.km, CFG.tarifs.business.min));
@@ -2707,29 +3136,32 @@ function updateWizardVehiclePrices() {
       vanPrice = busPrice = null;
     }
   }
+  const prestationsTotal = S.prestations.reduce((sum, p) => sum + (p.price || 0), 0);
   const vEl = document.getElementById('w-price-van');
   const bEl = document.getElementById('w-price-bus');
-  if (vEl) vEl.textContent = vanPrice !== null ? vanPrice + ' €' : '—';
-  if (bEl) bEl.textContent = busPrice !== null ? busPrice + ' €' : '—';
+  if (vEl) vEl.textContent = vanPrice !== null ? (vanPrice + prestationsTotal) + ' €' : '—';
+  if (bEl) bEl.textContent = busPrice !== null ? (busPrice + prestationsTotal) + ' €' : '—';
   /* Met à jour S.price selon le véhicule actuellement sélectionné */
   const curVeh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
   if (curVeh === 'van' && vanPrice !== null) S.price = vanPrice;
   if (curVeh === 'business' && busPrice !== null) S.price = busPrice;
 }
 
-function selWizVehicle(v) {
-  if (S.tab === 'p') { S.fveh = v; updatePackPrice(); }
-  else if (S.tab === 't') { selV(v); }
-  else if (S.tab === 'm') { selVM(v); }
-  document.getElementById('wvc-van').classList.toggle('on', v === 'van');
-  document.getElementById('wvc-bus').classList.toggle('on', v === 'business');
-  updateWizardVehiclePrices();
+
+
+function selWizVeh(type, veh) {
+  if (type === 'p') { S.fveh = veh; updatePackPrice(); }
+  else if (type === 't') { selV(veh); }
+  else if (type === 'm') { selVM(veh); }
+  const pre = type === 'p' ? 'wiz-vp' : type === 't' ? 'wiz-vt' : 'wiz-vm';
+  document.getElementById(pre+'-van')?.classList.toggle('on', veh === 'van');
+  document.getElementById(pre+'-bus')?.classList.toggle('on', veh === 'business');
 }
 
 function showWizardStep(step) {
   wStep = step;
-  const steps = ['wps-1','wps-2','wps-3','wps-4'];
-  const bars  = ['wpb-1','wpb-2','wpb-3'];
+  const steps = ['wps-1','wps-2','wps-3'];
+  const bars  = ['wpb-1','wpb-2'];
   steps.forEach((id, i) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -2749,62 +3181,116 @@ function showWizardStep(step) {
 }
 
 function validateWizardStep1() {
+  const _en=getLang()==='en';
   if (S.tab === 'p') {
-    if (!document.getElementById('i-paddress').value.trim()) { toast(getLang()==='en'?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.'); return false; }
-    if (!document.getElementById('i-pdate').value) { toast('Veuillez sélectionner une date.'); return false; }
+    if (!document.getElementById('i-paddress').value.trim()) { toast(_en?'Please enter your pick-up address.':'Veuillez indiquer votre adresse de prise en charge.'); return false; }
+    if (!document.getElementById('i-pdate').value) { toast(_en?'Please select a date.':'Veuillez sélectionner une date.'); return false; }
   } else if (S.tab === 't') {
-    if (!S.dep) { toast('Veuillez sélectionner une adresse de départ dans les suggestions.'); return false; }
-    if (!S.arr) { toast('Veuillez sélectionner une adresse d\'arrivée dans les suggestions.'); return false; }
-    if (!document.getElementById('i-date').value) { toast('Veuillez sélectionner une date.'); return false; }
+    if (!S.dep) { toast(_en?'Please select a departure address from the suggestions.':'Veuillez sélectionner une adresse de départ dans les suggestions.'); return false; }
+    if (!S.arr) { toast(_en?'Please select a drop-off address from the suggestions.':'Veuillez sélectionner une adresse d\'arrivée dans les suggestions.'); return false; }
+    if (!document.getElementById('i-date').value) { toast(_en?'Please select a date.':'Veuillez sélectionner une date.'); return false; }
   } else if (S.tab === 'm') {
-    if (!document.getElementById('i-mdep').value.trim()) { toast('Veuillez indiquer une adresse de prise en charge.'); return false; }
-    if (!document.getElementById('i-mdate').value) { toast('Veuillez sélectionner une date.'); return false; }
+    if (!document.getElementById('i-mdep').value.trim()) { toast(_en?'Please enter a pick-up address.':'Veuillez indiquer une adresse de prise en charge.'); return false; }
+    if (!document.getElementById('i-mdate').value) { toast(_en?'Please select a date.':'Veuillez sélectionner une date.'); return false; }
   }
   return true;
 }
 
 function fillWizardRecap() {
   const type = S.tab;
+  const r = (k, v) => `<div class="mr"><span class="mrk">${k}</span><span class="mrv">${v}</span></div>`;
+  const rGold = (k, v) => `<div class="mr"><span class="mrk" style="color:var(--gold);font-weight:600">${k}</span><span class="mrv" style="color:var(--gold);font-weight:600">${v}</span></div>`;
+  const sep = (num, label) => `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.5rem;padding-top:.6rem"><span class="mrk" style="color:var(--gold)">${i18n('wizard.s2_service_label')} ${num}</span><span class="mrv" style="color:var(--gold)">${label}</span></div>`;
+
   let rows = '';
+
+  // Prestation 1 — prestation principale
   if (type === 'p') {
-    const f = CFG.forfaits[S.fpack];
-    const reh = document.getElementById('f-rehausseur')?.checked;
-    const sieg = document.getElementById('f-siege')?.checked;
-    const extras = (reh ? 'Réhausseur enfant' : '') + (reh && sieg ? ' · ' : '') + (sieg ? 'Siège bébé' : '');
-    const addrW = (document.getElementById('i-paddress')?.value || '').substring(0, 55);
-    const trajetW = S.fdir === 'from' ? f.label + ' → ' + addrW : addrW + ' → ' + f.label;
     const isRound = S.tripMode === 'round-trip' || S.tripMode === 'split';
-    const modeW = isRound ? 'Aller-retour' : 'Aller simple';
+    const modeW = isRound ? i18n('wizard.round_trip') : i18n('wizard.one_way');
+    const fLabel = i18n(S.fpack === 'cdg' ? 'tarifs.cdg_dest' : 'tarifs.orly_dest');
+    const addrW = (document.getElementById('i-paddress')?.value || '').substring(0, 55);
+    const trajetW = S.fdir === 'from' ? fLabel + ' → ' + addrW : addrW + ' → ' + fLabel;
     const rdateW = isRound ? (document.getElementById('i-prdate')?.value || '') : '';
     const rtimeW = isRound ? (document.getElementById('i-prtime')?.value || '') : '';
-    rows = `<div class="mr"><span class="mrk">Trajet</span><span class="mrv">${trajetW}</span></div><div class="mr"><span class="mrk">Type</span><span class="mrv">${modeW}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.fveh]}</span></div><div class="mr"><span class="mrk">Date aller</span><span class="mrv">${document.getElementById('i-pdate').value} · ${document.getElementById('i-ptime').value}</span></div>${isRound && rdateW ? `<div class="mr"><span class="mrk">Date retour</span><span class="mrv">${rdateW} · ${rtimeW}</span></div>` : ''}${extras ? `<div class="mr"><span class="mrk">Équipement</span><span class="mrv">${extras}</span></div>` : ''}`;
+    const retAddrW = isRound ? (document.getElementById('i-preturnaddr')?.value || '').trim().substring(0, 55) : '';
+    const reh = document.getElementById('f-rehausseur')?.checked;
+    const sieg = document.getElementById('f-siege')?.checked;
+    const extras = (reh ? i18n('recap.booster') : '') + (reh && sieg ? ' · ' : '') + (sieg ? i18n('recap.baby_seat') : '');
+    rows += sep(1, fLabel + ' · ' + modeW);
+    rows += r(i18n('recap.vehicle'), VNAME[S.fveh]);
+    rows += r(i18n('recap.route'), trajetW);
+    if (retAddrW) rows += r(i18n('recap.return_addr'), retAddrW);
+    rows += r(i18n('recap.outbound_date'), document.getElementById('i-pdate').value + ' · ' + document.getElementById('i-ptime').value);
+    if (isRound && rdateW) rows += r(i18n('recap.return_date'), rdateW + ' · ' + rtimeW);
+    if (extras) rows += r(i18n('recap.equipment'), extras);
   } else if (type === 't') {
     const tRound = S.tTripMode === 'round-trip' || S.tTripMode === 'split';
-    const modeW = tRound ? 'Aller-retour' : 'Aller simple';
+    const modeW = tRound ? i18n('wizard.round_trip') : i18n('wizard.one_way');
     const rdateW = tRound ? (document.getElementById('i-trdate')?.value || '') : '';
     const rtimeW = tRound ? (document.getElementById('i-trtime')?.value || '') : '';
-    rows = `<div class="mr"><span class="mrk">Départ</span><span class="mrv">${(S.dep?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Arrivée</span><span class="mrv">${(S.arr?.label||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Type</span><span class="mrv">${modeW}</span></div><div class="mr"><span class="mrk">Date aller</span><span class="mrv">${document.getElementById('i-date').value} · ${document.getElementById('i-time').value}</span></div>${tRound && rdateW ? `<div class="mr"><span class="mrk">Date retour</span><span class="mrv">${rdateW} · ${rtimeW}</span></div>` : ''}<div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.veh]}</span></div>`;
+    const typeLabel = i18n('recap.transfer') + ' · ' + modeW;
+    rows += sep(1, typeLabel);
+    rows += r(i18n('recap.vehicle'), VNAME[S.veh]);
+    rows += r(i18n('recap.departure'), (S.dep?.label || '—').substring(0, 55));
+    rows += r(i18n('recap.arrival'), (S.arr?.label || '—').substring(0, 55));
+    rows += r(i18n('recap.outbound_date'), document.getElementById('i-date').value + ' · ' + document.getElementById('i-time').value);
+    if (tRound && rdateW) rows += r(i18n('recap.return_date'), rdateW + ' · ' + rtimeW);
   } else {
-    rows = `<div class="mr"><span class="mrk">Prise en charge</span><span class="mrv">${(document.getElementById('i-mdep').value||'—').substring(0,55)}</span></div><div class="mr"><span class="mrk">Date / Heure</span><span class="mrv">${document.getElementById('i-mdate').value} · ${document.getElementById('i-mtime').value}</span></div><div class="mr"><span class="mrk">Durée</span><span class="mrv">${S.mdur} heure${S.mdur > 1 ? 's' : ''}</span></div><div class="mr"><span class="mrk">Véhicule</span><span class="mrv">${VNAME[S.mveh]}</span></div>`;
+    const typeLabel = i18n('wizard.s2_mad_recap') + ' ' + S.mdur + 'h';
+    rows += sep(1, typeLabel);
+    rows += r(i18n('recap.vehicle'), VNAME[S.mveh]);
+    rows += r(i18n('recap.pickup'), (document.getElementById('i-mdep').value || '—').substring(0, 55));
+    rows += r(i18n('recap.datetime'), document.getElementById('i-mdate').value + ' · ' + document.getElementById('i-mtime').value);
+    rows += r(i18n('recap.duration'), S.mdur + ' ' + (S.mdur > 1 ? i18n('recap.hours') : i18n('recap.hour')));
   }
+  if (S.price > 0) rows += rGold(i18n('recap.price'), S.price + ' €');
+
+  // Prestations supplémentaires
   S.prestations.forEach((p, i) => {
     const num = i + 2;
-    let plabel = '';
-    const modeLabel = p.tripMode === 'round-trip' ? 'Aller-retour' : 'Aller simple';
+    const modeLabel = p.tripMode === 'round-trip' ? i18n('wizard.round_trip') : i18n('wizard.one_way');
     if (p.tab === 'p') {
-      const f = CFG.forfaits[p.fpack || 'cdg'];
-      const retAddrRecap = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}retaddr`)?.value || '').substring(0, 35) : '';
-      plabel = f.label + ' · ' + modeLabel + (p.fdir === 'from' ? ' (depuis aéroport)' : ' (vers aéroport)') + (retAddrRecap ? ' · Retour : ' + retAddrRecap : '');
+      const fLabelN = i18n((p.fpack || 'cdg') === 'cdg' ? 'tarifs.cdg_dest' : 'tarifs.orly_dest');
+      const addrN = (document.getElementById(`i-pn${p.id}addr`)?.value || '').substring(0, 55);
+      const routeN = p.fdir === 'from' ? fLabelN + ' → ' + addrN : addrN + ' → ' + fLabelN;
+      const retAddrN = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}retaddr`)?.value || '').substring(0, 55) : '';
+      const dateN = document.getElementById(`i-pn${p.id}date`)?.value || '';
+      const timeN = document.getElementById(`i-pn${p.id}time`)?.value || '';
+      const rdateN = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rdate`)?.value || '') : '';
+      const rtimeN = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}rtime`)?.value || '') : '';
+      rows += sep(num, fLabelN + ' · ' + modeLabel);
+      rows += r(i18n('recap.vehicle'), VNAME[p.veh || 'van']);
+      rows += r(i18n('recap.route'), routeN);
+      if (retAddrN) rows += r(i18n('recap.return_addr'), retAddrN);
+      rows += r(i18n('recap.outbound_date'), dateN + (timeN ? ' · ' + timeN : ''));
+      if (p.tripMode === 'round-trip' && rdateN) rows += r(i18n('recap.return_date'), rdateN + (rtimeN ? ' · ' + rtimeN : ''));
     } else if (p.tab === 'm') {
-      plabel = `Mise à disposition ${p.mdur}h · ${modeLabel}`;
+      const mdepN = (document.getElementById(`i-pn${p.id}mdep`)?.value || '—').substring(0, 55);
+      const dateN = document.getElementById(`i-pn${p.id}mdate`)?.value || '';
+      const timeN = document.getElementById(`i-pn${p.id}mtime`)?.value || '';
+      rows += sep(num, i18n('wizard.s2_mad_recap') + ' ' + p.mdur + 'h · ' + modeLabel);
+      rows += r(i18n('recap.vehicle'), VNAME[p.veh || 'van']);
+      rows += r(i18n('recap.pickup'), mdepN);
+      rows += r(i18n('recap.datetime'), dateN + (timeN ? ' · ' + timeN : ''));
+      rows += r(i18n('recap.duration'), p.mdur + ' ' + (p.mdur > 1 ? i18n('recap.hours') : i18n('recap.hour')));
     } else {
-      const dep2 = p.dep?.label || document.getElementById(`i-pn${p.id}dep`)?.value || '—';
-      const arr2 = p.arr?.label || document.getElementById(`i-pn${p.id}arr`)?.value || '—';
-      plabel = `${dep2.substring(0,35)} → ${arr2.substring(0,35)} · ${modeLabel}`;
+      const dep2 = (p.dep?.label || document.getElementById(`i-pn${p.id}dep`)?.value || '—').substring(0, 55);
+      const arr2 = (p.arr?.label || document.getElementById(`i-pn${p.id}arr`)?.value || '—').substring(0, 55);
+      const dateN = document.getElementById(`i-pn${p.id}tdate`)?.value || '';
+      const timeN = document.getElementById(`i-pn${p.id}ttime`)?.value || '';
+      const rdateT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trdate`)?.value || '') : '';
+      const rtimeT = p.tripMode === 'round-trip' ? (document.getElementById(`i-pn${p.id}trtime`)?.value || '') : '';
+      rows += sep(num, i18n('recap.transfer') + ' · ' + modeLabel);
+      rows += r(i18n('recap.vehicle'), VNAME[p.veh || 'van']);
+      rows += r(i18n('recap.departure'), dep2);
+      rows += r(i18n('recap.arrival'), arr2);
+      rows += r(i18n('recap.outbound_date'), dateN + (timeN ? ' · ' + timeN : ''));
+      if (p.tripMode === 'round-trip' && rdateT) rows += r(i18n('recap.return_date'), rdateT + (rtimeT ? ' · ' + rtimeT : ''));
     }
-    rows += `<div class="mr" style="border-top:1px solid var(--gold-border);margin-top:.3rem;padding-top:.5rem"><span class="mrk" style="color:var(--gold)">Prestation ${num}</span><span class="mrv">${plabel}</span></div>`;
-    if (p.price > 0) rows += `<div class="mr"><span class="mrk">Prix prestation ${num}</span><span class="mrv">${p.price} €</span></div>`;
+    if (p.price > 0) rows += rGold(i18n('recap.price'), p.price + ' €');
   });
+
   const recap = document.getElementById('wiz-recap');
   const total = document.getElementById('wiz-total');
   if (recap) recap.innerHTML = rows;
@@ -2815,21 +3301,15 @@ function fillWizardRecap() {
 async function wizardNext() {
   if (wStep === 1) {
     if (!validateWizardStep1()) return;
-    /* Pour Transfert : calcul auto du prix avant step 2 */
     if (S.tab === 't' && S.km === null && S.dep && S.arr) {
       const btn = document.querySelector('#wpane-1 .btn-pay');
-      if (btn) { btn.disabled = true; btn.textContent = 'Calcul…'; }
+      const _en=getLang()==='en';
+      if (btn) { btn.disabled = true; btn.textContent = _en?'Calculating…':'Calcul…'; }
       await doCalc();
-      if (btn) { btn.disabled = false; btn.innerHTML = 'Suivant <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = i18n('btn.next')+' <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>'; }
     }
-    updateWizardVehiclePrices();
-    const curVeh = S.tab === 'p' ? S.fveh : S.tab === 'm' ? S.mveh : S.veh;
-    document.getElementById('wvc-van').classList.toggle('on', curVeh === 'van');
-    document.getElementById('wvc-bus').classList.toggle('on', curVeh !== 'van');
-    showWizardStep(2);
-  } else if (wStep === 2) {
     fillWizardRecap();
-    showWizardStep(3);
+    showWizardStep(2);
   }
 }
 
