@@ -446,7 +446,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
   <div class="card-head">
     <div class="logo">IsmaDrive</div>
     <div class="ref-block">
-      <div class="ref">Réf. ${r.ref||r.id}</div>
+      <div class="ref">Réf. ${r.ref||r.id}${r._courseLabel ? ' · ' + escHtml(r._courseLabel) : ''}</div>
       <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
     </div>
   </div>
@@ -480,7 +480,11 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
       <div><div class="lbl">Client</div><div class="val">${r.client||'—'}</div></div>
       <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${r.tel||''}" style="color:#c9a96e;text-decoration:none">${r.tel||'—'}</a></div></div>
     </div>
-    ${r.notes ? `<div style="margin-top:12px">${formatNotesHtml(r.notes, '#c9a96e')}</div>` : ''}
+    ${(() => {
+      const { notesFreeTextOnly } = require('../lib/booking-courses');
+      const free = notesFreeTextOnly(r.notes);
+      return free ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${escHtml(free)}</div></div>` : '';
+    })()}
   </div>
   <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
     <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Conducteur assigné (bon)</div>
@@ -1395,23 +1399,15 @@ app.post('/api/send-driver-email', async (req, res) => {
   const r = await dbGetRes(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
-  /* Si courseIndex > 0, on construit un objet r surchargeant les infos avec la prestation concernée */
-  const cIdx = parseInt(courseIndex || 0, 10);
-  let rForEmail = r;
-  if (cIdx > 0) {
-    const prests = parsePrestationsFromNotes(r.notes);
-    const detail = prests[cIdx - 1];
-    if (!detail) return res.status(400).json({ error: `Prestation ${cIdx} introuvable dans les notes.` });
-    const pf = parsePrestationFields(detail);
-    rForEmail = {
-      ...r,
-      date: pf.date || r.date,
-      time: pf.time || r.time,
-      trajet: pf.route || r.trajet,
-      depLabel: pf.dep || undefined,
-      arrLabel: pf.arr || undefined,
-    };
+  const { applyCourseToReservation, parsePrestationsFromNotes } = require('../lib/booking-courses');
+  const { buildDriverAssignmentsPatch, reservationViewForCourse } = require('../lib/driver-course-assignments');
+  const cIdx = Math.max(0, parseInt(String(courseIndex ?? 0), 10) || 0);
+  const prests = parsePrestationsFromNotes(r.notes);
+  if (cIdx > 0 && !prests[cIdx - 1]) {
+    return res.status(400).json({ error: `Course ${cIdx + 1} introuvable.` });
   }
+  const courseNum = cIdx + 1;
+  const rForEmail = reservationViewForCourse(r, courseNum, applyCourseToReservation);
 
   const formDriverName = String(driverName || '').trim();
   const formPlate = String(driverPlate || '').trim();
@@ -1424,8 +1420,8 @@ app.post('/api/send-driver-email', async (req, res) => {
   const assignedDisplay = (nm || emailLocalPart(to) || to).slice(0, 200);
 
   const token      = missionToken(tripId);
-  const missionUrl = cIdx > 0
-    ? `${APP_URL}/mission-order/${tripId}?token=${token}&course=${cIdx + 1}`
+  const missionUrl = courseNum > 1
+    ? `${APP_URL}/mission-order/${tripId}?token=${token}&course=${courseNum}`
     : `${APP_URL}/mission-order/${tripId}?token=${token}`;
   let qrDataUrl;
   try {
@@ -1441,8 +1437,7 @@ app.post('/api/send-driver-email', async (req, res) => {
   const nameForEmail = (nm || assignedDisplay).trim();
   const html = buildDriverEmailHtml(rForEmail, nameForEmail, missionUrl, driverPrice, qrDataUrl, pl, to);
   const whoLabel = assignedDisplay.slice(0, 48);
-  const courseLabel = cIdx > 0 ? ` · Course ${cIdx + 1}` : '';
-  const subject = `Course IsmaDrive — ${fmtDateFr(rForEmail.date)} à ${rForEmail.time}${courseLabel} — ${whoLabel}`;
+  const subject = `Course IsmaDrive — ${fmtDateFr(rForEmail.date)} à ${rForEmail.time} — ${whoLabel}`;
 
   try {
     const { error } = await resendEmailsSend({ from: RESEND_FROM, to, subject, html });
@@ -1455,12 +1450,12 @@ app.post('/api/send-driver-email', async (req, res) => {
   }
 
   /* Après envoi réussi : horodatage + destinataire + conducteur assigné (écrase l'ancien pour refléter le collègue) */
-  const postEmail = {
-    driverOrderSentAt: new Date().toISOString(),
-    driverOrderSentTo: to,
-    assignedDriverName: assignedDisplay || null,
-    assignedDriverPlate: pl || null
-  };
+  const postEmail = buildDriverAssignmentsPatch(r, courseNum, {
+    sentAt: new Date().toISOString(),
+    sentTo: to,
+    driverName: assignedDisplay,
+    plate: pl,
+  });
   try {
     await dbUpdateRes(tripId, postEmail);
   } catch (e) {
@@ -1483,21 +1478,25 @@ app.post('/api/send-driver-email', async (req, res) => {
     }
   }
 
-  res.json({ ok: true });
+  res.json({ ok: true, course: courseNum });
 });
 
-/* ── ORDRE DE MISSION ── */
+/* ── ORDRE DE MISSION (une course via ?course=N) ── */
 app.get('/mission-order/:id', async (req, res) => {
   const r = await dbGetRes(req.params.id);
   if (!r) return res.status(404).send('Course introuvable');
   const expected = missionToken(req.params.id);
   if (req.query.token !== expected && req.query.pwd !== ADMIN_PWD)
     return res.status(403).send('Accès refusé');
-  const qrDataUrl = await QRCode.toDataURL(`${APP_URL}/reservation/${r.id}`, {
+  const { applyCourseToReservation, reservationUrl: bookingReservationUrl } = require('../lib/booking-courses');
+  const { reservationViewForCourse } = require('../lib/driver-course-assignments');
+  const courseNum = Math.max(1, parseInt(String(req.query.course || '1'), 10) || 1);
+  const view = reservationViewForCourse(r, courseNum, applyCourseToReservation);
+  const qrDataUrl = await QRCode.toDataURL(bookingReservationUrl(APP_URL, req.params.id, courseNum), {
     width: 260, margin: 2, errorCorrectionLevel: 'M',
     type: 'image/png', color: { dark: '#000000', light: '#ffffff' }
   });
-  res.send(buildMissionOrderHtml(r, qrDataUrl));
+  res.send(buildMissionOrderHtml(view, qrDataUrl));
 });
 
 /* ── PAGES ── */

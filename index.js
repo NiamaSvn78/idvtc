@@ -42,9 +42,17 @@ const stripe = STRIPE_SECRET_KEY ? require('stripe')(STRIPE_SECRET_KEY) : null;
 
 const { createClientConfirmationMailer } = require('./lib/client-confirmation-email');
 const {
+  applyCourseToReservation,
   buildReservationValidationHtml,
+  notesFreeTextOnly,
+  parsePrestationsFromNotes,
   reservationUrl: bookingReservationUrl,
+  vehicleDisplayName,
 } = require('./lib/booking-courses');
+const {
+  buildDriverAssignmentsPatch,
+  reservationViewForCourse,
+} = require('./lib/driver-course-assignments');
 const clientConfirmationMail = createClientConfirmationMailer({
   appUrl: APP_URL,
   from: RESEND_FROM,
@@ -365,6 +373,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, driverPlat
   const dpEsc = escHtml(dp);
   const demEsc = escHtml(dem);
   const greeting = dn ? `Bonjour ${dnEsc},` : 'Bonjour,';
+  const refLine = escHtml(r.ref || r.id || '');
 
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#333">
@@ -377,7 +386,7 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, driverPlat
   </td></tr>
   <tr><td style="padding:32px">
     <p style="margin:0 0 12px;font-size:1rem">${greeting}</p>
-    <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>.</p>
+    <p style="margin:0 0 8px;font-size:1rem">Un nouveau trajet vous a été assigné pour le <strong>${dateStr} à ${r.time}</strong>${refLine ? ` (réf. ${refLine})` : ''}.</p>
     ${dem ? `<p style="margin:0 0 10px;font-size:.82rem;color:#666">Ce message est destiné à <strong>${demEsc}</strong> — merci de vérifier qu'il s'agit bien de vous.</p>` : ''}
     <p style="margin:0 0 24px;font-size:.85rem;color:#666">Ajouter au calendrier :
       <a href="${googleCal}" style="color:#c9a96e;text-decoration:none">Google Agenda</a> &nbsp;—&nbsp;
@@ -436,13 +445,12 @@ function buildDriverEmailHtml(r, driverName, missionUrl, driverPrice, driverPlat
 </body></html>`;
 }
 
-function buildMissionOrderHtml(r) {
+function buildMissionOrderHtml(r, qrDataUrl) {
   const dateStr = fmtDateFr(r.date);
   const dep = r.depLabel || (r.trajet || '').split(/[→>]/)[0]?.trim() || '—';
   const arr = r.arrLabel || (r.trajet || '').split(/[→>]/)[1]?.trim() || '—';
   const depEnc = encodeURIComponent(dep);
   const arrEnc = encodeURIComponent(arr);
-  const qrData = encodeURIComponent(`IsmaDrive|Ref:${r.ref || r.id}|${r.trajet || ''}|${dateStr}|${r.time || ''}`);
   const statusLabel = r.status === 'done' ? 'Terminé' : r.status === 'cancelled' ? 'Annulé' : 'Confirmé';
   const statusColor = r.status === 'done' ? '#c9a96e' : r.status === 'cancelled' ? '#e05454' : '#27ae60';
   const driverNameRaw = String(r.assignedDriverName || '').trim();
@@ -451,6 +459,11 @@ function buildMissionOrderHtml(r) {
   const plateCell = plateRaw
     ? `<div><div class="lbl">Immatriculation</div><div class="val" style="font-size:1.05rem;font-weight:bold;color:#080808;letter-spacing:.08em;font-family:monospace">${escHtml(plateRaw)}</div></div>`
     : `<div><div class="lbl">Immatriculation</div><div class="val" style="color:#888">—</div></div>`;
+  const courseLabel = r._courseLabel || 'Course 1';
+  const freeNotes = notesFreeTextOnly(r.notes);
+  const notesBlock = freeNotes
+    ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${escHtml(freeNotes)}</div></div>`
+    : '';
 
   return `<!DOCTYPE html><html lang="fr">
 <head>
@@ -481,18 +494,20 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
   <div class="card-head">
     <div class="logo">IsmaDrive</div>
     <div class="ref-block">
-      <div class="ref">Réf. ${r.ref || r.id}</div>
+      <div class="ref">Réf. ${r.ref || r.id} · ${escHtml(courseLabel)}</div>
       <span class="badge" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
     </div>
   </div>
   <div class="section">
+    <div class="lbl" style="margin-bottom:6px">Trajet (cette course uniquement)</div>
+    <div class="val" style="font-weight:bold;font-size:1rem;margin-bottom:10px">${escHtml(r.trajet || '—')}</div>
     <div class="grid2">
       <div><div class="lbl">Date</div><div class="val">${dateStr}</div></div>
       <div><div class="lbl">Heure</div><div class="val">${r.time || '—'}</div></div>
       <div><div class="lbl">Durée estimée</div><div class="val">${r.durationMin || 60} min</div></div>
-      <div><div class="lbl">Véhicule</div><div class="val">${r.vehicleName || r.vehicle || '—'}</div></div>
+      <div><div class="lbl">Véhicule</div><div class="val">${vehicleDisplayName(r)}</div></div>
     </div>
-    ${r.equipment ? `<div style="margin-top:12px"><div class="lbl">Équipement</div><div class="val" style="font-size:.85rem">${r.equipment}</div></div>` : ''}
+    ${r.equipment ? `<div style="margin-top:12px"><div class="lbl">Équipement</div><div class="val" style="font-size:.85rem">${escHtml(r.equipment)}</div></div>` : ''}
   </div>
   <div class="section" style="border-left:3px solid #c9a96e">
     <div class="lbl">Départ</div>
@@ -515,7 +530,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
       <div><div class="lbl">Client</div><div class="val">${r.client || '—'}</div></div>
       <div><div class="lbl">Téléphone</div><div class="val"><a href="tel:${r.tel || ''}" style="color:#c9a96e;text-decoration:none">${r.tel || '—'}</a></div></div>
     </div>
-    ${r.notes ? `<div style="margin-top:12px"><div class="lbl">Notes</div><div class="val" style="font-size:.85rem;color:#555">${r.notes}</div></div>` : ''}
+    ${notesBlock}
   </div>
   <div class="section" style="background:#fffbf2;border-left:3px solid #c9a96e">
     <div style="font-size:.63rem;color:#9a9185;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Conducteur assigné (bon)</div>
@@ -526,8 +541,9 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;color:#333;padding:20px;min
     ${r.driverOrderSentTo ? `<div style="margin-top:12px;font-size:.78rem;color:#777;line-height:1.45">Bon transmis à <strong style="color:#555">${escHtml(r.driverOrderSentTo)}</strong>.</div>` : ''}
   </div>
   <div class="qr-block">
-    <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR Code de validation</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${qrData}" width="130" height="130" alt="QR code mission">
+    <div style="font-size:.68rem;color:#bbb;margin-bottom:10px;text-transform:uppercase;letter-spacing:.12em">QR code client — ${escHtml(courseLabel)}</div>
+    ${qrDataUrl ? `<img src="${qrDataUrl}" width="130" height="130" alt="QR code validation client" style="display:block;margin:0 auto;border:4px solid #fff">` : ''}
+    <div style="font-size:.65rem;color:#ccc;margin-top:8px">À faire scanner par le client pour cette course</div>
   </div>
 </div>
 </body></html>`;
@@ -917,51 +933,73 @@ app.delete('/api/drivers/:id', adminLimiter, async (req, res) => {
   res.json({ ok: true });
 });
 
-/* Email conducteur */
+/* Email conducteur — une course à la fois (courseIndex: 0 = principale, 1+ = prestation) */
 app.post('/api/send-driver-email', adminLimiter, async (req, res) => {
-  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate } = req.body || {};
+  const { pwd, tripId, driverEmail, driverName, driverPrice, driverPlate, courseIndex } = req.body || {};
   if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
-  if (!RESEND_API_KEY) return res.status(503).json({ error: 'RESEND_API_KEY manquant.' });
+  if (!RESEND_API_KEY || !RESEND_FROM) {
+    return res.status(503).json({ error: 'Email non configuré (RESEND).' });
+  }
   const to = String(driverEmail || '').trim();
   if (!to) return res.status(400).json({ error: 'Email du destinataire requis.' });
   const r = await dbGetById(tripId);
   if (!r) return res.status(404).json({ error: 'Course introuvable' });
 
+  const cIdx = Math.max(0, parseInt(String(courseIndex ?? 0), 10) || 0);
+  const prests = parsePrestationsFromNotes(r.notes);
+  if (cIdx > 0 && !prests[cIdx - 1]) {
+    return res.status(400).json({ error: `Course ${cIdx + 1} introuvable.` });
+  }
+  const courseNum = cIdx + 1;
+  const rForEmail = reservationViewForCourse(r, courseNum, applyCourseToReservation);
+
   const formDriverName = String(driverName || '').trim();
   const formPlate = String(driverPlate || '').trim();
-  /* Croiser l'annuaire pour combler les champs manquants */
   const allDrivers = await dbListDrivers().catch(() => []);
-  const dirMatch = allDrivers.find(d => d.email === to);
+  const dirMatch = allDrivers.find((d) => String(d.email || '').toLowerCase() === to.toLowerCase());
   const dirName = String(dirMatch?.name || '').trim();
   const dirPlate = String(dirMatch?.immatriculation || '').trim();
   const nm = formDriverName || dirName;
   const pl = formPlate || dirPlate;
-  const assignedDisplay = (nm || to).slice(0, 200);
+  const assignedDisplay = (nm || to.split('@')[0] || to).slice(0, 200);
 
   const token = missionToken(tripId);
-  const missionUrl = `${APP_URL}/mission-order/${tripId}?token=${token}`;
-  const html = buildDriverEmailHtml(r, nm, missionUrl, driverPrice, pl, to);
-  const subject = `Course IsmaDrive — ${fmtDateFr(r.date)} à ${r.time} — ${assignedDisplay.slice(0, 48)}`;
+  const missionUrl =
+    courseNum > 1
+      ? `${APP_URL}/mission-order/${tripId}?token=${token}&course=${courseNum}`
+      : `${APP_URL}/mission-order/${tripId}?token=${token}`;
+
+  const html = buildDriverEmailHtml(rForEmail, nm, missionUrl, driverPrice, pl, to);
+  const subject = `Course IsmaDrive — ${fmtDateFr(rForEmail.date)} à ${rForEmail.time} — ${assignedDisplay.slice(0, 48)}`;
+
   try {
     const resend = new Resend(RESEND_API_KEY);
     const { error } = await resend.emails.send({ from: RESEND_FROM, to, subject, html });
     if (error) return res.status(500).json({ error: 'Erreur Resend : ' + (error.message || JSON.stringify(error)) });
 
-    /* Sauvegarder le conducteur assigné sur la réservation */
-    await dbUpdate(tripId, {
-      driverOrderSentAt: new Date().toISOString(),
-      driverOrderSentTo: to,
-      assignedDriverName: assignedDisplay || null,
-      assignedDriverPlate: pl || null
-    }).catch(e => console.error('[send-driver-email] DB update:', e.message));
+    await dbUpdate(
+      tripId,
+      buildDriverAssignmentsPatch(r, courseNum, {
+        sentAt: new Date().toISOString(),
+        sentTo: to,
+        driverName: assignedDisplay,
+        plate: pl,
+      })
+    ).catch((e) => console.error('[send-driver-email] DB update:', e.message));
 
-    /* Mettre à jour ou créer la fiche dans l'annuaire */
     const nameForDir = formDriverName || dirName;
     if (nameForDir) {
-      await dbInsertDriver({ id: Date.now().toString(36), name: nameForDir, email: to, phone: '', carCategory: '', immatriculation: pl || '', createdAt: new Date().toISOString() })
-        .catch(() => {});
+      await dbInsertDriver({
+        id: Date.now().toString(36),
+        name: nameForDir,
+        email: to,
+        phone: '',
+        carCategory: '',
+        immatriculation: pl || '',
+        createdAt: new Date().toISOString(),
+      }).catch(() => {});
     }
-    res.json({ ok: true });
+    res.json({ ok: true, course: courseNum });
   } catch (e) {
     console.error('[send-driver-email]', e.message);
     res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email.' });
@@ -1363,13 +1401,28 @@ app.get('/annuler-reservation', (_req, res) => {
   res.sendFile(path.join(__dirname, 'vtc-project', 'public', 'annuler-reservation.html'));
 });
 
-app.get('/mission-order/:id', adminLimiter, async (req, res) => {
+app.get('/mission-order/:id', async (req, res) => {
   const r = await dbGetById(req.params.id).catch(() => null);
   if (!r) return res.status(404).send('Course introuvable');
   const expected = missionToken(req.params.id);
-  if (req.query.token !== expected && req.query.pwd !== ADMIN_PWD)
+  if (req.query.token !== expected && req.query.pwd !== ADMIN_PWD) {
     return res.status(403).send('Accès refusé');
-  res.send(buildMissionOrderHtml(r));
+  }
+  const courseNum = Math.max(1, parseInt(String(req.query.course || '1'), 10) || 1);
+  const view = reservationViewForCourse(r, courseNum, applyCourseToReservation);
+  let qrDataUrl = '';
+  try {
+    qrDataUrl = await QRCode.toDataURL(bookingReservationUrl(APP_URL, req.params.id, courseNum), {
+      width: 260,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      type: 'image/png',
+      color: { dark: '#000000', light: '#ffffff' },
+    });
+  } catch (_) {
+    qrDataUrl = '';
+  }
+  res.send(buildMissionOrderHtml(view, qrDataUrl));
 });
 
 app.get('/admin', (_req, res) => {

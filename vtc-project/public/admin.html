@@ -414,8 +414,8 @@ body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;
       <div class="driver-order-notice" id="driver-order-notice"></div>
 
       <div id="driver-course-row" style="display:none;margin-bottom:.9rem">
-        <label class="add-label" style="margin-bottom:.35rem">Course à assigner</label>
-        <select class="add-input add-select" id="send-driver-course" style="width:100%"></select>
+        <label class="add-label" style="margin-bottom:.35rem">Course à envoyer</label>
+        <select class="add-input add-select" id="send-driver-course" style="width:100%" onchange="updateDriverCoursePreview();updateDriverOrderNoticeInModal()"></select>
       </div>
 
       <div style="margin-bottom:1rem">
@@ -673,14 +673,47 @@ function renderGrid(){
   }
 }
 
-/** Libellé collègue pour l’UI (nom en base, sinon partie locale de l’email d’envoi). */
-function colleagueDisplayName(r){
-  const n = String(r.assignedDriverName||'').trim();
-  if (n) return n;
-  const em = String(r.driverOrderSentTo||'').trim();
+function parseDriverAssignmentsMap(r){
+  let raw = r && r.driverAssignmentsByCourse;
+  if(typeof raw === 'string'){ try{ raw = JSON.parse(raw); }catch{ raw = {}; } }
+  if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  return raw;
+}
+function getDriverAssignmentForCourse(r, courseNum){
+  const n = Math.max(1, parseInt(String(courseNum||1), 10) || 1);
+  const entry = parseDriverAssignmentsMap(r)[String(n)];
+  if(entry && (entry.sentAt || entry.sentTo || entry.driverName)){
+    return {
+      sentAt: entry.sentAt || null,
+      sentTo: String(entry.sentTo||'').trim() || null,
+      driverName: String(entry.driverName||'').trim() || null,
+      plate: String(entry.plate||'').trim() || null
+    };
+  }
+  if(n === 1 && r && r.driverOrderSentAt){
+    return {
+      sentAt: r.driverOrderSentAt,
+      sentTo: String(r.driverOrderSentTo||'').trim() || null,
+      driverName: String(r.assignedDriverName||'').trim() || null,
+      plate: String(r.assignedDriverPlate||'').trim() || null
+    };
+  }
+  return null;
+}
+function colleagueDisplayNameForCourse(r, courseNum){
+  const a = getDriverAssignmentForCourse(r, courseNum);
+  if(!a) return '';
+  const n = String(a.driverName||'').trim();
+  if(n) return n;
+  const em = String(a.sentTo||'').trim();
   const at = em.indexOf('@');
-  if (at > 0) return em.slice(0, at);
-  return '';
+  if(at > 0) return em.slice(0, at);
+  return em || '';
+}
+function selectedDriverCourseNum(){
+  const sel = document.getElementById('send-driver-course');
+  if(!sel || sel.options.length === 0) return 1;
+  return Number(sel.value || 0) + 1;
 }
 
 function buildBlock(c){
@@ -695,8 +728,9 @@ function buildBlock(c){
   const veh = r.vehicle || 'manual';
   const clsVeh = (veh === 'eco') ? 'business' : veh;
   const cls = r.status === 'cancelled' ? 'cancelled' : (r.type==='mad'?'mad':clsVeh);
-  const coll = r.driverOrderSentAt ? colleagueDisplayName(r) : '';
-  const bonTitle = r.driverOrderSentAt ? ('Bon collègue · ' + (r.driverOrderSentTo || '')) : '';
+  const assign = getDriverAssignmentForCourse(r, courseIdx);
+  const coll = assign ? colleagueDisplayNameForCourse(r, courseIdx) : '';
+  const bonTitle = assign ? ('Collègue · ' + (coll || assign.sentTo || '')) : '';
   const courseTag = courseIdx > 1 ? `<span class="tb-badge" style="right:auto;left:4px;background:rgba(201,169,110,.25)">C${courseIdx}</span>` : '';
 
   const div = document.createElement('div');
@@ -707,7 +741,7 @@ function buildBlock(c){
     <div class="tb-time">${time} – ${minToTime(endMin)}</div>
     <div class="tb-route">${(trajet||'').substring(0,26)}</div>
     ${r.client ? `<div class="tb-client">${r.client.substring(0,18)}</div>` : ''}
-    ${r.driverOrderSentAt ? (coll
+    ${assign ? (coll
       ? `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ ${escHtml(coll.length > 16 ? coll.slice(0,16)+'…' : coll)}</div>`
       : `<div class="tb-bon-sent" title="${escHtml(bonTitle)}">✉ bon envoyé</div>`) : ''}
     <span class="tb-badge">${VEH_LABEL[veh]||veh}</span>
@@ -758,11 +792,18 @@ function openTrip(id, courseIdx){
     const detail = colon > -1 ? inner.slice(colon+1).trim() : inner;
     return `<div class="detail-row" style="border-bottom:1px solid rgba(201,169,110,.12)"><span class="dr-k" style="color:var(--gold)">${escHtml(label)}</span><span class="dr-v" style="font-size:.78rem;white-space:pre-wrap">${escHtml(detail)}</span></div>`;
   }).join('');
+  const assignRecap = courses.length > 1 ? courses.map(c => {
+    const a = getDriverAssignmentForCourse(r, c.courseIdx);
+    const who = a ? escHtml(colleagueDisplayNameForCourse(r, c.courseIdx) || a.sentTo || '—') : '<span style="color:var(--faint)">— non assignée</span>';
+    const hi = c.courseIdx === courseIdx ? ' style="font-weight:600;color:var(--gold)"' : '';
+    return `<div class="detail-row"><span class="dr-k">${escHtml(c.label)} · collègue</span><span class="dr-v"${hi}>${who}</span></div>`;
+  }).join('') : '';
   document.getElementById('tm-body').innerHTML = `
     <span class="modal-status ${statusClass}">${statusLabel}</span>
     <div style="height:.8rem"></div>
     ${row('Référence', r.ref||r.id)}
-    ${courses.length > 1 ? row('Course', cur.label || ('Course '+courseIdx)) : ''}
+    ${courses.length > 1 ? row('Course affichée', cur.label || ('Course '+courseIdx)) : ''}
+    ${assignRecap}
     ${row('Date', fmtDate(cur.date || r.date)+' · '+(cur.time || r.time))}
     ${row('Durée estimée', (r.durationMin||60)+' min')}
     ${row('Véhicule', VEH_LABEL[r.vehicle]||r.vehicle||'—')}
@@ -774,9 +815,14 @@ function openTrip(id, courseIdx){
     ${prestRows}
     ${notesClean ? row('Notes', escHtml(notesClean)) : ''}
     ${row('Source', r.source==='manual'?'Saisie manuelle':'Site web')}
-    ${r.driverOrderSentAt ? row('Collègue assigné', '<strong style="color:var(--gold)">'+escHtml(colleagueDisplayName(r) || r.driverOrderSentTo || '—')+'</strong>') : ''}
-    ${r.driverOrderSentAt && r.assignedDriverPlate ? row('Plaque collègue', escHtml(r.assignedDriverPlate)) : ''}
-    ${r.driverOrderSentAt ? row('Bon envoyé le', '✉ '+fmtDriverOrderSent(r.driverOrderSentAt)+' → '+escHtml(r.driverOrderSentTo||'—')) : ''}
+    ${(() => {
+      const a = getDriverAssignmentForCourse(r, courseIdx);
+      if(!a) return '';
+      const coll = colleagueDisplayNameForCourse(r, courseIdx) || a.sentTo || '—';
+      return row('Collègue (cette course)', '<strong style="color:var(--gold)">'+escHtml(coll)+'</strong>')
+        + (a.plate ? row('Plaque collègue', escHtml(a.plate)) : '')
+        + row('Bon envoyé le', '✉ '+fmtDriverOrderSent(a.sentAt)+' → '+escHtml(a.sentTo||'—'));
+    })()}
     ${r.email ? row('E-mail confirmation', r.confirmationEmailSent ? '✓ Déjà envoyé' : '— Pas encore envoyé') : ''}
   `;
   const foot = document.getElementById('tm-foot');
@@ -812,7 +858,7 @@ function openTrip(id, courseIdx){
   btnAssign.className = 'btn-assign';
   btnAssign.style.cssText = 'width:100%;flex:none;margin-top:.2rem';
   btnAssign.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg> Passer à un conducteur`;
-  btnAssign.onclick = () => { closeTripModal(); openDriverModal(id); };
+  btnAssign.onclick = () => { closeTripModal(); openDriverModal(id, courseIdx); };
   foot.appendChild(btnAssign);
   document.getElementById('trip-ov').classList.add('open');
 }
@@ -851,20 +897,21 @@ function fmtDriverOrderSent(iso){
 }
 function updateDriverOrderNoticeInModal(){
   var el = document.getElementById('driver-order-notice');
-  var btn = document.getElementById('btn-send-email');
   if(!el) return;
   var id = currentDriverTripId;
-  if(!id){ el.classList.remove('show'); el.innerHTML=''; if(btn) btn.textContent='✉ Envoyer le trajet par email'; return; }
+  if(!id){ el.classList.remove('show'); el.innerHTML=''; updateDriverCoursePreview(); return; }
   var r = reservations.find(function(x){ return x.id === id; });
-  if(r && r.driverOrderSentAt){
+  var courseNum = selectedDriverCourseNum();
+  var a = r ? getDriverAssignmentForCourse(r, courseNum) : null;
+  if(r && a && a.sentAt){
+    var coll = colleagueDisplayNameForCourse(r, courseNum);
     el.classList.add('show');
-    el.innerHTML = '✉ <strong>Bon déjà envoyé</strong> le '+fmtDriverOrderSent(r.driverOrderSentAt)+' à <strong>'+escHtml(r.driverOrderSentTo||'')+'</strong>'+(colleagueDisplayName(r) ? ' <span style="font-weight:600">('+escHtml(colleagueDisplayName(r))+')</span>' : '');
-    if(btn) btn.textContent = '✉ Renvoyer le trajet par email';
+    el.innerHTML = '✉ <strong>Bon déjà envoyé pour cette course</strong> le '+fmtDriverOrderSent(a.sentAt)+' à <strong>'+escHtml(a.sentTo||'')+'</strong>'+(coll ? ' <span style="font-weight:600">('+escHtml(coll)+')</span>' : '');
   } else {
     el.classList.remove('show');
     el.innerHTML = '';
-    if(btn) btn.textContent = '✉ Envoyer le trajet par email';
   }
+  updateDriverCoursePreview();
 }
 function closeTripModal(){ document.getElementById('trip-ov').classList.remove('open'); }
 
@@ -989,36 +1036,56 @@ function expandReservationToCourses(r){
   });
   return courses;
 }
-async function openDriverModal(id){
+function updateDriverCoursePreview(){
+  const r = reservations.find(x => x.id === currentDriverTripId);
+  if(!r) return;
+  const courses = expandReservationToCourses(r);
+  const sel = document.getElementById('send-driver-course');
+  const idx = Number(sel?.value || 0);
+  const c = courses[idx] || courses[0];
+  if(!c) return;
+  const el = document.getElementById('driver-trip-preview');
+  const traj = c.trajet || r.trajet || 'Course';
+  el.innerHTML = `<strong>${escHtml(c.label)}</strong> — ${escHtml(traj)}<br>${fmtDate(c.date)} à ${c.time||'—'} · ${VEH_LABEL[r.vehicle]||'—'}`;
+  const btn = document.getElementById('btn-send-email');
+  if(btn) btn.innerHTML = courses.length > 1
+    ? `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="margin-right:.3rem"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg> Envoyer ${escHtml(c.label)} par email`
+    : `<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="margin-right:.3rem"><path d="M3 10l14-7-5 14-3-5-6-2z"/></svg> Envoyer le trajet par email`;
+}
+async function openDriverModal(id, preferredCourseIdx){
   currentDriverTripId = id;
   const r = reservations.find(x => x.id === id);
   if(!r) return;
-  document.getElementById('driver-trip-preview').innerHTML =
-    `<strong>${r.trajet||'Course'}</strong><br>${fmtDate(r.date)} à ${r.time} · ${VEH_LABEL[r.vehicle]||'—'}`;
+  const pref = Math.max(1, parseInt(String(preferredCourseIdx || currentCourseIdx || 1), 10) || 1);
   document.getElementById('send-driver-email').value = '';
   document.getElementById('send-driver-name').value  = '';
   document.getElementById('send-driver-plate').value  = '';
   document.getElementById('send-driver-price').value = '';
   document.getElementById('send-status').className   = 'send-status';
+  document.getElementById('send-status').textContent = '';
   document.getElementById('btn-send-email').disabled = false;
 
-  const prests = parsePrestationsClient(r.notes);
+  const courses = expandReservationToCourses(r);
   const courseRow = document.getElementById('driver-course-row');
   const courseSelect = document.getElementById('send-driver-course');
-  if(prests.length > 0){
-    courseSelect.innerHTML = `<option value="0">Course 1 — ${r.trajet||'Principale'}</option>` +
-      prests.map((p, i) => {
-        const label = p.split(' · ')[0] || ('Prestation ' + (i+2));
-        return `<option value="${i+1}">Course ${i+2} — ${label}</option>`;
-      }).join('');
+  if(courses.length > 1){
+    courseSelect.innerHTML = courses.map((c, i) => {
+      const short = (c.trajet || '').split(' · ')[0] || (c.trajet || 'Course');
+      return `<option value="${i}">${escHtml(c.label)} — ${escHtml(short)} · ${fmtDate(c.date)} ${c.time||''}</option>`;
+    }).join('');
     courseRow.style.display = '';
   } else {
-    courseSelect.innerHTML = '';
+    courseSelect.innerHTML = '<option value="0">Course 1</option>';
     courseRow.style.display = 'none';
   }
+  if(courses.length > 1){
+    const optIdx = Math.min(courses.length - 1, Math.max(0, pref - 1));
+    courseSelect.value = String(optIdx);
+  }
+  updateDriverCoursePreview();
+  updateDriverOrderNoticeInModal();
 
   await loadDrivers();
-  updateDriverOrderNoticeInModal();
   document.getElementById('driver-ov').classList.add('open');
 }
 function closeDriverModal(){ document.getElementById('driver-ov').classList.remove('open'); }
@@ -1099,8 +1166,11 @@ async function sendDriverEmail(){
   if(!email){ status.textContent='Email du conducteur requis'; status.className='send-status err'; return; }
   if(!price || isNaN(Number(price))){ status.textContent='Indiquez le prix à verser au conducteur'; status.className='send-status err'; return; }
   var trip = reservations.find(function(x){ return x.id === currentDriverTripId; });
-  if(trip && trip.driverOrderSentAt){
-    if(!confirm('Un bon a déjà été envoyé le '+fmtDriverOrderSent(trip.driverOrderSentAt)+' à '+(trip.driverOrderSentTo||'?')+(colleagueDisplayName(trip) ? ' ('+colleagueDisplayName(trip)+')' : '')+'.\n\nRenvoyer quand même ?')) return;
+  const courseNum = selectedDriverCourseNum();
+  const prevAssign = trip ? getDriverAssignmentForCourse(trip, courseNum) : null;
+  if(prevAssign && prevAssign.sentAt){
+    const coll = colleagueDisplayNameForCourse(trip, courseNum);
+    if(!confirm('Un bon a déjà été envoyé pour la course '+courseNum+' le '+fmtDriverOrderSent(prevAssign.sentAt)+' à '+(prevAssign.sentTo||'?')+(coll ? ' ('+coll+')' : '')+'.\n\nRenvoyer quand même ?')) return;
   }
   const btn = document.getElementById('btn-send-email');
   btn.disabled = true; btn.textContent = 'Envoi en cours…';
@@ -1111,7 +1181,8 @@ async function sendDriverEmail(){
     const raw = await r.text();
     let d = parseJsonSafe(raw, r.status);
     if(r.ok && d.ok){
-      status.textContent = `✅ Email envoyé avec succès à ${email}`;
+      const cNum = d.course || (Number(document.getElementById('send-driver-course')?.value||0)+1);
+      status.textContent = `✅ Email envoyé (course ${cNum}) à ${email}`;
       status.className   = 'send-status ok';
       try { await loadDrivers(); } catch (_) {}
       try { await reloadRes(); } catch (_) {}
@@ -1126,6 +1197,7 @@ async function sendDriverEmail(){
   }
   btn.disabled = false;
   updateDriverOrderNoticeInModal();
+  updateDriverCoursePreview();
 }
 /* ── RÉPERTOIRE CONDUCTEURS ── */
 let dirDrivers = [];
