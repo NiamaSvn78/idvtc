@@ -827,18 +827,18 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="trip-type-grid" id="main-ttg">
         <div class="trip-type-btn on" id="ttb-p" onclick="selTripType('p',this)">
           <div class="ttb-ico">✈</div>
-          <div class="ttb-name">Forfait Aéroport</div>
-          <div class="ttb-sub">CDG · Orly · Prix fixe</div>
+          <div class="ttb-name" data-i18n="ttb.airport_name">Forfait Aéroport</div>
+          <div class="ttb-sub" data-i18n="ttb.airport_sub">CDG · Orly · Prix fixe</div>
         </div>
         <div class="trip-type-btn" id="ttb-t" onclick="selTripType('t',this)">
           <div class="ttb-ico">🚗</div>
-          <div class="ttb-name">Transfert</div>
-          <div class="ttb-sub">Hors Paris · Prix au km</div>
+          <div class="ttb-name" data-i18n="ttb.transfer_name">Transfert</div>
+          <div class="ttb-sub" data-i18n="ttb.transfer_sub">Hors Paris · Prix au km</div>
         </div>
         <div class="trip-type-btn" id="ttb-m" onclick="selTripType('m',this)">
           <div class="ttb-ico">⏱</div>
-          <div class="ttb-name">Mise à disposition</div>
-          <div class="ttb-sub">Chauffeur dédié · À l'heure</div>
+          <div class="ttb-name" data-i18n="ttb.mad_name">Mise à disposition</div>
+          <div class="ttb-sub" data-i18n="ttb.mad_sub">Chauffeur dédié · À l'heure</div>
         </div>
       </div>
 
@@ -2099,15 +2099,29 @@ const VNAME={van:'Van Premium',business:'Berline'};
 function selV(v){S.veh=v;Object.entries(VID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));if(S.tAirportKey||S.km!==null)renderPrice(S.km);}
 function selVM(v){S.mveh=v;Object.entries(MVID).forEach(([k,id])=>document.getElementById(id).classList.toggle('on',v===k));updateMAD();}
 function selD(h,el){S.mdur=h;document.querySelectorAll('.d-btn').forEach(d=>d.classList.remove('on'));el.classList.add('on');updateMAD();}
+/** Mise à disposition : tarif = heures × €/h (sans multiplicateur aller-retour). */
+function madHourlyPrice(veh, hours) {
+  const h = Math.max(Number(hours) || 2, 2);
+  const rate = CFG.tarifs[veh]?.h ?? CFG.tarifs.van.h;
+  return h * rate;
+}
 function updateMAD(){
-  const t=CFG.tarifs[S.mveh],tot=S.mdur*t.h; S.price=tot;
+  const t=CFG.tarifs[S.mveh];
+  const tot=madHourlyPrice(S.mveh, S.mdur);
+  S.price=tot;
   document.getElementById('d-mp').textContent=tot;
   document.getElementById('d-mv').textContent=VNAME[S.mveh]+' · '+S.mdur+' heure'+(S.mdur>1?'s':'');
   document.getElementById('d-mr').textContent=t.h+'€/h';
   const bHTML=mkBR([[i18n('recap.vehicle'),VNAME[S.mveh]],[i18n('recap.hourly_rate'),t.h+' €/h'],[i18n('recap.duration'),S.mdur+' '+(S.mdur>1?i18n('recap.hours'):i18n('recap.hour'))]],tot);
   document.getElementById('d-mb').innerHTML=bHTML;
   const ws1mp=document.getElementById('ws1m-price');
-  if(ws1mp){ws1mp.textContent=tot;document.getElementById('ws1m-veh').textContent=VNAME[S.mveh];document.getElementById('ws1m-tag').textContent=S.mdur+'h · '+t.h+' €/h';document.getElementById('ws1m-breakdown').innerHTML=bHTML;}
+  if(ws1mp){
+    ws1mp.textContent=tot;
+    document.getElementById('ws1m-veh').textContent=VNAME[S.mveh];
+    document.getElementById('ws1m-tag').textContent=S.mdur+'h';
+    document.getElementById('ws1m-breakdown').innerHTML=bHTML;
+  }
+  updateWizardVehiclePrices();
 }
 
 /* ── DURÉES FORFAITS (estimation pour check dispo) ── */
@@ -2585,7 +2599,7 @@ function fillAndShowBookingModal(type){
       const mdepN=(document.getElementById(`i-pn${p.id}mdep`)?.value||'—').substring(0,55);
       const dateN=document.getElementById(`i-pn${p.id}mdate`)?.value||'';
       const timeN=document.getElementById(`i-pn${p.id}mtime`)?.value||'';
-      rows+=sep(num,i18n('wizard.s2_mad_recap')+' '+p.mdur+'h · '+modeLabel);
+      rows+=sep(num,i18n('wizard.s2_mad_recap')+' '+p.mdur+'h');
       rows+=r(i18n('recap.vehicle'),VNAME[p.veh||'van']);
       rows+=r(i18n('recap.pickup'),mdepN);
       rows+=r(i18n('recap.datetime'),dateN+(timeN?' · '+timeN:''));
@@ -2963,7 +2977,12 @@ function selTripTypeN(pid, type, el) {
   const tf = document.getElementById('tf-pn' + pid + '-' + type);
   if (tf) tf.classList.add('active');
   const tmg = document.getElementById('tmg-pn' + pid);
-  if (tmg) tmg.style.display = type === 'm' ? 'none' : '';
+  if (type === 'm') {
+    p.tripMode = 'one-way';
+    if (tmg) tmg.style.display = 'none';
+  } else if (tmg) {
+    tmg.style.display = '';
+  }
   calcPrestPrice(pid);
 }
 function selPackN(pid, pack, el) {
@@ -3001,7 +3020,7 @@ function selVehN(pid, veh) {
 function calcPrestPrice(pid) {
   const p = S.prestations.find(x => x.id === pid);
   if (!p) return;
-  const isRound = p.tripMode === 'round-trip';
+  const isRound = p.tab === 'm' ? false : (p.tripMode === 'round-trip' || p.tripMode === 'split');
   const pvEl = document.getElementById('pv-pn' + pid);
   const bodyEl = document.getElementById('ppbody-pn' + pid);
 
@@ -3016,8 +3035,7 @@ function calcPrestPrice(pid) {
       return (base + extraA) + (isRound ? (base + extraR) : 0);
     }
     if (p.tab === 'm') {
-      const t = CFG.tarifs[veh] || CFG.tarifs.van;
-      return (p.mdur || 2) * t.h;
+      return madHourlyPrice(veh, p.mdur || 2);
     }
     if (p.tab === 't') {
       const depAp = p.dep ? detectAirportStrict(p.dep) : null;
@@ -3082,8 +3100,9 @@ function calcPrestPrice(pid) {
   } else if (p.tab === 'm') {
     const dur = p.mdur || 2;
     const tRate = CFG.tarifs[selectedVeh].h;
-    html += r(i18n('recap.duration'), dur + 'h' + (isRound ? ' × 2' : ''));
-    html += r(vehLabel + ' — ' + tRate + ' €/h', p.price + ' €', true);
+    html += r(i18n('recap.duration'), dur + 'h');
+    html += r(i18n('recap.hourly_rate'), tRate + ' €/h');
+    html += r(vehLabel, p.price + ' €', true);
   } else if (p.tab === 't') {
     if (tApKey) {
       const f = CFG.forfaits[tApKey];
@@ -3101,6 +3120,7 @@ function calcPrestPrice(pid) {
 
   bodyEl.innerHTML = html;
   bodyEl.style.display = '';
+  updateWizardVehiclePrices();
 }
 
 function selTripType(type, el) {
@@ -3125,8 +3145,8 @@ function updateWizardVehiclePrices() {
     vanPrice = (f.van + extraAller) + (pRound ? (f.van + extraRetour) : 0);
     busPrice = (f.business + extraAller) + (pRound ? (f.business + extraRetour) : 0);
   } else if (S.tab === 'm') {
-    vanPrice = S.mdur * CFG.tarifs.van.h;
-    busPrice = S.mdur * CFG.tarifs.business.h;
+    vanPrice = madHourlyPrice('van', S.mdur);
+    busPrice = madHourlyPrice('business', S.mdur);
   } else if (S.tab === 't') {
     if (S.tAirportKey) {
       const f = CFG.forfaits[S.tAirportKey];
@@ -3275,7 +3295,7 @@ function fillWizardRecap() {
       const mdepN = (document.getElementById(`i-pn${p.id}mdep`)?.value || '—').substring(0, 55);
       const dateN = document.getElementById(`i-pn${p.id}mdate`)?.value || '';
       const timeN = document.getElementById(`i-pn${p.id}mtime`)?.value || '';
-      rows += sep(num, i18n('wizard.s2_mad_recap') + ' ' + p.mdur + 'h · ' + modeLabel);
+      rows += sep(num, i18n('wizard.s2_mad_recap') + ' ' + p.mdur + 'h');
       rows += r(i18n('recap.vehicle'), VNAME[p.veh || 'van']);
       rows += r(i18n('recap.pickup'), mdepN);
       rows += r(i18n('recap.datetime'), dateN + (timeN ? ' · ' + timeN : ''));

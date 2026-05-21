@@ -36,6 +36,14 @@
       'tabsel.services': '✦ Services',
       'tabsel.guarantees': '✓ Garanties',
 
+      /* ── Boutons type de trajet ── */
+      'ttb.airport_name': 'Forfait Aéroport',
+      'ttb.airport_sub': 'CDG · Orly · Prix fixe',
+      'ttb.transfer_name': 'Transfert',
+      'ttb.transfer_sub': 'Hors Paris · Prix au km',
+      'ttb.mad_name': 'Mise à disposition',
+      'ttb.mad_sub': 'Chauffeur dédié · À l\'heure',
+
       /* ── Forfaits Aéroports ── */
       'airport.tag': 'Forfaits fixes · Prix garantis · Famille bienvenue',
       'airport.intro_html': 'Sélectionnez votre trajet aéroport. Tarif fixe garanti, toutes charges incluses. <strong style="color:var(--text)">Réhausseur enfant et siège bébé disponibles sans supplément.</strong>',
@@ -529,6 +537,14 @@
       'tabsel.fleet': '🚘 Our fleet',
       'tabsel.services': '✦ Services',
       'tabsel.guarantees': '✓ Guarantees',
+
+      /* ── Trip type buttons ── */
+      'ttb.airport_name': 'Airport Package',
+      'ttb.airport_sub': 'CDG · Orly · Fixed rate',
+      'ttb.transfer_name': 'Transfer',
+      'ttb.transfer_sub': 'Outside Paris · Per km',
+      'ttb.mad_name': 'Hourly Hire',
+      'ttb.mad_sub': 'Dedicated driver · Per hour',
 
       /* ── Forfaits Aéroports ── */
       'airport.tag': 'Fixed packages · Guaranteed rates · Families welcome',
