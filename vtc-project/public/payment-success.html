@@ -12,7 +12,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--gold:#c9a96e;--black:#080808;--dark:#111111;--text:#f0ece4;--muted:#9a9185;--green:#27ae60}
-body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:max(5vh,32px) 24px 0}
 .card{max-width:480px;width:100%;background:#111;border:1px solid rgba(201,169,110,.2);border-radius:4px;overflow:hidden;text-align:center}
 .card-top{background:#080808;padding:32px 28px 24px;border-bottom:1px solid rgba(201,169,110,.15)}
 .check{width:64px;height:64px;background:rgba(39,174,96,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
@@ -26,7 +26,11 @@ h1{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color
 .info{font-size:.82rem;color:var(--muted);line-height:1.65;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
 .btn{display:inline-block;margin-top:24px;background:var(--gold);color:#080808;padding:12px 32px;text-decoration:none;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;border-radius:2px;transition:opacity .2s}
 .btn:hover{opacity:.85}
-.footer{font-size:.7rem;color:rgba(154,145,133,.5);margin-top:20px}
+footer{width:100%;max-width:600px;border-top:1px solid rgba(201,169,110,.12);padding:1.5rem 0;margin-top:auto;padding-bottom:1.5rem}
+.foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.4rem;margin-bottom:.5rem}
+.foot-links a{color:var(--muted);text-decoration:none;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;transition:color .2s}
+.foot-links a:hover{color:var(--gold)}
+.foot-copy{font-size:.68rem;color:rgba(154,145,133,.4);text-align:center}
 </style>
 </head>
 <body>
@@ -48,7 +52,16 @@ h1{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color
     <a href="/" class="btn" id="t-btn">Retour à l'accueil</a>
   </div>
 </div>
-<div class="footer">© IsmaDrive · ismadrive.fr</div>
+<footer>
+  <div class="foot-links">
+    <a href="/">Accueil</a>
+    <a href="/cgv">CGV</a>
+    <a href="/mentions-legales">Mentions légales</a>
+    <a href="/confidentialite">Confidentialité</a>
+    <a href="https://wa.me/33623889717" target="_blank" rel="noopener">Contact</a>
+  </div>
+  <div class="foot-copy">© 2025 IsmaDrive — Tous droits réservés · Chauffeur Privé VTC Paris &amp; Île-de-France</div>
+</footer>
 
 <script>
 const params = new URLSearchParams(window.location.search);

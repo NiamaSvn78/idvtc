@@ -755,7 +755,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
-    <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="/" data-i18n="nav.home">Accueil</a></li>
     <li><a href="#tarifs">Tarifs</a></li>
     <li><a href="/a-propos" data-i18n="nav.about">À propos</a></li>
     <li><a href="/faq" data-i18n="nav.faq">FAQ</a></li>
@@ -776,7 +776,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 <div class="nav-overlay" id="nav-overlay" onclick="toggleNav()"></div>
 <div class="nav-drawer" id="nav-drawer" role="navigation" aria-label="Menu mobile">
   <ul>
-    <li><a href="/#reservation" onclick="toggleNav()"><span class="nd-num">01</span><span data-i18n="nav.home">Accueil</span></a></li>
+    <li><a href="/" onclick="toggleNav()"><span class="nd-num">01</span><span data-i18n="nav.home">Accueil</span></a></li>
     <li><a href="#tarifs" onclick="toggleNav()"><span class="nd-num">02</span><span>Tarifs</span></a></li>
     <li><a href="/a-propos"><span class="nd-num">03</span><span data-i18n="nav.about">À propos</span></a></li>
     <li><a href="/faq"><span class="nd-num">04</span><span data-i18n="nav.faq">FAQ</span></a></li>
@@ -1600,21 +1600,27 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <p class="section-tag" style="margin-bottom:1.2rem" data-i18n="guar.reviews_tag">Avis clients</p>
         <div class="reviews-grid" itemscope itemtype="https://schema.org/ItemList">
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
+            <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/TaxiService"><meta itemprop="name" content="IsmaDrive"></div>
+            <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating"><meta itemprop="ratingValue" content="5"><meta itemprop="bestRating" content="5"></div>
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
             <p class="review-text" itemprop="reviewBody" data-i18n="guar.r1_text">"Ponctuel à la minute près pour mon vol CDG. Véhicule impeccable, chauffeur très professionnel et discret. Je recommande sans hésitation."</p>
-            <div class="review-author" itemprop="author" data-i18n="guar.r1_author">Thomas D.</div>
+            <div class="review-author" itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name" data-i18n="guar.r1_author">Thomas D.</span></div>
             <div class="review-date" data-i18n="guar.r1_date">Client régulier · Paris 8e</div>
           </div>
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
+            <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/TaxiService"><meta itemprop="name" content="IsmaDrive"></div>
+            <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating"><meta itemprop="ratingValue" content="5"><meta itemprop="bestRating" content="5"></div>
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
             <p class="review-text" itemprop="reviewBody" data-i18n="guar.r2_text">"Mise à disposition pour une journée de réunions à La Défense. Chauffeur patient, disponible, parfaitement présenté. Un vrai luxe."</p>
-            <div class="review-author" itemprop="author" data-i18n="guar.r2_author">Sophie M.</div>
+            <div class="review-author" itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name" data-i18n="guar.r2_author">Sophie M.</span></div>
             <div class="review-date" data-i18n="guar.r2_date">Directrice commerciale · Neuilly-sur-Seine</div>
           </div>
           <div class="review-card" itemprop="itemListElement" itemscope itemtype="https://schema.org/Review">
+            <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/TaxiService"><meta itemprop="name" content="IsmaDrive"></div>
+            <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating"><meta itemprop="ratingValue" content="5"><meta itemprop="bestRating" content="5"></div>
             <div class="stars" aria-label="5 étoiles sur 5">★★★★★</div>
             <p class="review-text" itemprop="reviewBody" data-i18n="guar.r3_text">"Van Premium pour 6 personnes depuis Versailles jusqu'à Orly. Confort, espace, Wi-Fi : exactement ce qu'il faut. Prix fixe, aucune surprise."</p>
-            <div class="review-author" itemprop="author" data-i18n="guar.r3_author">Laurent &amp; famille</div>
+            <div class="review-author" itemprop="author" itemscope itemtype="https://schema.org/Person"><span itemprop="name" data-i18n="guar.r3_author">Laurent &amp; famille</span></div>
             <div class="review-date" data-i18n="guar.r3_date">Transfert Versailles → Orly</div>
           </div>
         </div>
