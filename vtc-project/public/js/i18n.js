@@ -388,7 +388,6 @@
       'trust.b5': 'Prix fixe, sans surprise',
       'trust.b6': 'Aucun frais cachés',
       'trust.b7': 'Paiement par carte accepté',
-      'trust.b8': 'Annulation gratuite',
 
       /* ── Paris Experience ── */
       'paris.sub': 'Bien plus qu\'un trajet — une expérience à la hauteur de Paris',

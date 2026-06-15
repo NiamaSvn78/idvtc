@@ -807,7 +807,6 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <div class="trust-badge"><span class="badge-icon">🔒</span><span data-i18n="trust.b5">Prix fixe, sans surprise</span></div>
       <div class="trust-badge"><span class="badge-icon">🚫</span><span data-i18n="trust.b6">Aucun frais cachés</span></div>
       <div class="trust-badge"><span class="badge-icon">💳</span><span data-i18n="trust.b7">Paiement par carte accepté</span></div>
-      <div class="trust-badge"><span class="badge-icon">❌</span><span data-i18n="trust.b8">Annulation gratuite</span></div>
     </div>
   </section>
 
@@ -1935,6 +1934,8 @@ const CFG = {
     business: { km: 2.50, base: 0, min: 30, h: 75 },
     van:      { km: 2.50, base: 0, min: 40, h: 95 }
   },
+  extraKmRate: 2.50,
+  osrmFactor: 1.30,
   forfaits: {
     'cdg':  { van: 100, business: 100, label: 'Aéroport CDG ↔ Paris' },
     'orly': { van: 90,  business: 90,  label: 'Aéroport Orly ↔ Paris' }
@@ -2161,24 +2162,26 @@ function haversineKm(lat1,lon1,lat2,lon2){const R=6371,toR=Math.PI/180,dLat=(lat
 function updatePackPrice(){
   const f=CFG.forfaits[S.fpack],basePrice=f[S.fveh];
   const isRound=S.tripMode==='round-trip'||S.tripMode==='split';
-  /* Surcharge hors Paris : +1€/km au-delà du rayon parisien (≈5 km du centre) pour tout dept ≠ 75 */
+  /* Surcharge hors Paris : +2.50€/km au-delà du rayon parisien (≈5 km du centre) pour tout dept ≠ 75 */
   const extraAller=calcParisExtraKm(S.paddressCoord);
   const retCoord=isRound?(S.preturnAddrCoord||S.paddressCoord):null;
   const extraRetour=isRound?calcParisExtraKm(retCoord):0;
-  const price=(basePrice+extraAller)+(isRound?(basePrice+extraRetour):0);
+  const extraAllerEur=Math.ceil(extraAller*CFG.extraKmRate);
+  const extraRetourEur=Math.ceil(extraRetour*CFG.extraKmRate);
+  const price=(basePrice+extraAllerEur)+(isRound?(basePrice+extraRetourEur):0);
   S.price=price;
   const rehausseur=document.getElementById('f-rehausseur')?.checked;
   const siege=document.getElementById('f-siege')?.checked;
   const extras=[];
   if(isRound){
     if(extraAller>0&&extraRetour>0&&extraAller===extraRetour){
-      extras.push([i18n('extra.outside_paris')+' '+i18n('extra.round_trip_x2')+' ('+extraAller+' km)','+'+( extraAller*2)+' €']);
+      extras.push([i18n('extra.outside_paris')+' '+i18n('extra.round_trip_x2')+' ('+extraAller+' km)','+'+( extraAllerEur*2)+' €']);
     }else{
-      if(extraAller>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.aller')+' ('+extraAller+' km)','+'+extraAller+' €']);
-      if(extraRetour>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.retour')+' ('+extraRetour+' km)','+'+extraRetour+' €']);
+      if(extraAller>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.aller')+' ('+extraAller+' km)','+'+extraAllerEur+' €']);
+      if(extraRetour>0)extras.push([i18n('extra.outside_paris')+' — '+i18n('extra.retour')+' ('+extraRetour+' km)','+'+extraRetourEur+' €']);
     }
   }else{
-    if(extraAller>0)extras.push([i18n('extra.outside_paris')+' ('+extraAller+' km)','+'+extraAller+' €']);
+    if(extraAller>0)extras.push([i18n('extra.outside_paris')+' ('+extraAller+' km)','+'+extraAllerEur+' €']);
   }
   if(rehausseur)extras.push([i18n('recap.booster'),i18n('airport.included').split('·')[0].trim()]);
   if(siege)extras.push([i18n('recap.baby_seat'),i18n('airport.included').split('·')[0].trim()]);
@@ -2400,10 +2403,11 @@ function calcParisExtraKm(coord){
 }
 function getTransferAirportExtraKm(dep,arr,isRound){
   const depAp=detectAirport(dep),arrAp=detectAirport(arr);
-  let extra=0;
-  if(!depAp)extra+=calcParisExtraKm(dep);
-  if(!arrAp)extra+=calcParisExtraKm(arr);
-  return isRound?extra*2:extra;
+  let extraKm=0;
+  if(!depAp)extraKm+=calcParisExtraKm(dep);
+  if(!arrAp)extraKm+=calcParisExtraKm(arr);
+  const extraEur=Math.ceil(extraKm*CFG.extraKmRate);
+  return isRound?extraEur*2:extraEur;
 }
 function buildTransferAirportExtraRows(dep,arr,isRound){
   const rows=[];
@@ -2412,7 +2416,7 @@ function buildTransferAirportExtraRows(dep,arr,isRound){
   const totalKm=eDep+eArr;
   if(!totalKm)return rows;
   const rtSuffix=isRound?' '+i18n('extra.round_trip_x2'):'';
-  const totalEur=isRound?totalKm*2:totalKm;
+  const totalEur=isRound?Math.ceil(totalKm*CFG.extraKmRate)*2:Math.ceil(totalKm*CFG.extraKmRate);
   rows.push([i18n('extra.outside_paris')+rtSuffix+' ('+totalKm+' km)','+'+totalEur+' €']);
   return rows;
 }
@@ -2445,7 +2449,7 @@ async function doCalc(){
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
     if(data.code!=='Ok')throw new Error('Itinéraire introuvable');
-    const km=data.routes[0].distance/1000,mins=Math.round(data.routes[0].duration/60);
+    const km=Math.round(data.routes[0].distance/1000*CFG.osrmFactor*10)/10,mins=Math.round(data.routes[0].duration/60*CFG.osrmFactor);
     S.km=km;S.durationMin=mins;
     const rvTag=document.getElementById('rv-tag');
     if(apKey){
@@ -2478,7 +2482,7 @@ async function doCalcPrestN(pid){
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
     if(data.code!=='Ok')throw new Error('Itinéraire introuvable');
-    pr.km=data.routes[0].distance/1000;
+    pr.km=Math.round(data.routes[0].distance/1000*CFG.osrmFactor*10)/10;
     calcPrestPrice(pid);
   }catch(err){if(el)el.textContent='Erreur calcul';}
 }
