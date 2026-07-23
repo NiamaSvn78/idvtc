@@ -531,7 +531,7 @@ async function doLogin(){
   const err = document.getElementById('l-err');
   if(!pwd){ err.textContent='Mot de passe requis'; return; }
   try{
-    const r = await fetch('/api/reservations?pwd='+encodeURIComponent(pwd));
+    const r = await fetch('/api/reservations',{headers:{'X-Admin-Pwd':pwd}});
     if(r.status === 401){ err.textContent='Mot de passe incorrect'; return; }
     PWD = pwd;
     sessionStorage.setItem('adm_pwd', pwd);
@@ -548,7 +548,7 @@ function logout(){
   location.reload();
 }
 async function reloadRes(){
-  const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
+  const r = await fetch('/api/reservations',{headers:{'X-Admin-Pwd':PWD}});
   const raw = await r.text();
   if(r.ok) {
     const data = parseJsonSafe(raw, r.status);
@@ -972,7 +972,7 @@ async function saveManual(){
 window.addEventListener('DOMContentLoaded', async () => {
   if(PWD){
     try{
-      const r = await fetch('/api/reservations?pwd='+encodeURIComponent(PWD));
+      const r = await fetch('/api/reservations',{headers:{'X-Admin-Pwd':PWD}});
       if(r.ok){
         const raw = await r.text();
         const data = parseJsonSafe(raw, r.status);
@@ -1092,7 +1092,7 @@ function closeDriverModal(){ document.getElementById('driver-ov').classList.remo
 
 async function loadDrivers(){
   try{
-    const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+    const r = await fetch('/api/drivers',{headers:{'X-Admin-Pwd':PWD}});
     const raw = await r.text();
     if(!r.ok) return;
     const data = parseJsonSafe(raw, r.status);
@@ -1204,7 +1204,7 @@ let dirDrivers = [];
 let editingDriverId = null;
 
 async function openDirectory(){
-  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  const r = await fetch('/api/drivers',{headers:{'X-Admin-Pwd':PWD}});
   const raw = await r.text();
   if(r.ok){
     const data = parseJsonSafe(raw, r.status);
@@ -1281,7 +1281,7 @@ async function saveEdit(id){
   await fetch('/api/drivers/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
   editingDriverId = null;
-  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  const r = await fetch('/api/drivers',{headers:{'X-Admin-Pwd':PWD}});
   if(r.ok){
     const raw = await r.text();
     const data = parseJsonSafe(raw, r.status);
@@ -1295,7 +1295,7 @@ async function dirDeleteDriver(id){
   if(!confirm('Supprimer ce conducteur du répertoire ?')) return;
   await fetch('/api/drivers/'+id,{method:'DELETE',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({pwd:PWD})});
-  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  const r = await fetch('/api/drivers',{headers:{'X-Admin-Pwd':PWD}});
   if(r.ok){
     const raw = await r.text();
     const data = parseJsonSafe(raw, r.status);
@@ -1316,7 +1316,7 @@ async function dirAddDriver(){
     body:JSON.stringify({pwd:PWD, name, phone, email, carCategory, immatriculation: plate})});
   ['dir-new-name','dir-new-phone','dir-new-email','dir-new-plate'].forEach(id => document.getElementById(id).value='');
   document.getElementById('dir-new-cat').value = '';
-  const r = await fetch('/api/drivers?pwd='+encodeURIComponent(PWD));
+  const r = await fetch('/api/drivers',{headers:{'X-Admin-Pwd':PWD}});
   if(r.ok){
     const raw = await r.text();
     const data = parseJsonSafe(raw, r.status);

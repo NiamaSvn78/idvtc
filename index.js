@@ -53,6 +53,7 @@ const {
   buildDriverAssignmentsPatch,
   reservationViewForCourse,
 } = require('./lib/driver-course-assignments');
+const { computeExpectedTotal } = require('./lib/pricing');
 const clientConfirmationMail = createClientConfirmationMailer({
   appUrl: APP_URL,
   from: RESEND_FROM,
@@ -70,10 +71,20 @@ const clientConfirmationMail = createClientConfirmationMailer({
 const sendClientConfirmationAfterPayment = clientConfirmationMail.sendAfterPayment;
 const sendClientConfirmationEmail = clientConfirmationMail.sendClientConfirmationEmail;
 
-/* ── DB helpers (fallback mémoire si Supabase absent) ── */
+/* ── DB helpers (fallback mémoire si Supabase absent — dev local uniquement) ── */
 let _mem = [];
 
+/* En production, une réservation (donc un paiement potentiel) ne doit jamais
+   être silencieusement écrite en mémoire — ça se perd au prochain redémarrage
+   serverless sans qu'aucune alerte ne parte. On refuse plutôt l'opération. */
+function assertPersistenceAvailable() {
+  if (!supabase && process.env.NODE_ENV === 'production') {
+    throw new Error('Base de données indisponible (Supabase non configuré) — opération refusée en production.');
+  }
+}
+
 async function dbInsert(r) {
+  assertPersistenceAvailable();
   if (supabase) {
     const { error } = await supabase.from('reservations').insert(r);
     if (error) throw new Error(error.message);
@@ -82,17 +93,26 @@ async function dbInsert(r) {
   }
 }
 
-async function dbList() {
+/** Plafonnée à 5000 lignes par appel — évite de dépendre du plafond implicite
+ *  de Supabase/PostgREST (qui tronquerait silencieusement au-delà). */
+async function dbList({ limit, offset } = {}) {
+  assertPersistenceAvailable();
+  const lim = Math.min(Math.max(Number(limit) || 2000, 1), 5000);
+  const off = Math.max(Number(offset) || 0, 0);
   if (supabase) {
-    const { data, error } = await supabase
-      .from('reservations').select('*').order('createdAt', { ascending: false });
+    const { data, error, count } = await supabase
+      .from('reservations')
+      .select('*', { count: 'exact' })
+      .order('createdAt', { ascending: false })
+      .range(off, off + lim - 1);
     if (error) throw new Error(error.message);
-    return data || [];
+    return { rows: data || [], total: count ?? (data || []).length };
   }
-  return _mem;
+  return { rows: _mem.slice(off, off + lim), total: _mem.length };
 }
 
 async function dbGetById(id) {
+  assertPersistenceAvailable();
   if (supabase) {
     const { data } = await supabase.from('reservations').select('*').eq('id', id).single();
     return data || null;
@@ -101,6 +121,7 @@ async function dbGetById(id) {
 }
 
 async function dbUpdate(id, updates) {
+  assertPersistenceAvailable();
   if (supabase) {
     const { error } = await supabase
       .from('reservations').update(updates).eq('id', id);
@@ -114,6 +135,7 @@ async function dbUpdate(id, updates) {
 }
 
 async function dbGetByCancellationToken(token) {
+  assertPersistenceAvailable();
   if (supabase) {
     const { data } = await supabase.from('reservations')
       .select('*').eq('cancellationToken', token).limit(1);
@@ -664,6 +686,12 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
     console.error('Webhook signature invalide:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+  /* Un endpoint webhook Test mal configuré vers cette URL ne doit jamais pouvoir
+     confirmer un paiement en production — même avec une signature valide. */
+  if (process.env.NODE_ENV === 'production' && event.livemode === false) {
+    console.warn('[Stripe] Événement test ignoré en production:', event.id, event.type);
+    return res.json({ received: true, skipped: 'test_event_in_production' });
+  }
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const reservationId = session.metadata?.reservationId;
@@ -713,7 +741,22 @@ app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async
 
 /* ── Middleware ── */
 app.use(helmet({
-  contentSecurityPolicy: false, // désactivé car on sert des HTML inline complexes
+  /* Le site sert du HTML avec CSS/JS inline (pas de build/nonce) — 'unsafe-inline'
+     reste nécessaire pour script/style, mais le reste est restreint aux origines
+     réellement utilisées par le front (voir grep sur vtc-project/public/*.html). */
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
+      connectSrc: ["'self'", 'https://api-adresse.data.gouv.fr', 'https://api.qrserver.com', 'https://router.project-osrm.org'],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      frameAncestors: ["'self'"],
+    },
+  },
 }));
 app.use(express.json({ limit: '100kb' }));
 
@@ -906,7 +949,7 @@ app.post('/api/reservations/manual', adminLimiter, async (req, res) => {
 
 /* Conducteurs */
 app.get('/api/drivers', adminLimiter, async (req, res) => {
-  if (req.query.pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  if (req.headers['x-admin-pwd'] !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   try { res.json(await dbListDrivers()); } catch (e) { res.status(500).json({ error: 'Erreur serveur' }); }
 });
 
@@ -1069,15 +1112,17 @@ app.post('/api/reservations', publicLimiter, async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ ok: false, error: e.message || 'Erreur serveur' });
+    res.status(500).json({ ok: false, error: 'Erreur serveur' });
   }
 });
 
 app.get('/api/reservations', adminLimiter, async (req, res) => {
-  const { pwd } = req.query;
-  if (pwd !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
+  const { limit, offset } = req.query;
+  if (req.headers['x-admin-pwd'] !== ADMIN_PWD) return res.status(401).json({ error: 'Non autorisé' });
   try {
-    res.json(await dbList());
+    const { rows, total } = await dbList({ limit, offset });
+    res.set('X-Total-Count', String(total));
+    res.json(rows);
   } catch (e) {
     console.error('[api/reservations GET]', e.message);
     res.status(500).json({ error: 'Erreur serveur' });
@@ -1166,11 +1211,30 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Montant invalide.' });
   }
 
+  let expectedPrice;
+  try {
+    expectedPrice = await computeExpectedTotal(req.body);
+  } catch (e) {
+    console.error('[Pricing] Erreur de calcul:', e.message);
+    expectedPrice = null;
+  }
+  if (expectedPrice == null) {
+    return res.status(400).json({ error: 'Impossible de vérifier le tarif de ce trajet. Rechargez la page et réessayez.' });
+  }
+  const tolerance = Math.max(2, expectedPrice * 0.03);
+  if (Number(price) < expectedPrice - tolerance) {
+    console.warn('[Pricing] Tarif soumis anormalement bas — soumis:', price, 'attendu:', expectedPrice, 'trajet:', trajet);
+    return res.status(400).json({ error: 'Le tarif ne correspond pas au calcul du trajet. Rechargez la page et réessayez.' });
+  }
+
   const id = Date.now().toString(36).toUpperCase().slice(-8);
   // ref généré côté serveur — ne pas faire confiance au client
   const ref = `ISMA-${id.slice(-6)}`;
+  // paddressCoord/preturnAddrCoord/prestationsData ne servent qu'à computeExpectedTotal
+  // ci-dessus — ce ne sont pas des colonnes de la table reservations.
+  const { paddressCoord, preturnAddrCoord, prestationsData, ...bodyForDb } = req.body || {};
   const newRes = {
-    ...req.body,
+    ...bodyForDb,
     id,
     ref,
     status: 'pending_payment',
@@ -1211,7 +1275,7 @@ app.post('/api/create-checkout-session', publicLimiter, async (req, res) => {
 });
 
 /* Secours si le webhook Stripe est en retard : page paiement envoie session_id */
-app.post('/api/sync-booking-after-payment', async (req, res) => {
+app.post('/api/sync-booking-after-payment', publicLimiter, async (req, res) => {
   const sessionId = String(req.body?.sessionId || '').trim();
   if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId requis' });
   if (!stripe) return res.status(503).json({ ok: false, error: 'Stripe non configuré' });
@@ -1266,7 +1330,7 @@ app.post('/api/sync-booking-after-payment', async (req, res) => {
     return res.json({ ok: true, emailSent: false, reason: 'already_sent_or_no_email' });
   } catch (e) {
     console.error('sync-booking-after-payment:', e.message);
-    res.status(500).json({ ok: false, error: e.message });
+    res.status(500).json({ ok: false, error: 'Erreur serveur.' });
   }
 });
 
@@ -1393,7 +1457,8 @@ app.get('/api/reservations/:id/qrcode', publicLimiter, async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.send(png);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('[QR]', e.message);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
