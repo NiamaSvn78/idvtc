@@ -1500,7 +1500,13 @@ app.get('/payment-success', (_req, res) => {
 });
 
 /* ── Fichiers statiques ── */
-app.use(express.static(path.join(__dirname, 'vtc-project/public')));
+app.use(express.static(path.join(__dirname, 'vtc-project/public'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  },
+}));
 
 const pages = [
   'a-propos', 'faq', 'cgv', 'mentions-legales', 'confidentialite',

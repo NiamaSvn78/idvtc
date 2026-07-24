@@ -22,20 +22,6 @@
       'hero.sub': 'Touristes, familles et professionnels — transferts aéroport CDG & Orly, visites monuments, excursions Versailles. Réhausseur & siège bébé inclus, Van 7 places, prix fixe 24h/24.',
       'hero.cta': 'ESTIMER MON PRIX EN 30 SECONDES',
 
-      /* ── Onglets ── */
-      'tab.airport': '✈  Forfaits Aéroports',
-      'tab.transfer': '🚗  Transfert (hors Paris)',
-      'tab.mad': '⏱  Mise à disposition',
-      'tab.fleet': '🚘  Notre flotte',
-      'tab.services': '✦  Services',
-      'tab.guarantees': '✓  Garanties',
-      'tabsel.airport': '✈ Forfaits Aéroports',
-      'tabsel.transfer': '🚗 Transfert (hors Paris)',
-      'tabsel.mad': '⏱ Mise à disposition',
-      'tabsel.fleet': '🚘 Notre flotte',
-      'tabsel.services': '✦ Services',
-      'tabsel.guarantees': '✓ Garanties',
-
       /* ── Boutons type de trajet ── */
       'ttb.airport_name': 'Forfait Aéroport',
       'ttb.airport_sub': 'CDG · Orly · Prix fixe',
@@ -160,21 +146,6 @@
       'mad.s3_title': 'Mariages & Cérémonies',
       'mad.s3_desc': 'Cortège multi-véhicules, accueil des invités, transferts jusqu\'au lieu de réception — service coordinateur sur demande.',
 
-      /* ── Flotte ── */
-      'fleet.tag': 'Notre flotte',
-      'fleet.title': 'Deux véhicules, un niveau d\'exigence',
-      'fleet.van_gamme': 'Véhicule principal · Van Premium',
-      'fleet.van_family_html': '👶 Famille — Réhausseur & siège bébé disponibles',
-      'fleet.van_desc': 'Notre référence pour les familles et les groupes. Espace généreux, 7 places, 8 bagages — idéal pour les transferts aéroport avec enfants. Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément, sur demande à la réservation.',
-      'fleet.bus_gamme': 'Option Business',
-      'fleet.bus_desc': 'La berline executive pour les déplacements seul ou en duo. Discrétion absolue, performance et confort à chaque trajet professionnel.',
-      'fleet.tarif_cdg': 'Forfait CDG → Paris',
-      'fleet.tarif_orly': 'Forfait Orly → Paris',
-      'fleet.tarif_km': 'Hors Paris (au km)',
-      'fleet.tarif_mad': 'Mise à disposition',
-      'fleet.tarif_contact': 'Contact',
-      'fleet.tarif_devis': 'Sur devis',
-
       /* ── Services / Zones ── */
       'services.tag': 'Zones desservies',
       'services.title': 'Partout en Île-de-France',
@@ -189,12 +160,6 @@
       'guar.g2_desc': 'Votre chauffeur est présent avant vous. Suivi GPS en temps réel, trajet optimisé, zéro retard toléré.',
       'guar.g3_title': 'Discrétion & Sécurité',
       'guar.g3_desc': 'Chauffeurs formés pour une clientèle exigeante : VIP, délégations, mariages. Confidentialité absolue garantie.',
-      'guar.g4_title': 'Chauffeurs professionnels',
-      'guar.g4_desc': 'Carte VTC, tenue soignée, connaissance terrain de l\'Île-de-France. Disponibles 7j/7, 24h/24.',
-      'guar.g5_title': 'Familles & enfants',
-      'guar.g5_desc': 'Réhausseur (3–12 ans) et siège bébé (0–3 ans) disponibles sans supplément. Indiquez-le à la réservation.',
-      'guar.g6_title': 'QR code obligatoire',
-      'guar.g6_desc': 'Après paiement, un QR code unique vous est envoyé par email. Votre conducteur doit impérativement le scanner avant le départ — sans lui, aucune course ne peut démarrer.',
       'guar.g7_title': 'Chauffeurs bilingues',
       'guar.g7_desc': 'Francophones et anglophones, en tenue soignée, disponibles 7j/7 · 24h/24. Accueil avec pancarte nominative à chaque arrivée aéroport.',
       'tarifs.tag': 'Tarifs',
@@ -222,15 +187,6 @@
       'tarifs.note': 'Tous les tarifs sont TTC, fixes et confirmés à la réservation. Aucun supplément pour bagages, retards de vol ou temps d\'attente. Réhausseur enfant et siège bébé inclus sur demande.',
       'tarifs.cta': 'Réserver maintenant',
       'guar.reviews_tag': 'Avis clients',
-      'guar.r1_text': '"Ponctuel à la minute près pour mon vol CDG. Véhicule impeccable, chauffeur très professionnel et discret. Je recommande sans hésitation."',
-      'guar.r1_author': 'Thomas D.',
-      'guar.r1_date': 'Client régulier · Paris 8e',
-      'guar.r2_text': '"Mise à disposition pour une journée de réunions à La Défense. Chauffeur patient, disponible, parfaitement présenté. Un vrai luxe."',
-      'guar.r2_author': 'Sophie M.',
-      'guar.r2_date': 'Directrice commerciale · Neuilly-sur-Seine',
-      'guar.r3_text': '"Van Premium pour 6 personnes depuis Versailles jusqu\'à Orly. Confort, espace, Wi-Fi : exactement ce qu\'il faut. Prix fixe, aucune surprise."',
-      'guar.r3_author': 'Laurent & famille',
-      'guar.r3_date': 'Transfert Versailles → Orly',
       'guar.reviews_link': 'Voir tous nos avis Google →',
 
       /* ── Modal ── */
@@ -523,20 +479,6 @@
       'hero.sub': 'Tourists, families and professionals — CDG & Orly airport transfers, monument tours, Versailles excursions. Child booster & baby seat included, 7-seat Van, fixed price 24/7.',
       'hero.cta': 'GET MY PRICE IN 30 SECONDS',
 
-      /* ── Onglets ── */
-      'tab.airport': '✈  Airport Packages',
-      'tab.transfer': '🚗  Transfer (outside Paris)',
-      'tab.mad': '⏱  Hourly Hire',
-      'tab.fleet': '🚘  Our fleet',
-      'tab.services': '✦  Services',
-      'tab.guarantees': '✓  Guarantees',
-      'tabsel.airport': '✈ Airport Packages',
-      'tabsel.transfer': '🚗 Transfer (outside Paris)',
-      'tabsel.mad': '⏱ Hourly Hire',
-      'tabsel.fleet': '🚘 Our fleet',
-      'tabsel.services': '✦ Services',
-      'tabsel.guarantees': '✓ Guarantees',
-
       /* ── Trip type buttons ── */
       'ttb.airport_name': 'Airport Package',
       'ttb.airport_sub': 'CDG · Orly · Fixed rate',
@@ -661,21 +603,6 @@
       'mad.s3_title': 'Weddings & Ceremonies',
       'mad.s3_desc': 'Multi-vehicle convoys, guest reception, transfers to the venue — coordinator service on request.',
 
-      /* ── Flotte ── */
-      'fleet.tag': 'Our fleet',
-      'fleet.title': 'Two vehicles, one standard of excellence',
-      'fleet.van_gamme': 'Main vehicle · Premium Van',
-      'fleet.van_family_html': '👶 Family — Booster & baby seat available',
-      'fleet.van_desc': 'Our flagship for families and groups. Generous space, 7 seats, 8 bags — ideal for airport transfers with children. Booster (3–12 yrs) and baby seat (0–3 yrs) available at no extra charge, upon request at booking.',
-      'fleet.bus_gamme': 'Business option',
-      'fleet.bus_desc': 'The executive saloon for solo or duo travel. Absolute discretion, performance and comfort on every professional journey.',
-      'fleet.tarif_cdg': 'CDG → Paris package',
-      'fleet.tarif_orly': 'Orly → Paris package',
-      'fleet.tarif_km': 'Outside Paris (per km)',
-      'fleet.tarif_mad': 'Hourly hire',
-      'fleet.tarif_contact': 'Contact',
-      'fleet.tarif_devis': 'On request',
-
       /* ── Services / Zones ── */
       'services.tag': 'Service areas',
       'services.title': 'Everywhere in Île-de-France',
@@ -690,12 +617,6 @@
       'guar.g2_desc': 'Your driver arrives before you. Real-time GPS tracking, optimised route, zero delay tolerated.',
       'guar.g3_title': 'Discretion & Safety',
       'guar.g3_desc': 'Drivers trained for discerning clients: VIPs, delegations, weddings. Absolute confidentiality guaranteed.',
-      'guar.g4_title': 'Professional drivers',
-      'guar.g4_desc': 'VTC licence, smart attire, local knowledge of Île-de-France. Available 7 days a week, 24/7.',
-      'guar.g5_title': 'Families & children',
-      'guar.g5_desc': 'Booster (3–12 yrs) and baby seat (0–3 yrs) available at no extra charge. Mention it at booking.',
-      'guar.g6_title': 'Mandatory QR code',
-      'guar.g6_desc': 'After payment, a unique QR code is sent to you by email. Your driver must scan it before departure — without it, no ride can begin.',
       'guar.g7_title': 'Bilingual drivers',
       'guar.g7_desc': 'French and English-speaking, smartly dressed, available 7 days/week · 24/7. Name sign meet & greet at every airport arrival.',
       'tarifs.tag': 'Pricing',
@@ -723,15 +644,6 @@
       'tarifs.note': 'All prices are VAT-inclusive, fixed and confirmed at booking. No surcharges for luggage, flight delays or waiting time. Child booster seat and baby seat included on request.',
       'tarifs.cta': 'Book now',
       'guar.reviews_tag': 'Client reviews',
-      'guar.r1_text': '"Perfectly on time for my CDG flight. Impeccable vehicle, very professional and discreet driver. I recommend without hesitation."',
-      'guar.r1_author': 'Thomas D.',
-      'guar.r1_date': 'Regular client · Paris 8th',
-      'guar.r2_text': '"Hired for a full day of meetings at La Défense. Patient, available, perfectly presented driver. A true luxury."',
-      'guar.r2_author': 'Sophie M.',
-      'guar.r2_date': 'Sales Director · Neuilly-sur-Seine',
-      'guar.r3_text': '"Premium Van for 6 people from Versailles to Orly. Comfort, space, Wi-Fi: exactly what was needed. Fixed price, no surprises."',
-      'guar.r3_author': 'Laurent & family',
-      'guar.r3_date': 'Transfer Versailles → Orly',
       'guar.reviews_link': 'See all our Google reviews →',
 
       /* ── Modal ── */
