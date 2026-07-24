@@ -61,7 +61,11 @@
   }
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -760,7 +764,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 
 <nav>
   <a class="nav-logo" href="#" aria-label="IsmaDrive — Accueil">
-    <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
+    <img src="/isma-drive-logo.svg" alt="IsmaDrive" width="218" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
     <li><a href="/" data-i18n="nav.home">Accueil</a></li>
@@ -1827,7 +1831,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <div class="footer-grid">
       <div>
         <div class="foot-logo" style="margin-bottom:1.2rem">
-          <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="44" style="display:block;width:auto;max-width:200px">
+          <img src="/isma-drive-logo.svg" alt="IsmaDrive" width="185" height="44" style="display:block;width:auto;max-width:200px">
         </div>
         <div class="footer-nap" itemscope itemtype="https://schema.org/TaxiService">
           <strong itemprop="name">IsmaDrive</strong><br>

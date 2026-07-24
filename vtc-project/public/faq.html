@@ -63,7 +63,11 @@
   ]
 }
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--gold:#c9a96e;--gold2:#e8c98a;--black:#080808;--dark:#111111;--dark2:#181818;--text:#f0ece4;--muted:#9a9185;--faint:#4a4640;--border:rgba(201,169,110,0.15);--subtle:rgba(255,255,255,0.06);--gold-dim:rgba(201,169,110,0.10);--gold-border:rgba(201,169,110,0.25)}
@@ -161,7 +165,7 @@ footer{padding:2rem 5vw;border-top:1px solid var(--border);display:flex;justify-
 
 <nav>
   <a class="nav-logo" href="/" aria-label="IsmaDrive — Accueil">
-    <img src="/isma-drive-logo.svg" alt="IsmaDrive" height="52" style="display:block;width:auto">
+    <img src="/isma-drive-logo.svg" alt="IsmaDrive" width="218" height="52" style="display:block;width:auto">
   </a>
   <ul class="nav-links">
     <li><a href="/#reservation" data-i18n="nav.home">Accueil</a></li>
