@@ -19,9 +19,36 @@
   "name": "IsmaDrive — Transfert Aéroport Roissy CDG Paris",
   "url": "https://ismadrive.fr/transfert-roissy-cdg",
   "telephone": "+33623889717",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+33623889717",
+    "contactType": "reservations",
+    "availableLanguage": ["French", "English"],
+    "hoursAvailable": {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "00:00", "closes": "23:59"}
+  },
   "address": {"@type": "PostalAddress", "addressLocality": "Paris", "postalCode": "75000", "addressCountry": "FR"},
   "areaServed": [{"@type": "Airport", "name": "Aéroport Paris-Charles de Gaulle", "iataCode": "CDG"}, {"@type": "City", "name": "Paris"}],
-  "openingHours": "Mo-Su 00:00-23:59"
+  "openingHours": "Mo-Su 00:00-23:59",
+  "priceRange": "€€",
+  "description": "Transfert privé en Mercedes depuis l'aéroport Charles de Gaulle (CDG) vers Paris et l'Île-de-France. Accueil dans le hall des arrivées avec pancarte nominative, suivi de vol en temps réel, 60 minutes d'attente gratuite incluses.",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Tarifs Transfert CDG",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "name": "Berline Business — CDG vers Paris",
+        "description": "Mercedes Classe E, jusqu'à 3 passagers, confort premium",
+        "priceCurrency": "EUR"
+      },
+      {
+        "@type": "Offer",
+        "name": "Van Premium — CDG vers Paris",
+        "description": "Grand van, jusqu'à 7 passagers, idéal familles & groupes",
+        "priceCurrency": "EUR"
+      }
+    ]
+  }
 }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
