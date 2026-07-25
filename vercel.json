@@ -7,16 +7,91 @@
       "config": {
         "includeFiles": ["vtc-project/public/**", "lib/**"]
       }
+    },
+    {
+      "src": "vtc-project/public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "/index.js" },
+    { "src": "/reservation/(.*)", "dest": "/index.js" },
+    { "src": "/mission-order/(.*)", "dest": "/index.js" },
+
+    { "handle": "filesystem" },
+
+    { "src": "/(.*)", "dest": "/vtc-project/public/$1", "check": true },
+
+    { "src": "/", "dest": "/vtc-project/public/index.html" },
+    { "src": "/a-propos", "dest": "/vtc-project/public/a-propos.html" },
+    { "src": "/faq", "dest": "/vtc-project/public/faq.html" },
+    { "src": "/cgv", "dest": "/vtc-project/public/cgv.html" },
+    { "src": "/mentions-legales", "dest": "/vtc-project/public/mentions-legales.html" },
+    { "src": "/confidentialite", "dest": "/vtc-project/public/confidentialite.html" },
+    { "src": "/chauffeur-prive-versailles", "dest": "/vtc-project/public/chauffeur-prive-versailles.html" },
+    { "src": "/chauffeur-prive-neuilly-sur-seine", "dest": "/vtc-project/public/chauffeur-prive-neuilly-sur-seine.html" },
+    { "src": "/chauffeur-prive-boulogne-billancourt", "dest": "/vtc-project/public/chauffeur-prive-boulogne-billancourt.html" },
+    { "src": "/vtc-la-defense", "dest": "/vtc-project/public/vtc-la-defense.html" },
+    { "src": "/vtc-vincennes", "dest": "/vtc-project/public/vtc-vincennes.html" },
+    { "src": "/transfert-roissy-cdg", "dest": "/vtc-project/public/transfert-roissy-cdg.html" },
+    { "src": "/transfert-orly-paris", "dest": "/vtc-project/public/transfert-orly-paris.html" },
+    { "src": "/cdg-airport-transfer-paris", "dest": "/vtc-project/public/cdg-airport-transfer-paris.html" },
+    { "src": "/orly-airport-transfer-paris", "dest": "/vtc-project/public/orly-airport-transfer-paris.html" },
+    { "src": "/annuler-reservation", "dest": "/vtc-project/public/annuler-reservation.html" },
+    { "src": "/admin", "dest": "/vtc-project/public/admin.html" },
+    { "src": "/payment-success", "dest": "/vtc-project/public/payment-success.html" },
+
+    { "src": "/(.*)", "dest": "/index.js" }
+  ],
+  "headers": [
     {
-      "src": "/api/(.*)",
-      "dest": "/index.js"
+      "source": "/:page(a-propos|faq|cgv|mentions-legales|confidentialite|chauffeur-prive-versailles|chauffeur-prive-neuilly-sur-seine|chauffeur-prive-boulogne-billancourt|vtc-la-defense|vtc-vincennes|transfert-roissy-cdg|transfert-orly-paris|cdg-airport-transfer-paris|orly-airport-transfer-paris|annuler-reservation|admin|payment-success)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self';script-src 'self' 'unsafe-inline';script-src-attr 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;font-src 'self' https://fonts.gstatic.com;img-src 'self' data: https://images.unsplash.com;connect-src 'self' https://api-adresse.data.gouv.fr https://api.qrserver.com https://router.project-osrm.org;object-src 'none';base-uri 'self';frame-ancestors 'self';form-action 'self';upgrade-insecure-requests" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        { "key": "Origin-Agent-Cluster", "value": "?1" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-DNS-Prefetch-Control", "value": "off" },
+        { "key": "X-Download-Options", "value": "noopen" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" },
+        { "key": "X-XSS-Protection", "value": "0" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.js"
+      "source": "/",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self';script-src 'self' 'unsafe-inline';script-src-attr 'unsafe-inline';style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;font-src 'self' https://fonts.gstatic.com;img-src 'self' data: https://images.unsplash.com;connect-src 'self' https://api-adresse.data.gouv.fr https://api.qrserver.com https://router.project-osrm.org;object-src 'none';base-uri 'self';frame-ancestors 'self';form-action 'self';upgrade-insecure-requests" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
+        { "key": "Origin-Agent-Cluster", "value": "?1" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-DNS-Prefetch-Control", "value": "off" },
+        { "key": "X-Download-Options", "value": "noopen" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" },
+        { "key": "X-XSS-Protection", "value": "0" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(css|js)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(png|jpg|jpeg|webp|svg|ico)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
     }
   ]
 }
