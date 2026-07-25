@@ -30,6 +30,10 @@
       'ttb.mad_name': 'Mise à disposition',
       'ttb.mad_sub': 'Chauffeur dédié · À l\'heure',
 
+      /* ── Accessibilité selects heure/minute ── */
+      'time.hour_aria': 'Heure',
+      'time.minute_aria': 'Minutes',
+
       /* ── Forfaits Aéroports ── */
       'airport.tag': 'Forfaits fixes · Prix garantis · Famille bienvenue',
       'airport.intro_html': 'Sélectionnez votre trajet aéroport. Tarif fixe garanti, toutes charges incluses. <strong style="color:var(--text)">Réhausseur enfant et siège bébé disponibles sans supplément.</strong>',
@@ -486,6 +490,10 @@
       'ttb.transfer_sub': 'Outside Paris · Per km',
       'ttb.mad_name': 'Hourly Hire',
       'ttb.mad_sub': 'Dedicated driver · Per hour',
+
+      /* ── Accessibilité selects heure/minute ── */
+      'time.hour_aria': 'Hour',
+      'time.minute_aria': 'Minutes',
 
       /* ── Forfaits Aéroports ── */
       'airport.tag': 'Fixed packages · Guaranteed rates · Families welcome',

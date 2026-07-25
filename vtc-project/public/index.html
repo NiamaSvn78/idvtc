@@ -72,7 +72,7 @@
   color-scheme: dark;
   --gold:#c9a96e;--gold2:#e8c98a;--gold-dim:rgba(201,169,110,0.10);--gold-border:rgba(201,169,110,0.25);
   --black:#080808;--dark:#111111;--dark2:#181818;--dark3:#222222;--dark4:#2c2c2c;
-  --text:#f0ece4;--muted:#9a9185;--faint:#4a4640;
+  --text:#f0ece4;--muted:#9a9185;--faint:#96918a;
   --border:rgba(201,169,110,0.15);--subtle:rgba(255,255,255,0.06);--green:#27ae60;
 }
 html{scroll-behavior:smooth;scroll-padding-top:80px}
@@ -168,10 +168,10 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .airport-block-btn:hover{opacity:.88}
 .price-box{display:none;margin-top:1.2rem;border:1px solid var(--gold)}.price-box.show{display:block}
 .price-top{background:var(--gold);padding:1.4rem 1.6rem;display:flex;justify-content:space-between;align-items:center}
-.price-lbl{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,0,0,.45);margin-bottom:.1rem}
+.price-lbl{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,0,0,.72);margin-bottom:.1rem}
 .price-num{font-family:'Cormorant Garamond',serif;font-size:3.2rem;font-weight:400;color:var(--black);line-height:1}
 .price-num sup{font-size:1.2rem;vertical-align:super;font-family:'DM Sans',sans-serif;font-weight:300}
-.price-veh{font-size:.75rem;color:rgba(0,0,0,.4);margin-top:.2rem}
+.price-veh{font-size:.75rem;color:rgba(0,0,0,.72);margin-top:.2rem}
 .price-km{background:rgba(0,0,0,.12);color:var(--black);font-size:.72rem;font-weight:500;padding:.28rem .8rem;border-radius:20px}
 .price-body{background:var(--dark);padding:1.1rem 1.6rem}
 .brow{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem}
@@ -183,7 +183,7 @@ label.fl{display:block;font-size:.66rem;letter-spacing:.18em;text-transform:uppe
 .btn-calc{width:100%;background:var(--dark3);border:1px solid var(--gold-border);color:var(--gold);padding:.9rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;letter-spacing:.08em;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:1rem}
 .btn-calc:hover{background:var(--gold);color:var(--black)}.btn-calc.busy{pointer-events:none;opacity:.55}
 .btn-pay{width:100%;background:var(--gold);border:none;color:var(--black);padding:1rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-pay:hover{background:var(--gold2)}.btn-pay:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
+.btn-pay:hover{background:var(--gold2)}.btn-pay:disabled{background:var(--dark3);color:var(--muted);cursor:not-allowed}
 .secure-line{text-align:center;font-size:.68rem;color:var(--faint);margin-top:.5rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{display:inline-block;width:15px;height:15px;border:1.5px solid rgba(201,169,110,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
@@ -233,7 +233,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
 .lbar-fill{height:100%;background:var(--gold);animation:lb 1.4s ease-in-out infinite}
 @keyframes lb{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
 .btn-ok{width:100%;background:var(--gold);border:none;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--black);cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.9rem}
-.btn-ok:hover{background:var(--gold2)}.btn-ok:disabled{background:var(--faint);color:var(--muted);cursor:not-allowed}
+.btn-ok:hover{background:var(--gold2)}.btn-ok:disabled{background:var(--dark3);color:var(--muted);cursor:not-allowed}
 .suc{text-align:center;padding:1.5rem 0;display:none}.suc.show{display:block}
 .suc-ring{width:58px;height:58px;border-radius:50%;border:1.5px solid var(--green);background:rgba(39,174,96,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
 .suc-ring svg{width:26px;height:26px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
@@ -705,7 +705,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
     <span class="nav-phone-label">06 23 88 97 17</span>
   </a>
   <button class="nav-btn" onclick="navTab('p');document.getElementById('reservation').scrollIntoView({behavior:'smooth'})" data-i18n="nav.book">Réserver</button>
-  <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()" aria-label="Switch language">
+  <button class="lang-toggle" id="lang-toggle" onclick="toggleLang()">
     <span class="lt-fr">FR</span><span class="lt-sep">·</span><span class="lt-en">EN</span>
   </button>
   <button class="nav-burger" id="nav-burger" onclick="toggleNav()" data-i18n-aria="nav.menu_open" aria-label="Ouvrir le menu" aria-expanded="false">
@@ -832,8 +832,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <span style="font-size:.7rem;color:var(--faint);margin-left:auto" data-i18n="airport.included">Inclus · sans supplément</span>
         </div>
         <div class="fg2 fg-dt">
-          <div><label class="fl" data-i18n="airport.date">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
-          <div><label class="fl" data-i18n="airport.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
+          <div><label class="fl" for="i-pdate" data-i18n="airport.date">📅 Date</label><input class="fi" id="i-pdate" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('p')"></div>
+          <div><label class="fl" data-i18n="airport.time">🕐 Heure</label><div class="time-sel-wrap"><select class="ts" id="i-ptime-h" data-i18n-aria="time.hour_aria" aria-label="Heure" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><span class="time-sep">:</span><select class="ts" id="i-ptime-m" data-i18n-aria="time.minute_aria" aria-label="Minutes" onchange="syncTimeVal('i-ptime');scheduleAvailCheck('p')"></select><input type="hidden" id="i-ptime"></div></div>
         </div>
         <div class="avail" id="avail-p"><div class="avail-dot"></div><span id="avail-p-txt"></span></div>
         <div class="dispo-timeline" id="dt-p" style="display:none"><div class="dispo-now" id="dtn-p"></div></div>
@@ -843,8 +843,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="ac-wrap" style="margin-bottom:.8rem"><input class="fi" id="i-preturnaddr" type="text" data-i18n-ph="airport.return_addr_ph" placeholder="Ex : 10 rue de la Paix, Paris" autocomplete="off" oninput="acSearch(this,'ac-preturnaddr')" onfocus="acSearch(this,'ac-preturnaddr')" onblur="acBlur('ac-preturnaddr')"><div class="ac-list" id="ac-preturnaddr"></div></div>
           <label class="fl" data-i18n="wizard.return_datetime">↩ Date et heure de retour</label>
           <div class="fg2 fg-dt">
-            <div><label class="fl" data-i18n="wizard.return_date_lbl">Date retour</label><input class="fi" id="i-prdate" type="date" style="padding-left:.75rem"></div>
-            <div><label class="fl" data-i18n="wizard.return_time_lbl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-prtime-h" onchange="syncTimeVal('i-prtime')"></select><span class="time-sep">:</span><select class="ts" id="i-prtime-m" onchange="syncTimeVal('i-prtime')"></select><input type="hidden" id="i-prtime"></div></div>
+            <div><label class="fl" for="i-prdate" data-i18n="wizard.return_date_lbl">Date retour</label><input class="fi" id="i-prdate" type="date" style="padding-left:.75rem"></div>
+            <div><label class="fl" data-i18n="wizard.return_time_lbl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-prtime-h" data-i18n-aria="time.hour_aria" aria-label="Heure" onchange="syncTimeVal('i-prtime')"></select><span class="time-sep">:</span><select class="ts" id="i-prtime-m" data-i18n-aria="time.minute_aria" aria-label="Minutes" onchange="syncTimeVal('i-prtime')"></select><input type="hidden" id="i-prtime"></div></div>
           </div>
         </div>
         <!-- ── Choix du véhicule ── -->
@@ -907,8 +907,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           </button>
         </div>
         <div class="fg2 fg-dt">
-          <div><label class="fl" data-i18n="wizard.outbound_date">Date aller</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
-          <div><label class="fl" data-i18n="wizard.outbound_time">Heure aller</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
+          <div><label class="fl" for="i-date" data-i18n="wizard.outbound_date">Date aller</label><input class="fi" id="i-date" type="date" style="padding-left:.75rem" oninput="scheduleAvailCheck('t')"></div>
+          <div><label class="fl" data-i18n="wizard.outbound_time">Heure aller</label><div class="time-sel-wrap"><select class="ts" id="i-time-h" data-i18n-aria="time.hour_aria" aria-label="Heure" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><span class="time-sep">:</span><select class="ts" id="i-time-m" data-i18n-aria="time.minute_aria" aria-label="Minutes" onchange="syncTimeVal('i-time');scheduleAvailCheck('t')"></select><input type="hidden" id="i-time"></div></div>
         </div>
         <div class="avail" id="avail-t"><div class="avail-dot"></div><span id="avail-t-txt"></span></div>
         <div class="dispo-timeline" id="dt-t" style="display:none"><div class="dispo-now" id="dtn-t"></div></div>
@@ -916,8 +916,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
         <div class="return-date-block" id="rdb-t">
           <label class="fl" data-i18n="wizard.return_datetime">↩ Date et heure de retour</label>
           <div class="fg2 fg-dt">
-            <div><label class="fl" data-i18n="wizard.return_date_lbl">Date retour</label><input class="fi" id="i-trdate" type="date" style="padding-left:.75rem"></div>
-            <div><label class="fl" data-i18n="wizard.return_time_lbl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-trtime-h" onchange="syncTimeVal('i-trtime')"></select><span class="time-sep">:</span><select class="ts" id="i-trtime-m" onchange="syncTimeVal('i-trtime')"></select><input type="hidden" id="i-trtime"></div></div>
+            <div><label class="fl" for="i-trdate" data-i18n="wizard.return_date_lbl">Date retour</label><input class="fi" id="i-trdate" type="date" style="padding-left:.75rem"></div>
+            <div><label class="fl" data-i18n="wizard.return_time_lbl">Heure retour</label><div class="time-sel-wrap"><select class="ts" id="i-trtime-h" data-i18n-aria="time.hour_aria" aria-label="Heure" onchange="syncTimeVal('i-trtime')"></select><span class="time-sep">:</span><select class="ts" id="i-trtime-m" data-i18n-aria="time.minute_aria" aria-label="Minutes" onchange="syncTimeVal('i-trtime')"></select><input type="hidden" id="i-trtime"></div></div>
           </div>
         </div>
         <div class="fg2">
@@ -970,8 +970,8 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
           <div class="ac-wrap"><input class="fi" id="i-mdep" type="text" placeholder="Adresse de départ" data-i18n-ph="mad.dep_ph" autocomplete="off" oninput="acSearch(this,'ac-mdep')" onfocus="acSearch(this,'ac-mdep')" onblur="acBlur('ac-mdep')"><div class="ac-list" id="ac-mdep"></div></div>
         </div>
         <div class="fg2 fg-dt">
-          <div><label class="fl" data-i18n="mad.date">Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
-          <div><label class="fl" data-i18n="mad.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-mtime-h" onchange="syncTimeVal('i-mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-mtime-m" onchange="syncTimeVal('i-mtime')"></select><input type="hidden" id="i-mtime"></div></div>
+          <div><label class="fl" for="i-mdate" data-i18n="mad.date">Date</label><input class="fi" id="i-mdate" type="date" style="padding-left:.75rem"></div>
+          <div><label class="fl" data-i18n="mad.time">Heure</label><div class="time-sel-wrap"><select class="ts" id="i-mtime-h" data-i18n-aria="time.hour_aria" aria-label="Heure" onchange="syncTimeVal('i-mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-mtime-m" data-i18n-aria="time.minute_aria" aria-label="Minutes" onchange="syncTimeVal('i-mtime')"></select><input type="hidden" id="i-mtime"></div></div>
         </div>
         <label class="fl" style="margin-bottom:.6rem" data-i18n="mad.duration_label">Durée souhaitée</label>
         <div class="d-grid">
@@ -2296,7 +2296,7 @@ function getPrestHTML(n) {
     <div class="ac-wrap"><input class="fi" id="i-pn${n}addr" type="text" placeholder="${i18n('airport.addr_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}addr')" onfocus="acSearch(this,'ac-pn${n}addr')" onblur="acBlur('ac-pn${n}addr')"><div class="ac-list" id="ac-pn${n}addr"></div></div>
     <div class="fg2 fg-dt">
       <div><label class="fl">${i18n('wizard.outbound_date')}</label><input class="fi" id="i-pn${n}date" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
+      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}time-h" aria-label="${i18n('time.hour_aria')}" onchange="syncTimeVal('i-pn${n}time')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}time-m" aria-label="${i18n('time.minute_aria')}" onchange="syncTimeVal('i-pn${n}time')"></select><input type="hidden" id="i-pn${n}time"></div></div>
     </div>
     <div class="return-date-block" id="rdb-pn${n}">
       <label class="fl" style="margin-bottom:.4rem">${i18n('airport.return_addr_label')}</label>
@@ -2304,7 +2304,7 @@ function getPrestHTML(n) {
       <label class="fl">${i18n('wizard.return_datetime')}</label>
       <div class="fg2 fg-dt">
         <div><label class="fl">${i18n('wizard.return_date_lbl')}</label><input class="fi" id="i-pn${n}rdate" type="date" style="padding-left:.75rem"></div>
-        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}rtime-h" onchange="syncTimeVal('i-pn${n}rtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}rtime-m" onchange="syncTimeVal('i-pn${n}rtime')"></select><input type="hidden" id="i-pn${n}rtime"></div></div>
+        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}rtime-h" aria-label="${i18n('time.hour_aria')}" onchange="syncTimeVal('i-pn${n}rtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}rtime-m" aria-label="${i18n('time.minute_aria')}" onchange="syncTimeVal('i-pn${n}rtime')"></select><input type="hidden" id="i-pn${n}rtime"></div></div>
       </div>
     </div>
   </div>
@@ -2313,13 +2313,13 @@ function getPrestHTML(n) {
     <div class="fg1"><label class="fl">${i18n('wizard.s2_arr_label')}</label><div class="ac-wrap"><input class="fi" id="i-pn${n}arr" type="text" placeholder="${i18n('transfer.arr_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}arr')" onfocus="acSearch(this,'ac-pn${n}arr')" onblur="acBlur('ac-pn${n}arr')"><div class="ac-list" id="ac-pn${n}arr"></div></div></div>
     <div class="fg2 fg-dt">
       <div><label class="fl">${i18n('wizard.outbound_date')}</label><input class="fi" id="i-pn${n}tdate" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}ttime-h" onchange="syncTimeVal('i-pn${n}ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}ttime-m" onchange="syncTimeVal('i-pn${n}ttime')"></select><input type="hidden" id="i-pn${n}ttime"></div></div>
+      <div><label class="fl">${i18n('wizard.outbound_time')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}ttime-h" aria-label="${i18n('time.hour_aria')}" onchange="syncTimeVal('i-pn${n}ttime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}ttime-m" aria-label="${i18n('time.minute_aria')}" onchange="syncTimeVal('i-pn${n}ttime')"></select><input type="hidden" id="i-pn${n}ttime"></div></div>
     </div>
     <div class="return-date-block" id="rdb-pn${n}-t">
       <label class="fl">${i18n('wizard.return_datetime')}</label>
       <div class="fg2 fg-dt">
         <div><label class="fl">${i18n('wizard.return_date_lbl')}</label><input class="fi" id="i-pn${n}trdate" type="date" style="padding-left:.75rem"></div>
-        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}trtime-h" onchange="syncTimeVal('i-pn${n}trtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}trtime-m" onchange="syncTimeVal('i-pn${n}trtime')"></select><input type="hidden" id="i-pn${n}trtime"></div></div>
+        <div><label class="fl">${i18n('wizard.return_time_lbl')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}trtime-h" aria-label="${i18n('time.hour_aria')}" onchange="syncTimeVal('i-pn${n}trtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}trtime-m" aria-label="${i18n('time.minute_aria')}" onchange="syncTimeVal('i-pn${n}trtime')"></select><input type="hidden" id="i-pn${n}trtime"></div></div>
       </div>
     </div>
     <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem">${i18n('wizard.s2_km_note')}</p>
@@ -2328,7 +2328,7 @@ function getPrestHTML(n) {
     <div class="fg1"><label class="fl">${i18n('wizard.s2_pickup_label')}</label><div class="ac-wrap"><input class="fi" id="i-pn${n}mdep" type="text" placeholder="${i18n('mad.dep_ph')}" autocomplete="off" oninput="acSearch(this,'ac-pn${n}mdep')" onfocus="acSearch(this,'ac-pn${n}mdep')" onblur="acBlur('ac-pn${n}mdep')"><div class="ac-list" id="ac-pn${n}mdep"></div></div></div>
     <div class="fg2 fg-dt">
       <div><label class="fl">${i18n('wizard.s2_date_label')}</label><input class="fi" id="i-pn${n}mdate" type="date" style="padding-left:.75rem"></div>
-      <div><label class="fl">${i18n('wizard.s2_time_label')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}mtime-h" onchange="syncTimeVal('i-pn${n}mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}mtime-m" onchange="syncTimeVal('i-pn${n}mtime')"></select><input type="hidden" id="i-pn${n}mtime"></div></div>
+      <div><label class="fl">${i18n('wizard.s2_time_label')}</label><div class="time-sel-wrap"><select class="ts" id="i-pn${n}mtime-h" aria-label="${i18n('time.hour_aria')}" onchange="syncTimeVal('i-pn${n}mtime')"></select><span class="time-sep">:</span><select class="ts" id="i-pn${n}mtime-m" aria-label="${i18n('time.minute_aria')}" onchange="syncTimeVal('i-pn${n}mtime')"></select><input type="hidden" id="i-pn${n}mtime"></div></div>
     </div>
     <label class="fl" style="margin:.6rem 0 .4rem">${i18n('mad.duration_label')}</label>
     <div class="d-grid">
