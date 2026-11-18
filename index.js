@@ -1499,6 +1499,67 @@ app.get('/payment-success', (_req, res) => {
   res.sendFile(path.join(__dirname, 'vtc-project', 'public', 'payment-success.html'));
 });
 
+/* ── Blocs SEO validés (Make → Supabase → rebuild Vercel) ── */
+const SEO_WEBHOOK_SECRET = process.env.SEO_WEBHOOK_SECRET || '';
+const VERCEL_DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL || '';
+const seoBlocs = require('./lib/seo-blocs');
+const seoLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, standardHeaders: true, legacyHeaders: false });
+const SEO_FIELD_MAX = { action_id: 100, type: 60, page: 500, bloc: 60000, bloc_en: 60000, title: 300, meta: 600, liens: 20000 };
+
+async function triggerDeployHook() {
+  if (!VERCEL_DEPLOY_HOOK_URL) return 'skipped';
+  try {
+    const r = await fetch(VERCEL_DEPLOY_HOOK_URL, { method: 'POST', signal: AbortSignal.timeout(8000) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return 'triggered';
+  } catch (e) {
+    console.error('[seo-blocs] Deploy Hook Vercel en échec:', e.message);
+    return 'failed';
+  }
+}
+
+app.post('/api/seo-blocs', seoLimiter, express.urlencoded({ extended: false, limit: '200kb' }), async (req, res) => {
+  if (!seoBlocs.secretMatches(req.get('x-seo-secret'), SEO_WEBHOOK_SECRET)) {
+    return res.status(401).json({ ok: false, error: 'unauthorized' });
+  }
+  const body = req.body || {};
+  const field = (k) => {
+    const v = typeof body[k] === 'string' ? body[k].trim() : '';
+    return v ? v.slice(0, SEO_FIELD_MAX[k]) : null;
+  };
+  const actionId = field('action_id');
+  const type = field('type');
+  const pagePath = seoBlocs.normalizePagePath(body.page);
+  if (!actionId) return res.status(400).json({ ok: false, error: 'action_id manquant' });
+  if (!seoBlocs.SEO_TYPES.includes(type)) {
+    return res.status(400).json({ ok: false, error: `type invalide (attendu : ${seoBlocs.SEO_TYPES.join(' | ')})` });
+  }
+  if (!pagePath || !seoBlocs.isKnownPage(pagePath)) {
+    return res.status(400).json({ ok: false, error: 'page inconnue' });
+  }
+  if (!supabase) return res.status(503).json({ ok: false, error: 'base indisponible' });
+
+  const row = {
+    action_id: actionId,
+    type,
+    page_path: pagePath,
+    bloc_md: field('bloc'),
+    bloc_en: field('bloc_en'),
+    title: field('title'),
+    meta: field('meta'),
+    liens: field('liens'),
+    actif: true,
+  };
+  const { error } = await supabase.from('seo_blocs').upsert(row, { onConflict: 'action_id' });
+  if (error) {
+    console.error('[seo-blocs] upsert:', error.message);
+    return res.status(500).json({ ok: false, error: 'enregistrement impossible' });
+  }
+  const deploy = await triggerDeployHook();
+  console.log(`[seo-blocs] ${actionId} (${type}) → ${pagePath} · deploy=${deploy}`);
+  res.json({ ok: true, deploy });
+});
+
 /* ── Fichiers statiques ── */
 app.use(express.static(path.join(__dirname, 'vtc-project/public'), {
   setHeaders: (res, filePath) => {

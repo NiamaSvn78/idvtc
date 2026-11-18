@@ -1013,7 +1013,21 @@
   document.head.appendChild(css);
 
   /* ── Init ── */
+  /* Traductions des blocs SEO injectés au build (scripts/build-seo-pages.js) */
+  function mergeSeoDict() {
+    var el = document.getElementById('i18n-seo');
+    if (!el) return;
+    try {
+      var d = JSON.parse(el.textContent);
+      ['fr', 'en'].forEach(function (l) {
+        if (!d[l] || !T[l]) return;
+        Object.keys(d[l]).forEach(function (k) { T[l][k] = d[l][k]; });
+      });
+    } catch (e) { /* dictionnaire invalide : on garde le HTML FR d'origine */ }
+  }
+
   function init() {
+    mergeSeoDict();
     var lang = getLang();
     applyTranslations(lang);
     updateToggle(lang);

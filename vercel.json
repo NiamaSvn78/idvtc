@@ -9,11 +9,14 @@
       }
     },
     {
-      "src": "vtc-project/public/**",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist-site" }
     }
   ],
   "routes": [
+    { "src": "/(.*)", "has": [{ "type": "host", "value": "www.ismadrive.fr" }], "status": 301, "headers": { "Location": "https://ismadrive.fr/$1" } },
+
     { "src": "/api/(.*)", "dest": "/index.js" },
     { "src": "/reservation/(.*)", "dest": "/index.js" },
     { "src": "/mission-order/(.*)", "dest": "/index.js" },
@@ -75,26 +78,26 @@
       "continue": true
     },
 
-    { "src": "/(.*)", "dest": "/vtc-project/public/$1", "check": true },
+    { "src": "/(.*)", "dest": "/$1", "check": true },
 
-    { "src": "/", "dest": "/vtc-project/public/index.html" },
-    { "src": "/a-propos", "dest": "/vtc-project/public/a-propos.html" },
-    { "src": "/faq", "dest": "/vtc-project/public/faq.html" },
-    { "src": "/cgv", "dest": "/vtc-project/public/cgv.html" },
-    { "src": "/mentions-legales", "dest": "/vtc-project/public/mentions-legales.html" },
-    { "src": "/confidentialite", "dest": "/vtc-project/public/confidentialite.html" },
-    { "src": "/chauffeur-prive-versailles", "dest": "/vtc-project/public/chauffeur-prive-versailles.html" },
-    { "src": "/chauffeur-prive-neuilly-sur-seine", "dest": "/vtc-project/public/chauffeur-prive-neuilly-sur-seine.html" },
-    { "src": "/chauffeur-prive-boulogne-billancourt", "dest": "/vtc-project/public/chauffeur-prive-boulogne-billancourt.html" },
-    { "src": "/vtc-la-defense", "dest": "/vtc-project/public/vtc-la-defense.html" },
-    { "src": "/vtc-vincennes", "dest": "/vtc-project/public/vtc-vincennes.html" },
-    { "src": "/transfert-roissy-cdg", "dest": "/vtc-project/public/transfert-roissy-cdg.html" },
-    { "src": "/transfert-orly-paris", "dest": "/vtc-project/public/transfert-orly-paris.html" },
-    { "src": "/cdg-airport-transfer-paris", "dest": "/vtc-project/public/cdg-airport-transfer-paris.html" },
-    { "src": "/orly-airport-transfer-paris", "dest": "/vtc-project/public/orly-airport-transfer-paris.html" },
-    { "src": "/annuler-reservation", "dest": "/vtc-project/public/annuler-reservation.html" },
-    { "src": "/admin", "dest": "/vtc-project/public/admin.html" },
-    { "src": "/payment-success", "dest": "/vtc-project/public/payment-success.html" },
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/a-propos", "dest": "/a-propos.html" },
+    { "src": "/faq", "dest": "/faq.html" },
+    { "src": "/cgv", "dest": "/cgv.html" },
+    { "src": "/mentions-legales", "dest": "/mentions-legales.html" },
+    { "src": "/confidentialite", "dest": "/confidentialite.html" },
+    { "src": "/chauffeur-prive-versailles", "dest": "/chauffeur-prive-versailles.html" },
+    { "src": "/chauffeur-prive-neuilly-sur-seine", "dest": "/chauffeur-prive-neuilly-sur-seine.html" },
+    { "src": "/chauffeur-prive-boulogne-billancourt", "dest": "/chauffeur-prive-boulogne-billancourt.html" },
+    { "src": "/vtc-la-defense", "dest": "/vtc-la-defense.html" },
+    { "src": "/vtc-vincennes", "dest": "/vtc-vincennes.html" },
+    { "src": "/transfert-roissy-cdg", "dest": "/transfert-roissy-cdg.html" },
+    { "src": "/transfert-orly-paris", "dest": "/transfert-orly-paris.html" },
+    { "src": "/cdg-airport-transfer-paris", "dest": "/cdg-airport-transfer-paris.html" },
+    { "src": "/orly-airport-transfer-paris", "dest": "/orly-airport-transfer-paris.html" },
+    { "src": "/annuler-reservation", "dest": "/annuler-reservation.html" },
+    { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/payment-success", "dest": "/payment-success.html" },
 
     { "src": "/(.*)", "dest": "/index.js" }
   ]

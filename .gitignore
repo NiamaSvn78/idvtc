@@ -1,6 +1,7 @@
 node_modules/
 .env
 .env.*
+!.env.example
 *.log
 .DS_Store
 Thumbs.db
@@ -13,3 +14,6 @@ vtc-project/data/reservations.json
 
 # Export statique généré par scripts/build-static.js — ne pas versionner
 build-static/
+
+# Site statique généré au build Vercel (scripts/build-seo-pages.js)
+dist-site/
