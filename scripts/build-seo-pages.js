@@ -2,12 +2,13 @@
 'use strict';
 /**
  * Build Vercel (vercel-build) : copie vtc-project/public → dist-site/ puis
- * injecte les blocs SEO actifs (table Supabase seo_blocs) dans le HTML statique.
+ * injecte les actions SEO validées (Airtable « Actions », statut Fait / Mesuré)
+ * dans le HTML statique.
  *
- * Règle d'or : ce script ne doit JAMAIS casser le déploiement. Si Supabase est
+ * Règle d'or : ce script ne doit JAMAIS casser le déploiement. Si Airtable est
  * absent, lent ou en erreur, les pages sont publiées telles quelles (exit 0).
  *
- * Variables de build : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+ * Variables de build : AIRTABLE_TOKEN (lecture seule), AIRTABLE_BASE_ID.
  * Option : SEO_BUILD_OUT=<dossier> pour changer la sortie (tests).
  */
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
@@ -20,7 +21,6 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'vtc-project', 'public');
 const OUT = path.resolve(ROOT, process.env.SEO_BUILD_OUT || 'dist-site');
-const FETCH_TIMEOUT_MS = 8000;
 
 function copyDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
@@ -33,22 +33,18 @@ function copyDir(src, dest) {
 }
 
 async function fetchActiveBlocs() {
-  const url = (process.env.SUPABASE_URL || '').replace(/\/$/, '');
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  if (!url || !key) {
-    console.warn('[seo-build] SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY absents — pages publiées sans blocs.');
+  const token = process.env.AIRTABLE_TOKEN || '';
+  const baseId = process.env.AIRTABLE_BASE_ID || '';
+  if (!token || !baseId) {
+    console.warn('[seo-build] AIRTABLE_TOKEN / AIRTABLE_BASE_ID absents — pages publiées sans blocs.');
     return [];
   }
-  const { createClient } = require('@supabase/supabase-js');
-  const supabase = createClient(url, key, { auth: { persistSession: false } });
-  const { data, error } = await supabase
-    .from('seo_blocs')
-    .select('action_id,type,page_path,bloc_md,bloc_en,title,meta,liens,created_at')
-    .eq('actif', true)
-    .order('created_at', { ascending: true })
-    .abortSignal(AbortSignal.timeout(FETCH_TIMEOUT_MS));
-  if (error) throw new Error(error.message || String(error));
-  return data || [];
+  const { fetchBlocsFromAirtable } = require('../lib/seo-airtable');
+  return fetchBlocsFromAirtable({
+    token,
+    baseId,
+    warn: (m) => console.warn(`[seo-build] ${m}`),
+  });
 }
 
 async function main() {
@@ -61,9 +57,9 @@ async function main() {
   let blocs = [];
   try {
     blocs = await fetchActiveBlocs();
-    console.log(`[seo-build] ${blocs.length} bloc(s) actif(s) lu(s) dans seo_blocs.`);
+    console.log(`[seo-build] ${blocs.length} bloc(s) actif(s) lu(s) dans Airtable.`);
   } catch (e) {
-    console.warn(`[seo-build] Supabase indisponible (${e.message}) — pages publiées sans blocs.`);
+    console.warn(`[seo-build] Airtable indisponible (${e.message}) — pages publiées sans blocs.`);
     return;
   }
   if (!blocs.length) return;
