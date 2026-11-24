@@ -286,7 +286,7 @@
       'faq.q6': 'Puis-je réserver un chauffeur privé fiable pour un mariage ou un événement ?',
       'faq.a6_html': 'Absolument. IsmaDrive propose des formules de mise à disposition pour les mariages, séminaires et événements d\'entreprise. Votre chauffeur privé fiable reste à votre disposition toute la durée de l\'événement, gère les allers-retours et accueille vos invités avec discrétion. Contactez-nous par WhatsApp pour un devis personnalisé.',
       'faq.q7': 'Quelles zones sont couvertes par votre service VTC ?',
-      'faq.a7_html': 'Notre chauffeur VTC intervient dans tout Paris (75) et l\'Île-de-France : Hauts-de-Seine (92), Val-de-Marne (94), Yvelines (78), Seine-Saint-Denis (93). Les aéroports CDG, Orly, les gares parisiennes et les grandes villes comme Neuilly, Versailles, La Défense ou Boulogne-Billancourt sont desservis quotidiennement.',
+      'faq.a7_html': 'Notre chauffeur VTC intervient dans tout Paris (75) et l\'Île-de-France : Hauts-de-Seine (92), Val-de-Marne (94), Yvelines (78), Seine-Saint-Denis (93). Les aéroports CDG, Orly, les gares parisiennes et les grandes villes comme Neuilly, Versailles, La Défense ou Boulogne-Billancourt sont desservis quotidiennement. Pour une <a href="/chauffeur-prive-versailles" style="color:var(--gold)">excursion à Versailles avec chauffeur privé</a>, choisissez le tarif au kilomètre ou la mise à disposition à l\'heure.',
       'faq.q8': 'Le paiement en ligne de la réservation chauffeur privé est-il sécurisé ?',
       'faq.a8_html': 'Oui. La réservation chauffeur privé en ligne est sécurisée par <strong>Stripe</strong>, le standard mondial du paiement sur Internet. Vos coordonnées bancaires ne transitent jamais par nos serveurs. Vous recevez un email de confirmation immédiatement après le paiement.',
       'faq.q9': 'Que se passe-t-il si mon vol a du retard ?',
@@ -302,7 +302,7 @@
 
       /* ── SEO — Transfert CDG ── */
       'seo_cdg.page_tag': 'Aéroport Paris-Charles de Gaulle · Terminal 1, 2A–2G & 3',
-      'seo_cdg.title_html': 'Transfert Aéroport Roissy CDG → Paris<br><em>Votre Chauffeur Privé à l\'Arrivée</em>',
+      'seo_cdg.title_html': 'VTC Roissy Charles de Gaulle<br><em>Chauffeur privé IsmaDrive</em>',
       'seo_cdg.sub': 'CDG est le plus grand aéroport d\'Europe — naviguer entre ses terminaux peut être un défi. Votre chauffeur IsmaDrive connaît chaque point de rendez-vous, attend dans le hall des arrivées pancarte à la main, et surveille votre vol en temps réel.',
 
       /* ── SEO — Transfert Orly ── */
@@ -315,6 +315,9 @@
       'seo_versailles.title_html': 'Chauffeur Privé à Versailles<br><em>VTC Luxe 24/7</em>',
       'seo_versailles.sub': 'Résidents de Versailles, visiteurs du Château ou professionnels du Pôle de Compétitivité — IsmaDrive assure vos déplacements depuis Versailles vers Paris, CDG, Orly et toute l\'Île-de-France. Discrétion, ponctualité, Mercedes.',
       'seo_versailles.cta': 'Réserver depuis Versailles',
+      'seo_versailles.excursion_title': 'Combien coûte une excursion à Versailles en chauffeur privé ?',
+      'seo_versailles.excursion_p1_html': 'Deux formules sont possibles. En transfert, le tarif est de <strong>2,50 €/km avec un minimum de 40 € en Van</strong> (30 € en berline) : depuis le centre de Paris, comptez à partir de 55 € l\'aller pour environ 22 km et 30 à 45 minutes de route selon la circulation. Le prix est fixe et confirmé à la réservation. Pour profiter du Château, des jardins et du Domaine de Trianon sans regarder l\'heure, optez pour la <strong>mise à disposition</strong> : votre chauffeur vous attend sur place, à 75 €/h en berline ou 95 €/h en Van, minimum 2 heures, kilométrage illimité.',
+      'seo_versailles.excursion_p2_html': 'La berline Mercedes Classe E accueille jusqu\'à 3 passagers ; le <strong>Van Mercedes Classe V 7 places</strong> convient aux familles et aux groupes, avec poussette et bagages. <strong>Siège bébé (0–3 ans) et réhausseur sont inclus</strong> sans supplément : il suffit de les cocher lors de la réservation.',
 
       /* ── SEO — Neuilly ── */
       'seo_neuilly.page_tag': 'Hauts-de-Seine · 92200',
@@ -327,6 +330,7 @@
       'seo_boulogne.title_html': 'Chauffeur Privé à Boulogne-Billancourt<br><em>VTC Luxe 24/7</em>',
       'seo_boulogne.sub': 'Boulogne-Billancourt concentre sièges sociaux, studios de production et cabinets d\'avocats. IsmaDrive répond aux exigences de cette clientèle d\'affaires : ponctualité absolue, discrétion, transferts vers CDG et Orly ou déplacements inter-sièges en Île-de-France.',
       'seo_boulogne.cta': 'Réserver depuis Boulogne-Billancourt',
+      'seo_boulogne.versailles_html': 'Versailles n\'est qu\'à une douzaine de kilomètres de Boulogne-Billancourt : comptez une vingtaine de minutes hors heures de pointe pour rejoindre le Château. Découvrez notre <a href="/chauffeur-prive-versailles" style="color:var(--gold)">excursion Versailles en chauffeur privé</a>, en berline ou en Van 7 places, siège bébé inclus.',
 
       /* ── SEO — La Défense ── */
       'seo_defense.page_tag': 'Hauts-de-Seine · 92800 · 1er Quartier d\'Affaires Européen',
@@ -363,6 +367,7 @@
       'paris.c5_desc': 'Élégance et confort pour deux',
       'paris.c6_title': 'Excursion Versailles',
       'paris.c6_desc': 'Château, jardins, retour — tout géré',
+      'paris.c6_desc_html': 'Château, jardins, retour — tout géré<br><a href="/chauffeur-prive-versailles" style="color:var(--gold)">Voir l\'excursion Versailles en chauffeur privé →</a>',
       'paris.c7_title': 'Navette Disneyland',
       'paris.c7_desc': 'Transfert direct, enfants à bord, zéro stress',
 
@@ -746,7 +751,7 @@
       'faq.q6': 'Can I book a reliable private chauffeur for a wedding or event?',
       'faq.a6_html': 'Absolutely. IsmaDrive offers hourly hire packages for weddings, seminars and corporate events. Your reliable private chauffeur stays at your disposal for the entire duration of the event, manages transfers and welcomes your guests discreetly. Contact us via WhatsApp for a personalised quote.',
       'faq.q7': 'Which areas does your VTC service cover?',
-      'faq.a7_html': 'Our VTC driver operates throughout Paris (75) and Île-de-France: Hauts-de-Seine (92), Val-de-Marne (94), Yvelines (78), Seine-Saint-Denis (93). CDG and Orly airports, Paris train stations and major cities such as Neuilly, Versailles, La Défense and Boulogne-Billancourt are served daily.',
+      'faq.a7_html': 'Our VTC driver operates throughout Paris (75) and Île-de-France: Hauts-de-Seine (92), Val-de-Marne (94), Yvelines (78), Seine-Saint-Denis (93). CDG and Orly airports, Paris train stations and major cities such as Neuilly, Versailles, La Défense and Boulogne-Billancourt are served daily. For a <a href="/chauffeur-prive-versailles" style="color:var(--gold)">Versailles excursion with a private chauffeur</a>, choose the per-km rate or hourly hire.',
       'faq.q8': 'Is online payment for booking secure?',
       'faq.a8_html': 'Yes. Online booking is secured by <strong>Stripe</strong>, the global standard for internet payments. Your card details never pass through our servers. You receive a confirmation email immediately after payment.',
       'faq.q9': 'What happens if my flight is delayed?',
@@ -762,7 +767,7 @@
 
       /* ── SEO — Transfert CDG ── */
       'seo_cdg.page_tag': 'Paris Charles de Gaulle Airport · Terminal 1, 2A–2G & 3',
-      'seo_cdg.title_html': 'CDG Airport Transfer → Paris<br><em>Your Private Chauffeur on Arrival</em>',
+      'seo_cdg.title_html': 'Roissy Charles de Gaulle VTC<br><em>IsmaDrive private chauffeur</em>',
       'seo_cdg.sub': 'CDG is Europe\'s largest airport — navigating between terminals can be a challenge. Your IsmaDrive driver knows every meeting point, waits in the arrivals hall with your name sign, and tracks your flight in real time.',
 
       /* ── SEO — Transfert Orly ── */
@@ -775,6 +780,9 @@
       'seo_versailles.title_html': 'Private Chauffeur in Versailles<br><em>Luxury VTC 24/7</em>',
       'seo_versailles.sub': 'Versailles residents, Palace visitors or professionals — IsmaDrive handles your journeys from Versailles to Paris, CDG, Orly and all of Île-de-France. Discretion, punctuality, Mercedes.',
       'seo_versailles.cta': 'Book from Versailles',
+      'seo_versailles.excursion_title': 'How much does a Versailles excursion with a private chauffeur cost?',
+      'seo_versailles.excursion_p1_html': 'Two options are available. For a transfer, the rate is <strong>€2.50/km with a €40 minimum in the Van</strong> (€30 in the sedan): from central Paris, expect from €55 one way for about 22 km and 30 to 45 minutes depending on traffic. The price is fixed and confirmed at booking. To enjoy the Palace, the gardens and the Trianon estate without watching the clock, choose <strong>hourly hire</strong>: your chauffeur waits for you on site, at €75/h in the sedan or €95/h in the Van, 2-hour minimum, unlimited mileage.',
+      'seo_versailles.excursion_p2_html': 'The Mercedes E-Class sedan seats up to 3 passengers; the <strong>7-seat Mercedes V-Class Van</strong> suits families and groups, with room for strollers and luggage. <strong>Baby seat (0–3 years) and booster seat are included</strong> at no extra cost — just tick them when booking.',
 
       /* ── SEO — Neuilly ── */
       'seo_neuilly.page_tag': 'Hauts-de-Seine · 92200',
@@ -787,6 +795,7 @@
       'seo_boulogne.title_html': 'Private Chauffeur in Boulogne-Billancourt<br><em>Luxury VTC 24/7</em>',
       'seo_boulogne.sub': 'Boulogne-Billancourt is home to corporate HQs, production studios and law firms. IsmaDrive meets the demands of this business clientele: absolute punctuality, discretion, CDG and Orly transfers or inter-office journeys across Île-de-France.',
       'seo_boulogne.cta': 'Book from Boulogne-Billancourt',
+      'seo_boulogne.versailles_html': 'Versailles is only about twelve kilometres from Boulogne-Billancourt — around twenty minutes outside rush hour to reach the Palace. Discover our <a href="/chauffeur-prive-versailles" style="color:var(--gold)">Versailles excursion with a private chauffeur</a>, by sedan or 7-seat Van, baby seat included.',
 
       /* ── SEO — La Défense ── */
       'seo_defense.page_tag': 'Hauts-de-Seine · 92800 · Europe\'s No.1 Business District',
@@ -824,6 +833,7 @@
       'paris.c5_desc': 'Elegance and comfort for two',
       'paris.c6_title': 'Versailles Day Transfer',
       'paris.c6_desc': 'Palace, gardens, return — all handled',
+      'paris.c6_desc_html': 'Palace, gardens, return — all handled<br><a href="/chauffeur-prive-versailles" style="color:var(--gold)">See our Versailles excursion with a private chauffeur →</a>',
       'paris.c7_title': 'Disneyland Paris Shuttle',
       'paris.c7_desc': 'Direct transfer, kids on board, zero stress',
 
