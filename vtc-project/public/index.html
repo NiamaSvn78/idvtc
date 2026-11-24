@@ -1098,7 +1098,7 @@ footer{padding:2.5rem 5vw;border-top:1px solid var(--border);display:flex;justif
       <img class="exp-card-img" src="/versailles.webp" alt="Château de Versailles excursion VTC IsmaDrive" loading="lazy">
       <div class="exp-card-body">
         <h3 data-i18n="paris.c6_title">Excursion Versailles</h3>
-        <p data-i18n="paris.c6_desc">Château, jardins, retour — tout géré</p>
+        <p data-i18n-html="paris.c6_desc_html">Château, jardins, retour — tout géré<br><a href="/chauffeur-prive-versailles" style="color:var(--gold)">Voir l'excursion Versailles en chauffeur privé →</a></p>
       </div>
     </div>
     <div class="exp-card">
@@ -1820,6 +1820,8 @@ function calcParisExtraKm(coord){
   if(coord.postcode&&coord.postcode.slice(0,2)==='75')return 0;
   return Math.max(0,Math.ceil(haversineKm(coord.lat,coord.lon,48.853,2.350)-5));
 }
+/* Km hors Paris → supplément en € (2,50 €/km, arrondi à l'euro supérieur) */
+function extraKmEur(km){return Math.ceil((km||0)*CFG.extraKmRate);}
 function getTransferAirportExtraKm(dep,arr,isRound){
   const depAp=detectAirport(dep),arrAp=detectAirport(arr);
   let extraKm=0;
@@ -2463,7 +2465,7 @@ function calcPrestPrice(pid) {
       const extraA = calcParisExtraKm(p.addrCoord);
       const retC = isRound ? (p.retAddrCoord || p.addrCoord) : null;
       const extraR = isRound ? calcParisExtraKm(retC) : 0;
-      return (base + extraA) + (isRound ? (base + extraR) : 0);
+      return (base + extraKmEur(extraA)) + (isRound ? (base + extraKmEur(extraR)) : 0);
     }
     if (p.tab === 'm') {
       return madHourlyPrice(veh, p.mdur || 2);
@@ -2522,10 +2524,10 @@ function calcPrestPrice(pid) {
     const retC = isRound ? (p.retAddrCoord || p.addrCoord) : null;
     const extraR = isRound ? calcParisExtraKm(retC) : 0;
     if (isRound && extraA > 0 && extraR > 0 && extraA === extraR) {
-      html += r(i18n('extra.outside_paris') + ' ' + i18n('extra.round_trip_x2') + ' (' + extraA + ' km)', '+' + (extraA * 2) + ' €');
+      html += r(i18n('extra.outside_paris') + ' ' + i18n('extra.round_trip_x2') + ' (' + extraA + ' km)', '+' + (extraKmEur(extraA) * 2) + ' €');
     } else {
-      if (extraA > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.aller') + ' (' + extraA + ' km)', '+' + extraA + ' €');
-      if (extraR > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.retour') + ' (' + extraR + ' km)', '+' + extraR + ' €');
+      if (extraA > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.aller') + ' (' + extraA + ' km)', '+' + extraKmEur(extraA) + ' €');
+      if (extraR > 0) html += r(i18n('extra.outside_paris') + ' — ' + i18n('extra.retour') + ' (' + extraR + ' km)', '+' + extraKmEur(extraR) + ' €');
     }
     html += r(vehLabel, p.price + ' €', true);
   } else if (p.tab === 'm') {
@@ -2575,8 +2577,8 @@ function updateWizardVehiclePrices() {
     const extraAller = calcParisExtraKm(S.paddressCoord);
     const retCoord = pRound ? (S.preturnAddrCoord || S.paddressCoord) : null;
     const extraRetour = pRound ? calcParisExtraKm(retCoord) : 0;
-    vanPrice = (f.van + extraAller) + (pRound ? (f.van + extraRetour) : 0);
-    busPrice = (f.business + extraAller) + (pRound ? (f.business + extraRetour) : 0);
+    vanPrice = (f.van + extraKmEur(extraAller)) + (pRound ? (f.van + extraKmEur(extraRetour)) : 0);
+    busPrice = (f.business + extraKmEur(extraAller)) + (pRound ? (f.business + extraKmEur(extraRetour)) : 0);
   } else if (S.tab === 'm') {
     vanPrice = madHourlyPrice('van', S.mdur);
     busPrice = madHourlyPrice('business', S.mdur);
